@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../../store/useStore';
@@ -14,6 +14,7 @@ export function CustomerLayout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
@@ -56,7 +57,10 @@ export function CustomerLayout() {
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              onClick={() => setCurrentCustomerPage('home')}
+              onClick={() => {
+                setCurrentCustomerPage('home');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="flex items-center space-x-2 md:space-x-3 cursor-pointer group"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-600/30 group-hover:scale-110 transition-transform duration-500">
@@ -233,7 +237,10 @@ export function CustomerLayout() {
                       }}
                       className="text-slate-400 hover:text-white transition-colors flex items-center space-x-2 group"
                     >
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 scale-0 group-hover:scale-100 transition-transform" />
+                      <div className={cn(
+                        "w-1.5 h-1.5 rounded-full bg-emerald-500 transition-transform",
+                        currentCustomerPage === link.id ? "scale-100" : "scale-0 group-hover:scale-100"
+                      )} />
                       <span className="font-bold">{link.label}</span>
                     </button>
                   </li>
@@ -269,7 +276,7 @@ export function CustomerLayout() {
               <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">நிர்வாகி பகுதி</h4>
               <p className="text-slate-400 text-sm mb-6 font-medium">பொருட்களை நிர்வகிக்க உள்நுழையவும்.</p>
               <Link
-                to="/logesh-vivasayi/login"
+                to="/login"
                 className="inline-flex items-center space-x-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-sm hover:bg-white/10 transition-all group"
               >
                 <LogIn className="w-5 h-5 text-emerald-500" />

@@ -333,86 +333,86 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   </p>
                 </div>
               ) : isCheckingOut ? (
-                <div className="flex flex-col h-full bg-slate-50">
-                  <div className="p-8 bg-white border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
+                <div className="flex flex-col h-full bg-white">
+                  <div className="p-4 md:p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10 bg-white/80 backdrop-blur-md">
                     <div>
-                      <h2 className="text-2xl font-black text-slate-900 tracking-tight">செக்அவுட்</h2>
-                      <p className="text-xs text-slate-500 font-black uppercase tracking-widest mt-1">விநியோக விவரங்கள்</p>
+                      <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">செக்அவுட்</h2>
+                      <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mt-0.5">விநியோக விவரங்கள்</p>
                     </div>
                     <button 
                       onClick={() => setIsCheckingOut(false)}
-                      className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all"
+                      className="w-9 h-9 md:w-11 md:h-11 rounded-lg md:rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all"
                     >
-                      <ChevronRight className="w-6 h-6 rotate-180" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 rotate-180" />
                     </button>
                   </div>
 
-                  <form onSubmit={handlePlaceOrder} className="flex-1 overflow-y-auto p-8 space-y-8">
-                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-800 ml-1 uppercase tracking-widest">முழு பெயர்</label>
-                        <div className="relative">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <form onSubmit={handlePlaceOrder} className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 md:space-y-6">
+                    <div className="bg-slate-50 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 space-y-5">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">முழு பெயர்</label>
+                        <div className="relative group">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                           <input 
                             required
                             type="text" 
                             placeholder="உதாரணம்: லோகேஷ்"
                             value={customerDetails.name}
                             onChange={(e) => setCustomerDetails({...customerDetails, name: e.target.value})}
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
+                            className="w-full bg-white border border-slate-200 rounded-lg md:rounded-xl py-2.5 md:py-3.5 pl-11 pr-6 text-xs md:text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-800 ml-1 uppercase tracking-widest">தொலைபேசி எண்</label>
-                        <div className="relative">
-                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">தொலைபேசி எண்</label>
+                        <div className="relative group">
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                           <input 
                             required
                             type="tel" 
                             placeholder="+91 98765 43210"
                             value={customerDetails.phone}
                             onChange={(e) => setCustomerDetails({...customerDetails, phone: e.target.value})}
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
+                            className="w-full bg-white border border-slate-200 rounded-lg md:rounded-xl py-2.5 md:py-3.5 pl-11 pr-6 text-xs md:text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-slate-800 ml-1 uppercase tracking-widest">விநியோக முகவரி</label>
-                        <div className="relative">
-                          <MapPin className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">விநியோக முகவரி</label>
+                        <div className="relative group">
+                          <MapPin className="absolute left-4 top-4 w-3.5 h-3.5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                           <textarea 
                             required
-                            rows={3}
-                            placeholder="முழு முகவரி"
+                            rows={2}
+                            placeholder="உங்கள் முழு முகவரியை இங்கே உள்ளிடவும்..."
                             value={customerDetails.place}
                             onChange={(e) => setCustomerDetails({...customerDetails, place: e.target.value})}
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all resize-none font-medium"
+                            className="w-full bg-white border border-slate-200 rounded-lg md:rounded-xl py-2.5 md:py-3.5 pl-11 pr-6 text-xs md:text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all resize-none font-medium"
                           />
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-8 bg-emerald-600 rounded-[2.5rem] text-white shadow-2xl shadow-emerald-600/30 flex justify-between items-center overflow-hidden relative">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                    <div className="p-5 md:p-6 bg-emerald-600 rounded-[1.5rem] md:rounded-[2rem] text-white shadow-xl shadow-emerald-600/20 flex flex-col sm:flex-row justify-between items-start sm:items-center overflow-hidden relative gap-3">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                       <div className="relative z-10">
-                        <div className="text-xs font-black text-emerald-100 uppercase tracking-widest mb-2">மொத்த தொகை</div>
-                        <div className="text-4xl font-black">₹{cartTotal.toLocaleString()}</div>
+                        <div className="text-[9px] font-black text-emerald-100 uppercase tracking-widest mb-0.5">மொத்த தொகை</div>
+                        <div className="text-2xl md:text-3xl font-black">₹{cartTotal.toLocaleString()}</div>
                       </div>
-                      <div className="relative z-10 flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 text-xs font-black uppercase tracking-widest">
-                        <CheckCircle className="w-4 h-4" />
+                      <div className="relative z-10 flex items-center space-x-2 bg-white/20 backdrop-blur-md px-3 py-1 md:px-4 md:py-1.5 rounded-md md:rounded-lg border border-white/20 text-[9px] font-black uppercase tracking-widest">
+                        <CheckCircle className="w-3.5 h-3.5" />
                         <span>COD உண்டு</span>
                       </div>
                     </div>
                   </form>
 
-                  <div className="p-8 bg-white border-t border-slate-100 sticky bottom-0 z-10">
+                  <div className="p-4 md:p-6 bg-white border-t border-slate-100 sticky bottom-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                     <button 
                       disabled={isSubmitting}
                       onClick={handlePlaceOrder}
-                      className="w-full py-5 bg-slate-900 text-white font-black rounded-2xl flex items-center justify-center space-x-3 shadow-2xl shadow-slate-900/20 hover:bg-slate-800 transition-all disabled:opacity-70 active:scale-95 uppercase tracking-widest"
+                      className="w-full py-3.5 md:py-4 bg-slate-900 text-white font-black rounded-lg md:rounded-xl flex items-center justify-center space-x-3 shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all disabled:opacity-70 active:scale-95 uppercase tracking-widest text-[11px] md:text-sm"
                     >
                       {isSubmitting ? (
                         <>

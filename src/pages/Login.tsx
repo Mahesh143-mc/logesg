@@ -32,7 +32,7 @@ export function Login() {
   }, []);
 
   if (user) {
-    return <Navigate to="/logesh-vivasayi/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const handleCredentialAuth = async (e: any) => {
@@ -64,7 +64,7 @@ export function Login() {
           createdAt: serverTimestamp(),
         });
       }
-      navigate('/logesh-vivasayi/dashboard');
+      navigate('/');
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/configuration-not-found') {
@@ -103,7 +103,7 @@ export function Login() {
           createdAt: serverTimestamp(),
         });
       }
-      navigate('/logesh-vivasayi/dashboard');
+      navigate('/');
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/configuration-not-found') {
@@ -127,8 +127,7 @@ export function Login() {
 
       <button 
         onClick={() => {
-          setCurrentCustomerPage('home');
-          navigate('/logesh-vivasayi/home');
+          navigate('/');
         }}
         className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center space-x-2 text-sm font-semibold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors z-20 group"
       >

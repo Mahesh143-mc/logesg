@@ -52,7 +52,7 @@ export function Layout() {
   }
 
   if (!user) {
-    return <Navigate to="/logesh-vivasayi/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return (

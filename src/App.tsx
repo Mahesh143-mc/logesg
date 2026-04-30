@@ -5,6 +5,24 @@ import { CustomerLayout } from './components/customer/CustomerLayout';
 import { Login } from './pages/Login';
 import { ScrollToTop } from './components/ScrollToTop';
 import { useStore } from './store/useStore';
+import { useAuth } from './hooks/useAuth';
+
+function MainEntry() {
+  const { user } = useStore();
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white dark:bg-slate-950 transition-colors">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // If user is logged in, show Admin Layout at the root
+  // If not, show Customer Layout at the root
+  return user ? <Layout /> : <CustomerLayout />;
+}
 
 export default function App() {
   const { theme } = useStore();
@@ -21,28 +39,13 @@ export default function App() {
     <Router>
       <ScrollToTop />
       <Routes>
-        {/* Main Prefix Route */}
-        <Route path="logesh-vivasayi">
-          <Route path="home" element={<CustomerLayout />} />
-          <Route path="product" element={<CustomerLayout />} />
-          <Route path="contact" element={<CustomerLayout />} />
-          <Route path="login" element={<Login />} />
-          <Route path="dashboard" element={<Layout />} />
-          <Route path="products" element={<Layout />} />
-          <Route path="billing" element={<Layout />} />
-          <Route path="inventory" element={<Layout />} />
-          <Route path="customers" element={<Layout />} />
-          <Route path="reports" element={<Layout />} />
-          <Route path="order-history" element={<Layout />} />
-          <Route path="orders" element={<Layout />} />
-          <Route path="note" element={<Layout />} />
-          <Route path="expenses" element={<Layout />} />
-          <Route path="settings" element={<Layout />} />
-          <Route path="*" element={<Navigate to="home" replace />} />
-        </Route>
-
-        <Route path="/" element={<CustomerLayout />} />
+        {/* Single entry point for both Customer and Admin portals */}
+        <Route path="/" element={<MainEntry />} />
         
+        {/* Auth Route remains for login access */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Redirect everything else to root */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
