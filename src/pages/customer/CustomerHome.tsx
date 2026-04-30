@@ -130,30 +130,30 @@ export function CustomerHome() {
       </section>
 
       {/* Features with Scroll Animation */}
-      <section className="py-32 relative">
+      <section className="py-20 md:py-32 relative">
         <div className="absolute inset-0 bg-slate-50 -skew-y-3 origin-right -z-10" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-20">
-            <motion.h2
+          <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20">
+            <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-6"
+              className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4 md:mb-6"
             >
               ஏன் லோகேஷ் விவசாயி?
             </motion.h2>
-            <motion.p
+            <motion.p 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-slate-500 text-lg font-medium"
+              className="text-slate-500 text-base md:text-lg font-medium leading-relaxed"
             >
               நாங்கள் பாரம்பரிய விவசாய அறிவை நவீன தொழில்நுட்பத்துடன் இணைத்து சிறந்த அனுபவத்தை வழங்குகிறோம்.
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
             {features.map((feature, idx) => (
               <motion.div
                 key={idx}
@@ -161,13 +161,13 @@ export function CustomerHome() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.2, duration: 0.6 }}
-                className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgba(16,185,129,0.1)] transition-all duration-500 group"
+                className="bg-white rounded-3xl md:rounded-[3rem] p-8 md:p-10 border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgba(16,185,129,0.1)] transition-all duration-500 group"
               >
-                <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-8 transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-500">
-                  {React.cloneElement(feature.icon as React.ReactElement, { className: "w-10 h-10" })}
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-6 md:mb-8 transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-500">
+                  {React.cloneElement(feature.icon as React.ReactElement, { className: "w-8 h-8 md:w-10 md:h-10" })}
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-4">{feature.title}</h3>
-                <p className="text-slate-500 leading-relaxed font-medium">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4">{feature.title}</h3>
+                <p className="text-slate-500 text-sm md:text-base leading-relaxed font-medium">
                   {feature.desc}
                 </p>
               </motion.div>
@@ -177,14 +177,14 @@ export function CustomerHome() {
       </section>
 
       {/* Trust Section with Parallax Effect */}
-      <section className="py-32 bg-white overflow-hidden">
+      <section className="py-20 md:py-32 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-slate-900 rounded-[4rem] p-10 sm:p-20 relative overflow-hidden"
+            className="bg-slate-900 rounded-3xl md:rounded-[4rem] p-6 sm:p-12 lg:p-20 relative overflow-hidden"
           >
             {/* Mesh Gradient Overlay */}
             <div className="absolute inset-0 opacity-30">
@@ -196,15 +196,16 @@ export function CustomerHome() {
                 <div className="inline-flex px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black tracking-widest uppercase">
                   எங்கள் உறுதிப்பாடு
                 </div>
-                <h2 className="text-5xl md:text-7xl font-black text-white leading-[1] tracking-tighter">
-                  வெளிப்படையான <br />
-                  <span className="text-emerald-400">விவசாயம்.</span>
+                <h2 className="text-2xl sm:text-5xl md:text-7xl font-black text-white leading-tight md:leading-[1] tracking-tighter">
+                  வெளிப்படையான <span className="sm:hidden text-emerald-400">விவசாயம்.</span>
+                  <br className="hidden sm:block" />
+                  <span className="hidden sm:inline text-emerald-400">விவசாயம்.</span>
                 </h2>
-                <p className="text-slate-400 text-xl leading-relaxed font-medium">
+                <p className="text-slate-400 text-base md:text-xl leading-relaxed font-medium">
                   ஒவ்வொரு தயாரிப்பும் மண்ணின் ஆரோக்கியம் மற்றும் பல்லுயிர் பெருக்கத்திற்காக துல்லியமான கவனத்துடன் விளைவிக்கப்படுகிறது.
                 </p>
 
-                <div className="grid sm:grid-cols-2 gap-6">
+                <div className="grid sm:grid-cols-2 gap-4 md:gap-6">
                   {['இயற்கை மண்', 'பாரம்பரிய விதைகள்', 'பூச்சிக்கொல்லி இன்றி', 'நேரடி விநியோகம்'].map((item, i) => (
                     <motion.div
                       key={i}
@@ -212,28 +213,28 @@ export function CustomerHome() {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.1 }}
-                      className="flex items-center space-x-3 text-slate-100 font-bold bg-white/5 border border-white/10 p-4 rounded-2xl"
+                      className="flex items-center space-x-3 text-slate-100 font-bold bg-white/5 border border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl"
                     >
                       <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                      <span>{item}</span>
+                      <span className="text-sm md:text-base">{item}</span>
                     </motion.div>
                   ))}
                 </div>
               </div>
 
               <div className="relative">
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-2 gap-4 md:gap-8">
                   <motion.div
                     animate={{ y: [0, -20, 0] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative"
+                    className="aspect-[4/5] rounded-2xl md:rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative"
                   >
                     <img src="https://images.unsplash.com/photo-1595856754020-0081d06e2361?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </motion.div>
                   <motion.div
                     animate={{ y: [0, 20, 0] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                    className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative translate-y-12"
+                    className="aspect-[4/5] rounded-2xl md:rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative translate-y-8 md:translate-y-12"
                   >
                     <img src="https://images.unsplash.com/photo-1592681890670-8bf1952d7e4b?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </motion.div>
@@ -245,23 +246,23 @@ export function CustomerHome() {
       </section>
 
       {/* Farm Gallery Section */}
-      <section className="py-32 bg-slate-50 relative overflow-hidden">
+      <section className="py-20 md:py-32 bg-slate-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-20">
-            <motion.h2
+          <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20">
+            <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6"
+              className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter mb-4 md:mb-6"
             >
               எங்கள் <span className="text-emerald-600">பண்ணை கேலரி</span>
             </motion.h2>
-            <p className="text-slate-500 text-lg font-medium leading-relaxed">
+            <p className="text-slate-500 text-base md:text-lg font-medium leading-relaxed">
               இயற்கையின் அழகையும் எங்கள் கடின உழைப்பையும் இங்கே காணலாம். தூய்மையான விவசாயத்தின் சில காட்சிகள்.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
             {[
               { url: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=800&auto=format&fit=crop', title: 'பசுமையான வயல்' },
               { url: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?q=80&w=800&auto=format&fit=crop', title: 'இயற்கை அறுவடை' },
@@ -276,7 +277,7 @@ export function CustomerHome() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group relative aspect-square rounded-[2rem] overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500"
+                className="group relative aspect-square rounded-2xl md:rounded-[2rem] overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500"
               >
                 <img
                   src={img.url}

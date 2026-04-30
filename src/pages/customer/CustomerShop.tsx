@@ -12,6 +12,7 @@ interface Product {
   category: string;
   price: number;
   stock: number;
+  unit?: string;
   imageUrl?: string;
   description?: string;
 }
@@ -25,10 +26,9 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
-    name: '',
-    phone: '',
     place: ''
   });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart, isCartOpen, setCartOpen } = useStore();
 
@@ -125,40 +125,38 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
         />
       </div>
 
-      {/* Header & Filters */}
-      <div className="bg-white/70 backdrop-blur-2xl border-b border-slate-100 sticky top-[80px] z-30 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            {/* Category Pills */}
-            <div className="flex items-center space-x-3 overflow-x-auto no-scrollbar w-full sm:w-auto pb-2 sm:pb-0">
-              {categories.map((cat) => (
-                <motion.button
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-6 py-2.5 rounded-2xl text-sm font-black whitespace-nowrap transition-all duration-300 ${
-                    selectedCategory === cat 
-                      ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-600/20' 
-                      : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'
-                  }`}
-                >
-                  {cat}
-                </motion.button>
-              ))}
-            </div>
-            
-            {/* Search */}
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      {/* Header & Filters Section */}
+      <div className="bg-white/90 backdrop-blur-3xl border-b border-slate-100 sticky top-14 md:top-[76px] z-30 transition-all duration-300 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-6">
+          <div className="flex items-center gap-3">
+            {/* Search Box */}
+            <div className="relative flex-1 group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+              </div>
               <input 
                 type="text"
                 placeholder="பொருட்களைத் தேடுக..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all shadow-sm font-medium"
+                className="w-full pl-11 pr-4 py-3 md:py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all shadow-sm font-medium"
               />
             </div>
+
+            {/* Filter Toggle Button */}
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              className={cn(
+                "flex items-center space-x-2 px-4 md:px-6 py-3 md:py-4 rounded-2xl border transition-all duration-300 font-black text-[10px] md:text-xs uppercase tracking-widest flex-shrink-0",
+                selectedCategory !== 'அனைத்தும்'
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-600/20"
+                  : "bg-white text-slate-900 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+              )}
+            >
+              <Leaf className={cn("w-4 h-4", selectedCategory !== 'அனைத்தும்' ? "text-white" : "text-emerald-600")} />
+              <span className="hidden sm:inline">வகை: </span>
+              <span className="max-w-[80px] sm:max-w-none truncate">{selectedCategory}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -184,7 +182,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
         </header>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, idx) => (
               <motion.div
@@ -194,10 +192,10 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.5, delay: idx * 0.05 }}
-                className="bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:border-emerald-200 hover:shadow-[0_30px_60px_rgba(16,185,129,0.12)] transition-all duration-500 group flex flex-col"
+                className="bg-white rounded-3xl md:rounded-[2.5rem] overflow-hidden border border-slate-100 hover:border-emerald-200 hover:shadow-[0_30px_60px_rgba(16,185,129,0.12)] transition-all duration-500 group flex flex-col"
               >
                 <div 
-                  className="aspect-square relative cursor-pointer overflow-hidden bg-slate-50 p-8 flex items-center justify-center"
+                  className="aspect-[4/3] sm:aspect-square relative cursor-pointer overflow-hidden bg-slate-50 p-6 md:p-8 flex items-center justify-center"
                   onClick={() => setSelectedProduct(product)}
                 >
                   <img 
@@ -206,8 +204,8 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                     className="w-full h-full object-contain transition-transform duration-1000 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-6 left-6">
-                    <span className="px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black text-emerald-700 uppercase tracking-widest border border-white shadow-sm">
+                  <div className="absolute top-4 left-4 md:top-6 md:left-6">
+                    <span className="px-3 py-1 md:px-4 md:py-1.5 bg-white/90 backdrop-blur-md rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black text-emerald-700 uppercase tracking-widest border border-white shadow-sm">
                       {product.category || 'பொதுவானவை'}
                     </span>
                   </div>
@@ -220,12 +218,15 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   )}
                 </div>
 
-                <div className="p-8 flex flex-col flex-1">
-                  <div className="mb-4">
-                    <h3 className="text-xl font-black text-slate-900 tracking-tight line-clamp-1">{product.name}</h3>
-                    <p className="text-2xl font-black text-emerald-600 mt-2">₹{product.price.toLocaleString()}</p>
+                <div className="p-4 md:p-8 flex flex-col flex-1">
+                  <div className="mb-3 md:mb-4">
+                    <h3 className="text-sm md:text-xl font-black text-slate-900 tracking-tight line-clamp-1">{product.name}</h3>
+                    <div className="flex items-baseline space-x-1 mt-0.5 md:mt-2">
+                      <span className="text-lg md:text-2xl font-black text-emerald-600">₹{product.price.toLocaleString()}</span>
+                      <span className="text-[10px] md:text-sm font-bold text-slate-400">/ {product.unit || '1kg'}</span>
+                    </div>
                   </div>
-                  <p className="text-slate-500 text-sm mb-8 line-clamp-2 leading-relaxed flex-1 font-medium">
+                  <p className="text-slate-500 text-[10px] md:text-sm mb-4 md:mb-8 line-clamp-2 leading-relaxed flex-1 font-medium">
                     {product.description || 'மிகவும் கவனத்துடன் விளைவிக்கப்பட்ட பிரீமியம் தரமான தயாரிப்பு.'}
                   </p>
                   
@@ -234,14 +235,14 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                     disabled={product.stock <= 0}
                     onClick={() => addToCart({ ...product, quantity: 1 })}
                     className={cn(
-                      "w-full py-4 rounded-2xl font-black flex items-center justify-center space-x-2 transition-all text-sm uppercase tracking-widest",
+                      "w-full py-2.5 md:py-4 rounded-xl md:rounded-2xl font-black flex items-center justify-center space-x-1 md:space-x-2 transition-all text-[10px] md:text-sm uppercase tracking-widest",
                       product.stock <= 0 
                         ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
                         : "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-100 hover:border-emerald-600 shadow-sm"
                     )}
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>{product.stock <= 0 ? 'இருப்பு இல்லை' : 'கூடையில் சேர்க்க'}</span>
+                    <Plus className="w-3 h-3 md:w-4 md:h-4" />
+                    <span>{product.stock <= 0 ? 'இல்லை' : 'சேர்க்க'}</span>
                   </motion.button>
                 </div>
               </motion.div>
@@ -273,7 +274,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
         whileHover={{ scale: 1.05, y: -5 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setCartOpen(true)}
-        className="fixed bottom-10 right-10 z-40 bg-slate-900 text-white p-5 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center space-x-4 border border-white/10 group"
+        className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-40 bg-slate-900 text-white p-4 md:p-5 rounded-2xl md:rounded-[2rem] shadow-2xl flex items-center space-x-3 md:space-x-4 border border-white/10 group"
       >
         <div className="relative">
           <ShoppingBag className="w-7 h-7" />
@@ -307,14 +308,14 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   setIsCheckingOut(false);
                 }
               }}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60]"
+              className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-[150]"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 h-full w-full max-w-lg bg-white z-[70] shadow-[0_0_100px_rgba(0,0,0,0.2)] flex flex-col"
+              className="fixed right-0 top-0 h-full w-full max-w-lg bg-white z-[160] shadow-[0_0_100px_rgba(0,0,0,0.2)] flex flex-col"
             >
               {/* Checkout Success */}
               {isOrderPlaced ? (
@@ -428,29 +429,29 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col h-full bg-slate-50">
-                  <div className="p-8 bg-white border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
+                <div className="flex flex-col h-full bg-white">
+                  <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10 bg-white/80 backdrop-blur-md">
                     <div>
-                      <h2 className="text-2xl font-black text-slate-900 tracking-tight">உங்கள் கூடை</h2>
-                      <p className="text-xs text-slate-500 font-black uppercase tracking-widest mt-1">{cart.length} பொருட்கள்</p>
+                      <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">உங்கள் கூடை</h2>
+                      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">{cart.length} பொருட்கள்</p>
                     </div>
                     <button 
                       onClick={() => setCartOpen(false)}
-                      className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all"
+                      className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all"
                     >
-                      <X className="w-6 h-6" />
+                      <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
                     {cart.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-center space-y-6 py-20">
-                        <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center text-slate-200 border border-slate-100 shadow-sm">
-                          <ShoppingCart className="w-10 h-10" />
+                        <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-300 border border-slate-100">
+                          <ShoppingCart className="w-8 h-8 md:w-10 md:h-10" />
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-2xl font-black text-slate-900 tracking-tight">கூடை காலியாக உள்ளது</p>
-                          <p className="text-slate-500 font-medium">நீங்கள் இன்னும் எதையும் சேர்க்கவில்லை.</p>
+                        <div className="space-y-2 px-6">
+                          <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">கூடை காலியாக உள்ளது</p>
+                          <p className="text-sm text-slate-500 font-medium">நீங்கள் இன்னும் எதையும் சேர்க்கவில்லை.</p>
                         </div>
                         <button 
                           onClick={() => setCartOpen(false)}
@@ -464,29 +465,29 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                         <motion.div 
                           layout
                           key={item.id} 
-                          className="flex bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-x-6 group"
+                          className="flex bg-white p-3 md:p-4 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-x-4 group"
                         >
-                          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-slate-50 flex-shrink-0 p-4">
+                          <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-slate-50 border border-slate-50 flex-shrink-0 p-2 md:p-4">
                             <img src={item.imageUrl || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
                           </div>
-                          <div className="flex-1 flex flex-col justify-between py-1">
+                          <div className="flex-1 flex flex-col justify-between py-0.5">
                             <div className="flex justify-between items-start">
-                              <h4 className="font-black text-slate-900 text-lg line-clamp-1 tracking-tight">{item.name}</h4>
-                              <button onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-xl">
-                                <X className="w-5 h-5" />
+                              <h4 className="font-black text-slate-900 text-sm md:text-lg line-clamp-1 tracking-tight pr-2">{item.name}</h4>
+                              <button onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
+                                <X className="w-4 h-4" />
                               </button>
                             </div>
-                            <div className="flex justify-between items-end">
-                              <div className="flex items-center space-x-4 bg-slate-50 rounded-xl p-1.5 border border-slate-100">
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity - 1)} className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:border-emerald-200 shadow-sm transition-colors">
-                                  <Minus className="w-3 h-3" />
+                            <div className="flex justify-between items-center mt-2">
+                              <div className="flex items-center space-x-3 bg-slate-50 rounded-lg p-1 border border-slate-100">
+                                <button onClick={() => updateCartQuantity(item.id, item.quantity - 1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
+                                  <Minus className="w-2.5 h-2.5" />
                                 </button>
-                                <span className="text-sm font-black text-slate-900 w-4 text-center">{item.quantity}</span>
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity + 1)} className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:border-emerald-200 shadow-sm transition-colors">
-                                  <Plus className="w-3 h-3" />
+                                <span className="text-xs font-black text-slate-900 w-4 text-center">{item.quantity}</span>
+                                <button onClick={() => updateCartQuantity(item.id, item.quantity + 1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
+                                  <Plus className="w-2.5 h-2.5" />
                                 </button>
                               </div>
-                              <p className="font-black text-emerald-600 text-xl">₹{(item.price * item.quantity).toLocaleString()}</p>
+                              <p className="font-black text-emerald-600 text-base md:text-xl">₹{(item.price * item.quantity).toLocaleString()}</p>
                             </div>
                           </div>
                         </motion.div>
@@ -495,17 +496,17 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   </div>
 
                   {cart.length > 0 && (
-                    <div className="p-8 bg-white border-t border-slate-100 sticky bottom-0 z-10">
-                      <div className="flex justify-between items-center mb-8">
-                        <span className="text-sm font-black text-slate-400 uppercase tracking-widest">மொத்தம்</span>
-                        <span className="text-3xl font-black text-slate-900 tracking-tighter">₹{cartTotal.toLocaleString()}</span>
+                    <div className="p-6 md:p-8 bg-white border-t border-slate-100 sticky bottom-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
+                      <div className="flex justify-between items-center mb-6">
+                        <span className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">மொத்தம்</span>
+                        <span className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">₹{cartTotal.toLocaleString()}</span>
                       </div>
                       <button 
                         onClick={() => setIsCheckingOut(true)}
-                        className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black flex items-center justify-center space-x-3 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all active:scale-95 uppercase tracking-widest"
+                        className="w-full py-4 md:py-5 bg-emerald-600 text-white rounded-xl md:rounded-2xl font-black flex items-center justify-center space-x-3 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all active:scale-95 uppercase tracking-widest text-sm md:text-base"
                       >
                         <span>செக்அவுட்</span>
-                        <ChevronRight className="w-6 h-6" />
+                        <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                       </button>
                     </div>
                   )}
@@ -516,10 +517,84 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
         )}
       </AnimatePresence>
 
+      {/* Category Selection Modal */}
+      <AnimatePresence>
+        {isFilterOpen && (
+          <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsFilterOpen(false)}
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-2xl bg-white rounded-t-[2.5rem] sm:rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]"
+            >
+              <div className="p-4 md:p-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                <div>
+                  <h3 className="text-base md:text-lg font-black text-slate-900 tracking-tight">வகை வாரியாக</h3>
+                  <p className="text-[8px] md:text-[9px] text-slate-500 font-black uppercase tracking-widest mt-0.5">மொத்தம் {categories.length} வகைகள்</p>
+                </div>
+                <button 
+                  onClick={() => setIsFilterOpen(false)}
+                  className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 md:p-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 md:gap-2">
+                  {categories.map((cat) => (
+                    <motion.button
+                      key={cat}
+                      whileHover={{ x: 2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setIsFilterOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center p-2 rounded-lg md:rounded-xl border transition-all duration-300 space-x-2.5",
+                        selectedCategory === cat
+                          ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/10"
+                          : "bg-slate-50 text-slate-600 border-slate-100 hover:border-emerald-200 hover:bg-white"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-7 h-7 rounded-md flex items-center justify-center shadow-sm flex-shrink-0",
+                        selectedCategory === cat ? "bg-white/20 text-white" : "bg-white text-emerald-600 border border-slate-100"
+                      )}>
+                        <Leaf className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[10px] md:text-xs font-black uppercase tracking-tight truncate">{cat}</span>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 md:p-5 bg-slate-50 border-t border-slate-100">
+                <button 
+                  onClick={() => setIsFilterOpen(false)}
+                  className="w-full py-3 bg-slate-900 text-white rounded-lg md:rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-slate-900/5 hover:bg-slate-800 transition-all"
+                >
+                  மூடு
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Product Detail Modal */}
       <AnimatePresence>
         {selectedProduct && (
-          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-10">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-10">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -531,9 +606,17 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-[3.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row"
+              className="relative w-full max-w-4xl h-auto md:h-[65vh] max-h-[85vh] bg-white rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row"
             >
-              <div className="md:w-1/2 h-80 md:h-auto bg-slate-50 relative border-b md:border-b-0 md:border-r border-slate-100 p-12 flex items-center justify-center">
+              {/* Close Button - Moved to absolute top-right for mobile visibility */}
+              <button 
+                onClick={() => setSelectedProduct(null)} 
+                className="absolute top-4 right-4 md:top-8 md:right-8 z-20 p-3 bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl text-slate-900 shadow-xl hover:bg-white transition-all active:scale-95"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="md:w-1/2 h-56 md:h-auto bg-slate-50 relative border-b md:border-b-0 md:border-r border-slate-100 p-6 md:p-10 flex items-center justify-center">
                 <motion.img 
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -542,55 +625,57 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   className="w-full h-full object-contain mix-blend-multiply drop-shadow-2xl" 
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute top-10 left-10">
-                  <span className="px-5 py-2 bg-white rounded-2xl text-xs font-black text-emerald-700 uppercase tracking-widest shadow-sm border border-slate-100">
+                <div className="absolute top-6 left-6 md:top-8 md:left-8">
+                  <span className="px-4 py-1.5 md:px-5 md:py-2 bg-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black text-emerald-700 uppercase tracking-widest shadow-sm border border-slate-100">
                     {selectedProduct.category}
                   </span>
                 </div>
               </div>
               
-              <div className="md:w-1/2 p-12 md:p-16 flex flex-col overflow-y-auto">
-                <div className="flex justify-between items-start mb-8">
-                  <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-tight pr-4">{selectedProduct.name}</h2>
-                  <button onClick={() => setSelectedProduct(null)} className="p-3 bg-slate-100 rounded-2xl text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors">
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-                
-                <div className="flex items-baseline space-x-4 mb-10">
-                  <span className="text-5xl font-black text-emerald-600 tracking-tighter">₹{selectedProduct.price.toLocaleString()}</span>
-                  <span className="text-xs font-black text-emerald-700 px-4 py-1.5 bg-emerald-50 rounded-xl uppercase tracking-widest border border-emerald-100">
-                    {selectedProduct.stock > 0 ? 'இருப்பில் உள்ளது' : 'இருப்பு இல்லை'}
-                  </span>
-                </div>
-                
-                <div className="flex-1 space-y-10">
-                  <div>
-                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-4">விளக்கம்</h4>
-                    <p className="text-slate-500 leading-relaxed text-lg font-medium">
-                      {selectedProduct.description || 'மிகவும் கவனத்துடன் விளைவிக்கப்பட்ட பிரீமியம் தரமான தயாரிப்பு. எங்களின் நேரடி பண்ணைகளில் இருந்து இயற்கையான முறையில் வளர்க்கப்பட்டது.'}
-                    </p>
+              <div className="md:w-1/2 flex flex-col h-full overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-6 md:p-10">
+                  <div className="flex justify-between items-start mb-4 md:mb-5">
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter leading-tight pr-4">{selectedProduct.name}</h2>
                   </div>
                   
-                  <div className="grid grid-cols-1 gap-4">
-                    {[
-                      { title: 'தரம் உறுதி செய்யப்பட்டது', desc: 'புத்துணர்ச்சி மற்றும் தூய்மைக்காக சோதிக்கப்பட்டது' },
-                      { title: '100% இயற்கை', desc: 'இரசாயன உரங்கள் இன்றி விளைவிக்கப்பட்டது' }
-                    ].map((feat, i) => (
-                      <div key={i} className="flex items-center space-x-5 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 flex-shrink-0">
-                          <CheckCircle className="w-6 h-6" />
+                  <div className="flex items-center space-x-4 mb-5 md:mb-6">
+                    <div className="flex items-baseline space-x-1.5">
+                      <span className="text-3xl md:text-4xl font-black text-emerald-600 tracking-tighter">₹{selectedProduct.price.toLocaleString()}</span>
+                      <span className="text-sm md:text-base font-bold text-slate-400">/ {selectedProduct.unit || '1kg'}</span>
+                    </div>
+                    <span className="text-[10px] md:text-xs font-black text-emerald-700 px-3 py-1 md:px-4 md:py-1.5 bg-emerald-50 rounded-lg md:rounded-xl uppercase tracking-widest border border-emerald-100">
+                      {selectedProduct.stock > 0 ? 'இருப்பில் உள்ளது' : 'இருப்பு இல்லை'}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-8">
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3">விளக்கம்</h4>
+                      <p className="text-slate-500 leading-relaxed text-base md:text-lg font-medium">
+                        {selectedProduct.description || 'மிகவும் கவனத்துடன் விளைவிக்கப்பட்ட பிரீமியம் தரமான தயாரிப்பு. எங்களின் நேரடி பண்ணைகளில் இருந்து இயற்கையான முறையில் வளர்க்கப்பட்டது.'}
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-3">
+                      {[
+                        { title: 'தரம் உறுதி செய்யப்பட்டது', desc: 'புத்துணர்ச்சி மற்றும் தூய்மைக்காக சோதிக்கப்பட்டது' },
+                        { title: '100% இயற்கை', desc: 'இரசாயன உரங்கள் இன்றி விளைவிக்கப்பட்டது' }
+                      ].map((feat, i) => (
+                        <div key={i} className="flex items-center space-x-4 p-5 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100">
+                          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 flex-shrink-0">
+                            <CheckCircle className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h5 className="text-sm font-black text-slate-900 uppercase tracking-widest">{feat.title}</h5>
+                            <p className="text-xs text-slate-500 mt-1 font-medium">{feat.desc}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h5 className="text-sm font-black text-slate-900 uppercase tracking-widest">{feat.title}</h5>
-                          <p className="text-xs text-slate-500 mt-1 font-medium">{feat.desc}</p>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-12 pt-10 border-t border-slate-100">
+                <div className="p-6 md:p-8 bg-white border-t border-slate-100 sticky bottom-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                   <motion.button
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
@@ -600,9 +685,9 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                       setSelectedProduct(null);
                       setCartOpen(true);
                     }}
-                    className="w-full py-6 bg-emerald-600 text-white rounded-3xl font-black flex items-center justify-center space-x-4 shadow-2xl shadow-emerald-600/40 hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:grayscale uppercase tracking-widest text-lg"
+                    className="w-full py-4 md:py-5 bg-emerald-600 text-white rounded-xl md:rounded-2xl font-black flex items-center justify-center space-x-3 md:space-x-4 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:grayscale uppercase tracking-widest text-sm md:text-base"
                   >
-                    <ShoppingCart className="w-6 h-6" />
+                    <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" />
                     <span>{selectedProduct.stock > 0 ? 'கூடையில் சேர்க்க' : 'இருப்பு இல்லை'}</span>
                   </motion.button>
                 </div>

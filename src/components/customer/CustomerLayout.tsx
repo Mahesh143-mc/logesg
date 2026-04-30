@@ -46,8 +46,8 @@ export function CustomerLayout() {
         className={cn(
           "fixed top-0 inset-x-0 z-[100] transition-all duration-500",
           scrolled 
-            ? "py-3 bg-slate-900/95 backdrop-blur-2xl border-b border-white/5 shadow-2xl" 
-            : "py-4 bg-slate-900/80 backdrop-blur-lg"
+            ? "py-2 md:py-3 bg-slate-900/95 backdrop-blur-2xl border-b border-white/5 shadow-2xl" 
+            : "py-3 md:py-4 bg-slate-900/80 backdrop-blur-lg"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,14 +57,14 @@ export function CustomerLayout() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               onClick={() => setCurrentCustomerPage('home')}
-              className="flex items-center space-x-3 cursor-pointer group"
+              className="flex items-center space-x-2 md:space-x-3 cursor-pointer group"
             >
-              <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-600/30 group-hover:scale-110 transition-transform duration-500">
-                <Sprout className="w-7 h-7 text-white" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-600/30 group-hover:scale-110 transition-transform duration-500">
+                <Sprout className="w-5 h-5 md:w-7 md:h-7 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-black text-white tracking-tighter leading-none">லோகேஷ்</span>
-                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mt-1">விவசாயி</span>
+                <span className="text-lg md:text-xl font-black text-white tracking-tighter leading-none">லோகேஷ்</span>
+                <span className="text-[8px] md:text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mt-0.5 md:mt-1">விவசாயி</span>
               </div>
             </motion.div>
 
@@ -93,16 +93,16 @@ export function CustomerLayout() {
             </div>
 
             {/* Right Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCartOpen(true)}
-                className="relative w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-sm group"
+                className="relative w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-sm group"
               >
-                <ShoppingBag className="w-5 h-5 group-hover:animate-bounce" />
+                <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 group-hover:animate-bounce" />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-emerald-600 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-slate-900 shadow-lg">
+                  <span className="absolute -top-1.5 -right-1.5 md:-top-2 md:-right-2 w-4 h-4 md:w-5 md:h-5 bg-emerald-600 text-white text-[8px] md:text-[10px] font-black rounded-full flex items-center justify-center border-2 border-slate-900 shadow-lg">
                     {cartItemCount}
                   </span>
                 )}
@@ -110,9 +110,9 @@ export function CustomerLayout() {
 
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-600/20"
+                className="lg:hidden w-10 h-10 md:w-12 md:h-12 bg-emerald-600 text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-600/20"
               >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isMenuOpen ? <X className="w-5 h-5 md:w-6 md:h-6" /> : <Menu className="w-5 h-5 md:w-6 md:h-6" />}
               </button>
             </div>
           </div>
@@ -134,9 +134,9 @@ export function CustomerLayout() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="fixed inset-x-0 top-0 pt-32 pb-12 bg-slate-900/95 backdrop-blur-2xl z-[90] border-b border-white/5 lg:hidden shadow-2xl"
+              className="fixed inset-x-0 top-0 pt-20 pb-6 bg-slate-900/98 backdrop-blur-3xl z-[90] border-b border-white/10 lg:hidden shadow-2xl"
             >
-              <div className="px-4 space-y-4">
+              <div className="px-4 space-y-3">
                 {navLinks.map((link) => (
                   <button
                     key={link.id}
@@ -146,25 +146,25 @@ export function CustomerLayout() {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className={cn(
-                      "w-full p-6 rounded-3xl text-left flex items-center justify-between transition-all group",
+                      "w-full p-4 rounded-2xl text-left flex items-center justify-between transition-all group",
                       currentCustomerPage === link.id
-                        ? "bg-emerald-600 text-white shadow-2xl shadow-emerald-600/30"
+                        ? "bg-emerald-600 text-white shadow-xl shadow-emerald-600/30"
                         : "bg-white/5 text-slate-300 hover:bg-white/10"
                     )}
                   >
                     <div className="flex items-center space-x-4">
                       <div className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center",
+                        "w-10 h-10 rounded-xl flex items-center justify-center",
                         currentCustomerPage === link.id ? "bg-white/20" : "bg-white/10 shadow-sm"
                       )}>
                         {React.cloneElement(link.icon as React.ReactElement, { 
-                          className: cn("w-6 h-6", currentCustomerPage === link.id ? "text-white" : "text-emerald-400") 
+                          className: cn("w-5 h-5", currentCustomerPage === link.id ? "text-white" : "text-emerald-400") 
                         })}
                       </div>
-                      <span className="text-xl font-black">{link.label}</span>
+                      <span className="text-lg font-black">{link.label}</span>
                     </div>
                     <ChevronRight className={cn(
-                      "w-6 h-6 transition-transform group-hover:translate-x-1",
+                      "w-5 h-5 transition-transform group-hover:translate-x-1",
                       currentCustomerPage === link.id ? "text-white/50" : "text-slate-600"
                     )} />
                   </button>

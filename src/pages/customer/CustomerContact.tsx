@@ -29,11 +29,11 @@ export function CustomerContact() {
           />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 md:space-y-6">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white border border-emerald-100 shadow-sm text-xs font-black text-emerald-700 uppercase tracking-widest"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white border border-emerald-100 shadow-sm text-[10px] md:text-xs font-black text-emerald-700 uppercase tracking-widest"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>ஆதரவு மற்றும் விற்பனை</span>
@@ -43,7 +43,7 @@ export function CustomerContact() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, cubicBezier: [0.16, 1, 0.3, 1] }}
-            className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-tight"
+            className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[1.1] md:leading-tight"
           >
             எங்களைத் தொடர்பு <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500">கொள்க.</span>
@@ -53,7 +53,7 @@ export function CustomerContact() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-slate-500 text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed font-medium"
+            className="text-slate-500 text-base md:text-2xl max-w-2xl mx-auto leading-relaxed font-medium"
           >
             எங்கள் பண்ணை தயாரிப்புகள் அல்லது இயற்கை முறைகளைப் பற்றி ஏதேனும் கேள்விகள் உள்ளதா? எங்களைத் தொடர்பு கொள்ளவும்.
           </motion.p>
@@ -69,17 +69,17 @@ export function CustomerContact() {
         >
           
           {/* Contact Info */}
-          <div className="lg:w-2/5 bg-slate-900 p-12 lg:p-20 text-white flex flex-col justify-between relative overflow-hidden">
+          <div className="lg:w-2/5 bg-slate-900 p-8 md:p-12 lg:p-20 text-white flex flex-col justify-between relative overflow-hidden">
             {/* Abstract Background Element */}
             <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
             
             <div className="relative z-10">
-              <h2 className="text-4xl font-black mb-6 tracking-tight">தொடர்பு விவரங்கள்</h2>
-              <p className="text-slate-400 text-lg leading-relaxed mb-16">
+              <h2 className="text-3xl md:text-4xl font-black mb-4 md:mb-6 tracking-tight">தொடர்பு விவரங்கள்</h2>
+              <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-10 md:mb-16 font-medium">
                 படிவத்தைப் பூர்த்தி செய்யவும், எங்கள் குழு 24 மணி நேரத்திற்குள் உங்களைத் தொடர்பு கொள்ளும்.
               </p>
 
-              <div className="space-y-10">
+              <div className="space-y-6 md:space-y-10">
                 {[
                   { icon: <Phone />, label: "விற்பனை மற்றும் ஆதரவு", val: "+91 98765 43210" },
                   { icon: <Mail />, label: "மின்னஞ்சல் அனுப்புங்கள்", val: "hello@vivasayi.com" },
@@ -88,14 +88,14 @@ export function CustomerContact() {
                   <motion.div 
                     key={i}
                     whileHover={{ x: 10 }}
-                    className="flex items-center space-x-6 group cursor-pointer"
+                    className="flex items-center space-x-4 md:space-x-6 group cursor-pointer"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-emerald-600 group-hover:border-emerald-500 transition-all duration-300">
-                      {React.cloneElement(item.icon as React.ReactElement, { className: "w-6 h-6 text-emerald-400 group-hover:text-white" })}
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-emerald-600 group-hover:border-emerald-500 transition-all duration-300">
+                      {React.cloneElement(item.icon as React.ReactElement, { className: "w-5 h-5 md:w-6 md:h-6 text-emerald-400 group-hover:text-white" })}
                     </div>
                     <div>
-                      <div className="text-xs text-slate-500 font-black uppercase tracking-widest">{item.label}</div>
-                      <div className="text-xl font-bold mt-1">{item.val}</div>
+                      <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{item.label}</div>
+                      <div className="text-lg md:text-xl font-bold mt-1">{item.val}</div>
                     </div>
                   </motion.div>
                 ))}
