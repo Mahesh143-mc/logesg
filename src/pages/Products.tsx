@@ -1,7 +1,7 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Plus, Search, Edit2, Trash2, QrCode, X, Upload, CheckCircle2, Package, LayoutGrid, AlertTriangle, Scale, Printer } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, QrCode, X, Upload, CheckCircle2, Package, LayoutGrid, AlertTriangle, Scale, Printer, Download } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '../lib/utils';
@@ -11,6 +11,7 @@ import { Cloudinary } from '@cloudinary/url-gen';
 import { auto } from '@cloudinary/url-gen/actions/resize';
 import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
 import { AdvancedImage } from '@cloudinary/react';
+import * as XLSX from 'xlsx';
 
 const CLOUDINARY_CLOUD_NAME = 'dkt1z4j0r';
 const CLOUDINARY_API_KEY = '349418798425359';
@@ -42,6 +43,7 @@ export function Products() {
 
   const [formData, setFormData] = useState({
     name: '',
+    description: '',
     category: '',
     price: 0,
     costPrice: 0,
@@ -201,7 +203,7 @@ export function Products() {
       }
       
       setEditingProduct(null);
-      setFormData({ name: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '' });
+      setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '' });
       setImageFile(null);
       setImagePreview(null);
     } catch (err: any) {
@@ -312,48 +314,25 @@ export function Products() {
 
   const pagedProducts = filteredProducts.slice(0, rowsPerPage);
 
-  const printProductList = () => {
-    const doc = new (window as any).jsPDF();
+  const exportToExcel = () => {
+    const headers = ['Product ID', 'Name', 'Description', 'Category', 'Selling Price', 'Total Stock', 'Low Stock Alert', 'Unit'];
     
-    // Header
-    doc.setFontSize(20);
-    doc.setTextColor(79, 70, 229); // indigo-600
-    doc.text('PRODUCT INVENTORY', 105, 20, { align: 'center' });
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Date: ${new Date().toLocaleString()}`, 105, 30, { align: 'center' });
-
-    // Items Table
-    const tableData = filteredProducts.map((item: any, index: number) => [
-      index + 1,
-      item.name,
-      item.category || 'N/A',
-      `INR ${item.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      `${item.stock} ${item.unit || 'pcs'}`,
-      item.stock <= (item.lowStockThreshold || 5) ? 'Low Stock' : 'In Stock'
+    const rows = filteredProducts.map((p: any) => [
+      p.id,
+      p.name,
+      p.description || '',
+      p.category || 'N/A',
+      p.price,
+      p.stock,
+      p.lowStockThreshold || 5,
+      p.unit || 'pcs'
     ]);
 
-    autoTable(doc, {
-      startY: 40,
-      head: [['#', 'Product Name', 'Category', 'Price', 'Stock', 'Status']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [79, 70, 229] },
-      didParseCell: function(data: any) {
-        if (data.section === 'body' && data.column.index === 5) {
-          if (data.cell.raw === 'Low Stock') {
-            data.cell.styles.textColor = [220, 38, 38];
-          } else {
-            data.cell.styles.textColor = [5, 150, 105];
-          }
-        }
-      }
-    });
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
 
-    doc.autoPrint();
-    const pdfUrl = doc.output('bloburl');
-    window.open(pdfUrl, '_blank');
+    XLSX.writeFile(workbook, `products_export_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -368,11 +347,11 @@ export function Products() {
         
         <div className="flex flex-col sm:flex-row gap-3">
           <button
-            onClick={printProductList}
+            onClick={exportToExcel}
             className="h-11 px-4 flex items-center justify-center space-x-2 rounded-xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm text-sm font-semibold whitespace-nowrap outline-none"
           >
-            <Printer className="h-4 w-4" />
-            <span className="hidden lg:inline">Print</span>
+            <Download className="h-4 w-4" />
+            <span className="hidden lg:inline">Export Excel</span>
           </button>
           <button
             onClick={() => setIsUnitModalOpen(true)}
@@ -393,6 +372,7 @@ export function Products() {
               setEditingProduct(null);
               setFormData({ 
                 name: '', 
+                description: '',
                 category: categories.length > 0 ? categories[0].name : '', 
                 price: 0, 
                 costPrice: 0, 
@@ -470,6 +450,7 @@ export function Products() {
                     setEditingProduct(product);
                     setFormData({
                       name: product.name,
+                      description: product.description || '',
                       category: product.category || (categories.length > 0 ? categories[0].name : ''),
                       price: product.price,
                       costPrice: product.costPrice || 0,
@@ -562,10 +543,16 @@ export function Products() {
                 
                 {/* Info Section */}
                 <div className="w-full sm:w-2/3 grid grid-cols-2 gap-4">
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                  <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Name</label>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white line-clamp-2">{viewingProduct.name}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{viewingProduct.name}</p>
                   </div>
+                  {viewingProduct.description && (
+                    <div className="col-span-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Description</label>
+                      <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{viewingProduct.description}</p>
+                    </div>
+                  )}
                   <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Category</label>
                     <p className="text-sm font-bold text-slate-900 dark:text-white">{viewingProduct.category || 'N/A'}</p>
@@ -803,6 +790,17 @@ export function Products() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Description</label>
+                  <textarea
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white resize-none"
+                    placeholder="Enter product description (optional)..."
                   />
                 </div>
                 

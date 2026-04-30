@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, updateDoc, increment, getDoc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, updateDoc, increment, getDoc, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useStore } from '../store/useStore';
 import { QRScanner } from '../components/QRScanner/Scanner';
@@ -19,8 +19,10 @@ import {
   Phone,
   Keyboard,
   IndianRupee,
-  CheckCircle2
+  CheckCircle2,
+  Printer
 } from 'lucide-react';
+import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '../lib/utils';
@@ -34,10 +36,11 @@ export function Billing() {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [lastInvoiceId, setLastInvoiceId] = useState('');
+  const [lastSale, setLastSale] = useState<any>(null);
   
   // Customer Info
   const [customerInfo, setCustomerInfo] = useState({
+    customerNumberStr: '',
     name: '',
     phone: '',
     email: ''
@@ -111,10 +114,22 @@ export function Billing() {
         setCustomerSearchResults(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       };
       searchCustomers();
+    } else if (customerInfo.customerNumberStr && customerInfo.customerNumberStr.length > 0) {
+      const searchCustomersByNum = async () => {
+        const num = parseInt(customerInfo.customerNumberStr);
+        if (isNaN(num)) return;
+        const q = query(
+          collection(db, 'customers'),
+          where('customerNumber', '==', num)
+        );
+        const snapshot = await getDocs(q);
+        setCustomerSearchResults(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      };
+      searchCustomersByNum();
     } else {
       setCustomerSearchResults([]);
     }
-  }, [customerInfo.name]);
+  }, [customerInfo.name, customerInfo.customerNumberStr]);
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
@@ -165,21 +180,37 @@ export function Billing() {
             name: customerInfo.name,
             email: customerInfo.email,
             phone: customerInfo.phone,
-            pendingPayment: increment(pendingAmount)
+            pendingPayment: increment(pendingAmount),
+            totalSpent: increment(total)
           });
         } else {
           // Create new customer
+          const counterQuery = query(collection(db, 'customers'), orderBy('customerNumber', 'desc'), limit(1));
+          const snapshot = await getDocs(counterQuery);
+          const nextNumber = snapshot.empty ? 1 : (snapshot.docs[0].data().customerNumber || 0) + 1;
+
           await addDoc(collection(db, 'customers'), {
-            ...customerInfo,
+            name: customerInfo.name,
+            email: customerInfo.email,
+            phone: customerInfo.phone,
+            customerNumber: nextNumber,
             pendingPayment: pendingAmount,
+            totalSpent: total,
             loyaltyPoints: 0,
             createdAt: serverTimestamp()
           });
         }
       }
 
-      setLastInvoiceId(saleRef.id);
-      generateInvoice(saleRef.id);
+      setLastSale({
+        id: saleRef.id,
+        items: cart,
+        total,
+        pendingAmount,
+        paymentMethod,
+        customerInfo,
+        date: new Date()
+      });
       clearCart();
       setShowSuccess(true);
       setCustomerInfo({ name: '', phone: '', email: '' });
@@ -228,6 +259,118 @@ export function Billing() {
     });
 
     doc.save(`invoice-${invoiceId}.pdf`);
+  };
+
+  const printInvoice = (sale: any) => {
+    // Use a hidden iframe instead of window.open (more reliable for thermal)
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      alert('Cannot open print window. Please check popup blockers.');
+      return;
+    }
+
+    const receiptHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Receipt - ${sale.id}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: white; font-family: 'Courier New', Courier, monospace; font-size: 40px; font-weight: bold; line-height: 1.4; color: #000; }
+    @page { size: auto; margin: 10mm; }
+    body { margin: 0; padding: 0; }
+    .receipt { width: 100%; margin: 0 auto; background: white; page-break-inside: avoid; break-inside: avoid; }
+    .header { text-align: center; margin-bottom: 0.8em; }
+    .store-name { font-size: 1.5em; font-weight: bold; margin-bottom: 0.2em; }
+    .divider { border-top: 0.1em dashed #000; margin: 0.5em 0; }
+    .info { margin-bottom: 0.5em; font-size: 1em; }
+    .flex-row { display: flex; justify-content: space-between; width: 100%; margin-bottom: 0.2em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5em; margin-bottom: 0.5em; }
+    th, td { text-align: left; padding: 0.2em 0; font-size: 1em; vertical-align: top; }
+    th { border-bottom: 0.1em dashed #000; padding-bottom: 0.2em; }
+    .col-name { width: 55%; padding-right: 0.2em; word-break: break-word; font-size: 1.1em; }
+    .col-qty { width: 15%; text-align: center; }
+    .col-price { width: 30%; text-align: right; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .total-section { margin-top: 0.5em; font-weight: bold; font-size: 1.2em; }
+    .footer { text-align: center; margin-top: 1em; font-size: 0.9em; }
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="header">
+      <div class="store-name">லோகேஷ் விவசாயி</div>
+      <div>Receipt</div>
+    </div>
+    <div class="info">
+      <div class="flex-row">
+        <div>${format(sale.date, 'dd/MM/yyyy')}</div>
+        <div>${format(sale.date, 'HH:mm')}</div>
+      </div>
+      ${(sale.customerInfo?.name || sale.customerInfo?.phone) ? `
+        <div class="flex-row">
+          <div>${sale.customerInfo.name || ''}</div>
+          <div>${sale.customerInfo.phone || ''}</div>
+        </div>
+      ` : ''}
+      <div class="flex-row">
+        <div>Bill: #${sale.id.slice(0, 8).toUpperCase()}</div>
+        <div>Pay: ${sale.paymentMethod.toUpperCase()}</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <table>
+      <thead>
+        <tr>
+          <th class="col-name">Item</th>
+          <th class="col-qty">Qty</th>
+          <th class="col-price">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sale.items.map((item: any) => `
+          <tr>
+            <td class="col-name">${item.name}</td>
+            <td class="col-qty">${item.quantity}</td>
+            <td class="col-price">${(item.price * item.quantity).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <div class="divider"></div>
+    <table class="total-section">
+      <tr><td>Total</td><td class="text-right">INR ${sale.total.toFixed(2)}</td></tr>
+      ${sale.pendingAmount > 0 ? `
+        <tr><td>Paid</td><td class="text-right">INR ${(sale.total - sale.pendingAmount).toFixed(2)}</td></tr>
+        <tr><td>Pending</td><td class="text-right">INR ${sale.pendingAmount.toFixed(2)}</td></tr>
+      ` : ''}
+    </table>
+    <div class="divider"></div>
+    <div class="footer">
+      <div>நன்றி மீண்டும் வருக!</div>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+    doc.open();
+    doc.write(receiptHtml);
+    doc.close();
+
+    // Give it time to render, then print
+    setTimeout(() => {
+      iframe.contentWindow?.print();
+    }, 300);
   };
 
   useEffect(() => {
@@ -423,6 +566,17 @@ export function Billing() {
           </div>
           
           <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Customer Number"
+                value={customerInfo.customerNumberStr}
+                onChange={(e) => setCustomerInfo({ ...customerInfo, customerNumberStr: e.target.value })}
+                className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+              />
+            </div>
+
             <div className="relative group">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
@@ -441,6 +595,7 @@ export function Billing() {
                       type="button"
                       onClick={() => {
                         setCustomerInfo({
+                          customerNumberStr: c.customerNumber ? c.customerNumber.toString() : '',
                           name: c.name,
                           phone: c.phone || '',
                           email: c.email || ''
@@ -449,7 +604,9 @@ export function Billing() {
                       }}
                       className="flex w-full flex-col px-3 py-2 text-left rounded-lg transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
                     >
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{c.name}</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                        {c.customerNumber ? `#${c.customerNumber} - ` : ''}{c.name}
+                      </span>
                       <span className="text-xs text-slate-500">{c.phone}</span>
                     </button>
                   ))}
@@ -693,7 +850,8 @@ export function Billing() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => {
-                    const text = `Invoice from Vivasayi\nInvoice ID: ${lastInvoiceId}\nTotal: ₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nStatus: PAID`;
+                    if (!lastSale) return;
+                    const text = `Invoice from Vivasayi\nInvoice ID: ${lastSale.id}\nTotal: ₹${lastSale.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nStatus: ${lastSale.pendingAmount > 0 ? 'PARTIAL' : 'PAID'}`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                   }}
                   className="flex h-10 items-center justify-center space-x-2 rounded-xl bg-[#25D366] text-white text-xs font-semibold hover:bg-[#20b858] transition-colors outline-none"
@@ -702,10 +860,13 @@ export function Billing() {
                   <span>WhatsApp</span>
                 </button>
                 <button
-                  onClick={() => generateInvoice(lastInvoiceId)}
-                  className="flex h-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors outline-none"
+                  onClick={() => {
+                    if (lastSale) printInvoice(lastSale);
+                  }}
+                  className="flex h-10 items-center justify-center space-x-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors outline-none"
                 >
-                  Download PDF
+                  <Printer className="h-4 w-4" />
+                  <span>Print Receipt</span>
                 </button>
               </div>
             </div>

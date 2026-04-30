@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { format } from 'date-fns';
+import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import {
   Search,
   Download,
@@ -19,11 +19,13 @@ import {
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '../lib/utils';
+import { downloadInvoicePdf } from '../utils/pdfInvoice';
 
 export function SalesHistory() {
   const [sales, setSales] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPayment, setFilterPayment] = useState('all');
+  const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -46,7 +48,15 @@ export function SalesHistory() {
 
     const paymentMatch = filterPayment === 'all' || sale.paymentMethod === filterPayment;
 
-    return searchMatch && paymentMatch;
+    let dateMatch = true;
+    if (dateFilter.start && dateFilter.end) {
+      const saleDate = sale.date || new Date();
+      const start = startOfDay(new Date(dateFilter.start));
+      const end = endOfDay(new Date(dateFilter.end));
+      dateMatch = isWithinInterval(saleDate, { start, end });
+    }
+
+    return searchMatch && paymentMatch && dateMatch;
   });
 
   const pagedSales = filteredSales.slice(0, rowsPerPage);
@@ -95,58 +105,8 @@ export function SalesHistory() {
     }
   };
 
-  const generateInvoiceDoc = (sale: any) => {
-    const doc = new jsPDF();
-
-    // Header
-    doc.setFontSize(20);
-    doc.setTextColor(37, 99, 235);
-    doc.text('INVOICE', 105, 20, { align: 'center' });
-
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Invoice ID: ${sale.id}`, 20, 40);
-    doc.text(`Date: ${format(sale.date, 'MMM dd, yyyy HH:mm')}`, 20, 45);
-    doc.text(`Payment: ${sale.paymentMethod.toUpperCase()}`, 20, 50);
-
-    // Customer Info
-    doc.setFontSize(12);
-    doc.setTextColor(0);
-    doc.text('Customer Details:', 20, 65);
-    doc.setFontSize(10);
-    doc.text(`Name: ${sale.customerInfo?.name || 'Walk-in Customer'}`, 20, 72);
-    doc.text(`Phone: ${sale.customerInfo?.phone || 'N/A'}`, 20, 77);
-
-    // Items Table
-    const tableData = sale.items.map((item: any) => [
-      item.name,
-      item.quantity,
-      `INR ${item.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      `INR ${(item.price * item.quantity).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    ]);
-
-    autoTable(doc, {
-      startY: 85,
-      head: [['Item', 'Qty', 'Unit Price', 'Total']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [37, 99, 235] }
-    });
-
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
-    doc.setFontSize(12);
-    doc.text(`Total Amount: INR ${sale.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 140, finalY);
-    if (sale.pendingAmount > 0) {
-      doc.setTextColor(220, 38, 38);
-      doc.text(`Pending: INR ${sale.pendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 140, finalY + 7);
-    }
-
-    return doc;
-  };
-
   const downloadInvoice = (sale: any) => {
-    const doc = generateInvoiceDoc(sale);
-    doc.save(`Invoice_${sale.id.slice(0, 8)}.pdf`);
+    downloadInvoicePdf(sale);
   };
 
   const printInvoice = (sale: any) => {
@@ -265,16 +225,6 @@ export function SalesHistory() {
       <div>நன்றி மீண்டும் வருக!</div>
     </div>
   </div>
-  <script>
-    window.onload = function() {
-      setTimeout(function() {
-        window.print();
-      }, 200);
-    };
-    window.onafterprint = function() {
-      window.close();
-    };
-  <\/script>
 </body>
 </html>
 `;
@@ -329,6 +279,25 @@ export function SalesHistory() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full h-10 pl-9 pr-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+            />
+          </div>
+        </div>
+
+        <div className="w-full md:w-auto space-y-1.5 flex flex-col">
+          <label className="text-xs font-semibold text-slate-500">Date Range</label>
+          <div className="flex items-center gap-2">
+            <input 
+              type="date"
+              value={dateFilter.start}
+              onChange={(e) => setDateFilter({...dateFilter, start: e.target.value})}
+              className="h-10 px-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+            />
+            <span className="text-slate-400 text-sm">-</span>
+            <input 
+              type="date"
+              value={dateFilter.end}
+              onChange={(e) => setDateFilter({...dateFilter, end: e.target.value})}
+              className="h-10 px-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
             />
           </div>
         </div>
