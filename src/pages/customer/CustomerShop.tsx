@@ -16,7 +16,7 @@ interface Product {
   description?: string;
 }
 
-export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: string }) {
+export function CustomerShop({ initialCategory = 'அனைத்தும்' }: { initialCategory?: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -45,12 +45,12 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(products.map(p => p.category || 'Uncategorized')));
-    return ['All', ...cats];
+    return ['அனைத்தும்', ...cats];
   }, [products]);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'அனைத்தும்' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -59,7 +59,7 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerDetails.name || !customerDetails.phone || !customerDetails.place) {
-      alert('Please fill in all details');
+      alert('தயவுசெய்து அனைத்து விவரங்களையும் நிரப்பவும்');
       return;
     }
 
@@ -97,44 +97,66 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
       }, 3000);
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Something went wrong. Please try again.');
+      alert('ஏதோ தவறு நடந்துவிட்டது. மீண்டும் முயற்சிக்கவும்.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-32">
+    <div className="min-h-screen bg-white pb-32 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{ duration: 10, repeat: Infinity }}
+          className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-50 rounded-full blur-[100px]"
+        />
+        <motion.div 
+          animate={{ 
+            scale: [1.1, 1, 1.1],
+            opacity: [0.2, 0.4, 0.2]
+          }}
+          transition={{ duration: 12, repeat: Infinity }}
+          className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-green-50 rounded-full blur-[120px]"
+        />
+      </div>
+
       {/* Header & Filters */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-[80px] z-30 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white/70 backdrop-blur-2xl border-b border-slate-100 sticky top-[80px] z-30 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             {/* Category Pills */}
-            <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-2 sm:pb-0">
+            <div className="flex items-center space-x-3 overflow-x-auto no-scrollbar w-full sm:w-auto pb-2 sm:pb-0">
               {categories.map((cat) => (
-                <button
+                <motion.button
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.95 }}
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
+                  className={`px-6 py-2.5 rounded-2xl text-sm font-black whitespace-nowrap transition-all duration-300 ${
                     selectedCategory === cat 
-                      ? 'bg-slate-900 text-white shadow-sm' 
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-600/20' 
+                      : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'
                   }`}
                 >
                   {cat}
-                </button>
+                </motion.button>
               ))}
             </div>
             
             {/* Search */}
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
                 type="text"
-                placeholder="Search products..."
+                placeholder="பொருட்களைத் தேடுக..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all shadow-sm font-medium"
               />
             </div>
           </div>
@@ -142,71 +164,85 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-        <header className="mb-12">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Products</h1>
-          <p className="text-slate-500 mt-2">Explore our premium selection of farm-fresh goods.</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+        <header className="mb-16">
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter"
+          >
+            எங்கள் <span className="text-emerald-600">பொருட்கள்</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-slate-500 mt-4 text-lg font-medium"
+          >
+            எங்களின் தரமான விவசாயத் தயாரிப்புகளை இங்கே காணலாம்.
+          </motion.p>
         </header>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <AnimatePresence mode="popLayout">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, idx) => (
               <motion.div
                 key={product.id}
                 layout
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-indigo-200 hover:shadow-lg transition-all duration-300 group flex flex-col"
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                className="bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 hover:border-emerald-200 hover:shadow-[0_30px_60px_rgba(16,185,129,0.12)] transition-all duration-500 group flex flex-col"
               >
                 <div 
-                  className="aspect-square relative cursor-pointer overflow-hidden bg-slate-100 p-6 flex items-center justify-center"
+                  className="aspect-square relative cursor-pointer overflow-hidden bg-slate-50 p-8 flex items-center justify-center"
                   onClick={() => setSelectedProduct(product)}
                 >
                   <img 
                     src={product.imageUrl || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`} 
                     alt={product.name}
-                    className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-contain transition-transform duration-1000 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-lg text-[10px] font-bold text-slate-700 uppercase tracking-wider border border-slate-200/50 shadow-sm">
-                      {product.category || 'Standard'}
+                  <div className="absolute top-6 left-6">
+                    <span className="px-4 py-1.5 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black text-emerald-700 uppercase tracking-widest border border-white shadow-sm">
+                      {product.category || 'பொதுவானவை'}
                     </span>
                   </div>
                   {product.stock <= 5 && product.stock > 0 && (
-                    <div className="absolute top-4 right-4">
-                      <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                        Low Stock
+                    <div className="absolute top-6 right-6">
+                      <span className="px-4 py-1.5 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-amber-500/30">
+                        இருப்பு குறைவு
                       </span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-6 flex flex-col flex-1">
+                <div className="p-8 flex flex-col flex-1">
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold text-slate-900 tracking-tight line-clamp-1">{product.name}</h3>
-                    <p className="text-xl font-bold text-indigo-600 mt-1">₹{product.price.toLocaleString()}</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight line-clamp-1">{product.name}</h3>
+                    <p className="text-2xl font-black text-emerald-600 mt-2">₹{product.price.toLocaleString()}</p>
                   </div>
-                  <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed flex-1">
-                    {product.description || 'Premium quality harvest meticulously grown and selected for your table.'}
+                  <p className="text-slate-500 text-sm mb-8 line-clamp-2 leading-relaxed flex-1 font-medium">
+                    {product.description || 'மிகவும் கவனத்துடன் விளைவிக்கப்பட்ட பிரீமியம் தரமான தயாரிப்பு.'}
                   </p>
                   
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
                     disabled={product.stock <= 0}
                     onClick={() => addToCart({ ...product, quantity: 1 })}
                     className={cn(
-                      "w-full py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all active:scale-95 text-sm",
+                      "w-full py-4 rounded-2xl font-black flex items-center justify-center space-x-2 transition-all text-sm uppercase tracking-widest",
                       product.stock <= 0 
                         ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
-                        : "bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white border border-indigo-100 hover:border-indigo-600"
+                        : "bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-100 hover:border-emerald-600 shadow-sm"
                     )}
                   >
                     <Plus className="w-4 h-4" />
-                    <span>{product.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}</span>
-                  </button>
+                    <span>{product.stock <= 0 ? 'இருப்பு இல்லை' : 'கூடையில் சேர்க்க'}</span>
+                  </motion.button>
                 </div>
               </motion.div>
             ))}
@@ -214,17 +250,17 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
         </div>
 
         {filteredProducts.length === 0 && (
-          <div className="py-24 text-center">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
-              <Search className="w-8 h-8" />
+          <div className="py-32 text-center">
+            <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-slate-300 border border-slate-100">
+              <Search className="w-10 h-10" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900">No products found</h2>
-            <p className="text-slate-500 mt-2">Try adjusting your search or filters.</p>
+            <h2 className="text-2xl font-black text-slate-900">தயாரிப்புகள் எதுவும் இல்லை</h2>
+            <p className="text-slate-500 mt-3 text-lg font-medium">வேறு வார்த்தைகளில் தேடிப் பார்க்கவும்.</p>
             <button 
-              onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}
-              className="mt-6 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors"
+              onClick={() => { setSearchTerm(''); setSelectedCategory('அனைத்தும்'); }}
+              className="mt-8 text-emerald-600 font-black hover:text-emerald-700 transition-colors uppercase tracking-widest text-sm"
             >
-              Clear all filters
+              அனைத்தையும் நீக்க
             </button>
           </div>
         )}
@@ -232,22 +268,28 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
 
       {/* Floating Cart Button */}
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        whileHover={{ scale: 1.05, y: -5 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setCartOpen(true)}
-        className="fixed bottom-8 right-8 z-40 bg-slate-900 text-white p-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-3 border border-white/10 group"
+        className="fixed bottom-10 right-10 z-40 bg-slate-900 text-white p-5 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center space-x-4 border border-white/10 group"
       >
         <div className="relative">
-          <ShoppingBag className="w-6 h-6" />
+          <ShoppingBag className="w-7 h-7" />
           {cart.length > 0 && (
-            <span className="absolute -top-2 -right-2 w-5 h-5 bg-indigo-500 rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm">
+            <motion.span 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-3 -right-3 w-6 h-6 bg-emerald-500 rounded-full text-[10px] font-black flex items-center justify-center shadow-lg border-2 border-slate-900"
+            >
               {cart.reduce((acc, item) => acc + item.quantity, 0)}
-            </span>
+            </motion.span>
           )}
         </div>
-        <div className="text-left hidden md:block pl-2 border-l border-white/20">
-          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Cart Total</div>
-          <div className="font-bold text-sm">₹{cartTotal}</div>
+        <div className="text-left hidden md:block pl-4 border-l border-white/20">
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">மொத்தம்</div>
+          <div className="font-black text-lg">₹{cartTotal.toLocaleString()}</div>
         </div>
       </motion.button>
 
@@ -265,119 +307,120 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
                   setIsCheckingOut(false);
                 }
               }}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60]"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-[70] shadow-2xl flex flex-col"
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed right-0 top-0 h-full w-full max-w-lg bg-white z-[70] shadow-[0_0_100px_rgba(0,0,0,0.2)] flex flex-col"
             >
               {/* Checkout Success */}
               {isOrderPlaced ? (
-                <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-slate-50">
+                <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-emerald-50">
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-6"
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    className="w-24 h-24 bg-emerald-600 rounded-[2rem] flex items-center justify-center text-white mb-8 shadow-2xl shadow-emerald-600/40"
                   >
-                    <CheckCircle className="w-10 h-10" />
+                    <CheckCircle className="w-12 h-12" />
                   </motion.div>
-                  <h2 className="text-3xl font-bold text-slate-900 mb-3">Order Confirmed</h2>
-                  <p className="text-slate-500 leading-relaxed">
-                    Thank you for your purchase. We will deliver your products shortly.
+                  <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tighter">ஆர்டர் உறுதி செய்யப்பட்டது</h2>
+                  <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                    உங்கள் வாங்குதலுக்கு நன்றி. விரைவில் உங்கள் பொருட்கள் விநியோகிக்கப்படும்.
                   </p>
                 </div>
               ) : isCheckingOut ? (
                 <div className="flex flex-col h-full bg-slate-50">
-                  <div className="p-6 bg-white border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
+                  <div className="p-8 bg-white border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
                     <div>
-                      <h2 className="text-xl font-bold text-slate-900">Checkout</h2>
-                      <p className="text-xs text-slate-500 font-medium mt-1">Delivery details</p>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-tight">செக்அவுட்</h2>
+                      <p className="text-xs text-slate-500 font-black uppercase tracking-widest mt-1">விநியோக விவரங்கள்</p>
                     </div>
                     <button 
                       onClick={() => setIsCheckingOut(false)}
-                      className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all"
+                      className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all"
                     >
-                      <ChevronRight className="w-5 h-5 rotate-180" />
+                      <ChevronRight className="w-6 h-6 rotate-180" />
                     </button>
                   </div>
 
-                  <form onSubmit={handlePlaceOrder} className="flex-1 overflow-y-auto p-6 space-y-6">
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 ml-1">Full Name</label>
+                  <form onSubmit={handlePlaceOrder} className="flex-1 overflow-y-auto p-8 space-y-8">
+                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-800 ml-1 uppercase tracking-widest">முழு பெயர்</label>
                         <div className="relative">
-                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                           <input 
                             required
                             type="text" 
-                            placeholder="John Doe"
+                            placeholder="உதாரணம்: லோகேஷ்"
                             value={customerDetails.name}
                             onChange={(e) => setCustomerDetails({...customerDetails, name: e.target.value})}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 ml-1">Phone Number</label>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-800 ml-1 uppercase tracking-widest">தொலைபேசி எண்</label>
                         <div className="relative">
-                          <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                           <input 
                             required
                             type="tel" 
                             placeholder="+91 98765 43210"
                             value={customerDetails.phone}
                             onChange={(e) => setCustomerDetails({...customerDetails, phone: e.target.value})}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 ml-1">Delivery Address</label>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-800 ml-1 uppercase tracking-widest">விநியோக முகவரி</label>
                         <div className="relative">
-                          <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                          <MapPin className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
                           <textarea 
                             required
                             rows={3}
-                            placeholder="Full address"
+                            placeholder="முழு முகவரி"
                             value={customerDetails.place}
                             onChange={(e) => setCustomerDetails({...customerDetails, place: e.target.value})}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all resize-none font-medium"
                           />
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-5 bg-indigo-50 border border-indigo-100 rounded-2xl flex justify-between items-center">
-                      <div>
-                        <div className="text-xs font-semibold text-indigo-600/80 mb-1">Total Amount</div>
-                        <div className="text-2xl font-bold text-indigo-700">₹{cartTotal}</div>
+                    <div className="p-8 bg-emerald-600 rounded-[2.5rem] text-white shadow-2xl shadow-emerald-600/30 flex justify-between items-center overflow-hidden relative">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                      <div className="relative z-10">
+                        <div className="text-xs font-black text-emerald-100 uppercase tracking-widest mb-2">மொத்த தொகை</div>
+                        <div className="text-4xl font-black">₹{cartTotal.toLocaleString()}</div>
                       </div>
-                      <div className="flex items-center space-x-2 text-indigo-600 bg-white px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm text-xs font-semibold">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        <span>COD Available</span>
+                      <div className="relative z-10 flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 text-xs font-black uppercase tracking-widest">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>COD உண்டு</span>
                       </div>
                     </div>
                   </form>
 
-                  <div className="p-6 bg-white border-t border-slate-200 sticky bottom-0 z-10">
+                  <div className="p-8 bg-white border-t border-slate-100 sticky bottom-0 z-10">
                     <button 
                       disabled={isSubmitting}
                       onClick={handlePlaceOrder}
-                      className="w-full py-4 bg-indigo-600 text-white font-semibold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all disabled:opacity-70 active:scale-95"
+                      className="w-full py-5 bg-slate-900 text-white font-black rounded-2xl flex items-center justify-center space-x-3 shadow-2xl shadow-slate-900/20 hover:bg-slate-800 transition-all disabled:opacity-70 active:scale-95 uppercase tracking-widest"
                     >
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>Processing...</span>
+                          <span>செயலாக்கப்படுகின்றன...</span>
                         </>
                       ) : (
                         <>
-                          <span>Confirm Order</span>
+                          <span>ஆர்டரை உறுதிப்படுத்து</span>
                           <ChevronRight className="w-5 h-5" />
                         </>
                       )}
@@ -386,79 +429,83 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
                 </div>
               ) : (
                 <div className="flex flex-col h-full bg-slate-50">
-                  <div className="p-6 bg-white border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
+                  <div className="p-8 bg-white border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
                     <div>
-                      <h2 className="text-xl font-bold text-slate-900">Your Cart</h2>
-                      <p className="text-xs text-slate-500 font-medium mt-1">{cart.length} items</p>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-tight">உங்கள் கூடை</h2>
+                      <p className="text-xs text-slate-500 font-black uppercase tracking-widest mt-1">{cart.length} பொருட்கள்</p>
                     </div>
                     <button 
                       onClick={() => setCartOpen(false)}
-                      className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all"
+                      className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-6 h-6" />
                     </button>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
                     {cart.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-20">
-                        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
-                          <ShoppingCart className="w-8 h-8" />
+                      <div className="h-full flex flex-col items-center justify-center text-center space-y-6 py-20">
+                        <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center text-slate-200 border border-slate-100 shadow-sm">
+                          <ShoppingCart className="w-10 h-10" />
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-lg font-bold text-slate-900">Cart is empty</p>
-                          <p className="text-sm text-slate-500">Looks like you haven't added anything yet.</p>
+                        <div className="space-y-2">
+                          <p className="text-2xl font-black text-slate-900 tracking-tight">கூடை காலியாக உள்ளது</p>
+                          <p className="text-slate-500 font-medium">நீங்கள் இன்னும் எதையும் சேர்க்கவில்லை.</p>
                         </div>
                         <button 
                           onClick={() => setCartOpen(false)}
-                          className="mt-4 px-6 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm shadow-sm hover:bg-slate-800"
+                          className="mt-4 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl shadow-slate-900/20 hover:bg-slate-800 uppercase tracking-widest transition-all"
                         >
-                          Start Shopping
+                          ஷாப்பிங் செய்ய
                         </button>
                       </div>
                     ) : (
                       cart.map((item) => (
-                        <div key={item.id} className="flex bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-x-4">
-                          <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex-shrink-0">
-                            <img src={item.imageUrl || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-cover mix-blend-multiply" referrerPolicy="no-referrer" />
+                        <motion.div 
+                          layout
+                          key={item.id} 
+                          className="flex bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-x-6 group"
+                        >
+                          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-slate-50 flex-shrink-0 p-4">
+                            <img src={item.imageUrl || `https://picsum.photos/seed/${item.id}/300/300`} className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
                           </div>
                           <div className="flex-1 flex flex-col justify-between py-1">
                             <div className="flex justify-between items-start">
-                              <h4 className="font-semibold text-slate-900 text-sm line-clamp-1">{item.name}</h4>
-                              <button onClick={() => removeFromCart(item.id)} className="text-slate-400 hover:text-red-500 transition-colors p-1">
-                                <X className="w-4 h-4" />
+                              <h4 className="font-black text-slate-900 text-lg line-clamp-1 tracking-tight">{item.name}</h4>
+                              <button onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-xl">
+                                <X className="w-5 h-5" />
                               </button>
                             </div>
                             <div className="flex justify-between items-end">
-                              <div className="flex items-center space-x-3 bg-slate-50 rounded-lg p-1 border border-slate-200/60">
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity - 1)} className="w-7 h-7 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-indigo-600 hover:border-indigo-200 shadow-sm transition-colors">
+                              <div className="flex items-center space-x-4 bg-slate-50 rounded-xl p-1.5 border border-slate-100">
+                                <button onClick={() => updateCartQuantity(item.id, item.quantity - 1)} className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:border-emerald-200 shadow-sm transition-colors">
                                   <Minus className="w-3 h-3" />
                                 </button>
-                                <span className="text-xs font-semibold text-slate-900 w-4 text-center">{item.quantity}</span>
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity + 1)} className="w-7 h-7 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-indigo-600 hover:border-indigo-200 shadow-sm transition-colors">
+                                <span className="text-sm font-black text-slate-900 w-4 text-center">{item.quantity}</span>
+                                <button onClick={() => updateCartQuantity(item.id, item.quantity + 1)} className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:border-emerald-200 shadow-sm transition-colors">
                                   <Plus className="w-3 h-3" />
                                 </button>
                               </div>
-                              <p className="font-bold text-indigo-600">₹{item.price * item.quantity}</p>
+                              <p className="font-black text-emerald-600 text-xl">₹{(item.price * item.quantity).toLocaleString()}</p>
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
                       ))
                     )}
                   </div>
 
                   {cart.length > 0 && (
-                    <div className="p-6 bg-white border-t border-slate-200 sticky bottom-0 z-10">
-                      <div className="flex justify-between items-center mb-6">
-                        <span className="text-sm font-medium text-slate-500">Subtotal</span>
-                        <span className="text-xl font-bold text-slate-900">₹{cartTotal}</span>
+                    <div className="p-8 bg-white border-t border-slate-100 sticky bottom-0 z-10">
+                      <div className="flex justify-between items-center mb-8">
+                        <span className="text-sm font-black text-slate-400 uppercase tracking-widest">மொத்தம்</span>
+                        <span className="text-3xl font-black text-slate-900 tracking-tighter">₹{cartTotal.toLocaleString()}</span>
                       </div>
                       <button 
                         onClick={() => setIsCheckingOut(true)}
-                        className="w-full py-4 bg-slate-900 text-white rounded-xl font-semibold flex items-center justify-center space-x-2 shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95"
+                        className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black flex items-center justify-center space-x-3 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all active:scale-95 uppercase tracking-widest"
                       >
-                        <span>Checkout</span>
-                        <ChevronRight className="w-5 h-5" />
+                        <span>செக்அவுட்</span>
+                        <ChevronRight className="w-6 h-6" />
                       </button>
                     </div>
                   )}
@@ -472,82 +519,92 @@ export function CustomerShop({ initialCategory = 'All' }: { initialCategory?: st
       {/* Product Detail Modal */}
       <AnimatePresence>
         {selectedProduct && (
-          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-10">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedProduct(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-[3.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row"
             >
-              <div className="md:w-1/2 h-64 md:h-auto bg-slate-50 relative border-b md:border-b-0 md:border-r border-slate-200 p-8 flex items-center justify-center">
-                <img 
+              <div className="md:w-1/2 h-80 md:h-auto bg-slate-50 relative border-b md:border-b-0 md:border-r border-slate-100 p-12 flex items-center justify-center">
+                <motion.img 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
                   src={selectedProduct.imageUrl || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`} 
-                  className="w-full h-full object-contain mix-blend-multiply drop-shadow-xl" 
+                  className="w-full h-full object-contain mix-blend-multiply drop-shadow-2xl" 
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute top-6 left-6">
-                  <span className="px-4 py-1.5 bg-white rounded-lg text-xs font-semibold text-slate-700 uppercase tracking-wide shadow-sm border border-slate-200">
+                <div className="absolute top-10 left-10">
+                  <span className="px-5 py-2 bg-white rounded-2xl text-xs font-black text-emerald-700 uppercase tracking-widest shadow-sm border border-slate-100">
                     {selectedProduct.category}
                   </span>
                 </div>
               </div>
               
-              <div className="md:w-1/2 p-8 md:p-12 flex flex-col overflow-y-auto">
-                <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight pr-4">{selectedProduct.name}</h2>
-                  <button onClick={() => setSelectedProduct(null)} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors">
-                    <X className="w-5 h-5" />
+              <div className="md:w-1/2 p-12 md:p-16 flex flex-col overflow-y-auto">
+                <div className="flex justify-between items-start mb-8">
+                  <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-tight pr-4">{selectedProduct.name}</h2>
+                  <button onClick={() => setSelectedProduct(null)} className="p-3 bg-slate-100 rounded-2xl text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+                    <X className="w-6 h-6" />
                   </button>
                 </div>
                 
-                <div className="flex items-baseline space-x-3 mb-8">
-                  <span className="text-3xl font-bold text-indigo-600">₹{selectedProduct.price}</span>
-                  <span className="text-sm font-medium text-slate-500 px-2 py-0.5 bg-slate-100 rounded-md">
-                    {selectedProduct.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                <div className="flex items-baseline space-x-4 mb-10">
+                  <span className="text-5xl font-black text-emerald-600 tracking-tighter">₹{selectedProduct.price.toLocaleString()}</span>
+                  <span className="text-xs font-black text-emerald-700 px-4 py-1.5 bg-emerald-50 rounded-xl uppercase tracking-widest border border-emerald-100">
+                    {selectedProduct.stock > 0 ? 'இருப்பில் உள்ளது' : 'இருப்பு இல்லை'}
                   </span>
                 </div>
                 
-                <div className="flex-1 space-y-6">
+                <div className="flex-1 space-y-10">
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-2">Description</h4>
-                    <p className="text-slate-500 leading-relaxed text-sm">
-                      {selectedProduct.description || 'Premium quality product, verified and tested. Delivered fresh with our guaranteed quality standards.'}
+                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-4">விளக்கம்</h4>
+                    <p className="text-slate-500 leading-relaxed text-lg font-medium">
+                      {selectedProduct.description || 'மிகவும் கவனத்துடன் விளைவிக்கப்பட்ட பிரீமியம் தரமான தயாரிப்பு. எங்களின் நேரடி பண்ணைகளில் இருந்து இயற்கையான முறையில் வளர்க்கப்பட்டது.'}
                     </p>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm border border-slate-200">
-                        <CheckCircle className="w-4 h-4" />
+                  <div className="grid grid-cols-1 gap-4">
+                    {[
+                      { title: 'தரம் உறுதி செய்யப்பட்டது', desc: 'புத்துணர்ச்சி மற்றும் தூய்மைக்காக சோதிக்கப்பட்டது' },
+                      { title: '100% இயற்கை', desc: 'இரசாயன உரங்கள் இன்றி விளைவிக்கப்பட்டது' }
+                    ].map((feat, i) => (
+                      <div key={i} className="flex items-center space-x-5 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 flex-shrink-0">
+                          <CheckCircle className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h5 className="text-sm font-black text-slate-900 uppercase tracking-widest">{feat.title}</h5>
+                          <p className="text-xs text-slate-500 mt-1 font-medium">{feat.desc}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h5 className="text-xs font-semibold text-slate-900">Quality Assured</h5>
-                        <p className="text-[11px] text-slate-500 mt-0.5">Tested for freshness and purity</p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-slate-100">
-                  <button
+                <div className="mt-12 pt-10 border-t border-slate-100">
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                     disabled={selectedProduct.stock <= 0}
                     onClick={() => {
                       addToCart({ ...selectedProduct, quantity: 1 });
                       setSelectedProduct(null);
                       setCartOpen(true);
                     }}
-                    className="w-full py-4 bg-indigo-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2 shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:grayscale active:scale-95"
+                    className="w-full py-6 bg-emerald-600 text-white rounded-3xl font-black flex items-center justify-center space-x-4 shadow-2xl shadow-emerald-600/40 hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:grayscale uppercase tracking-widest text-lg"
                   >
-                    <ShoppingCart className="w-5 h-5" />
-                    <span>{selectedProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
-                  </button>
+                    <ShoppingCart className="w-6 h-6" />
+                    <span>{selectedProduct.stock > 0 ? 'கூடையில் சேர்க்க' : 'இருப்பு இல்லை'}</span>
+                  </motion.button>
                 </div>
               </div>
             </motion.div>

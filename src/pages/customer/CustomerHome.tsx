@@ -1,148 +1,173 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Leaf, Award, ShieldCheck, Truck, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
+// Hero Images
+import hero1 from '../../image/1.jpg';
+import hero2 from '../../image/2.jpeg';
+import hero3 from '../../image/3.jpg';
+import hero4 from '../../image/4.jpg';
+import hero5 from '../../image/6.jpg';
+
+const heroImages = [hero1, hero2, hero3, hero4, hero5];
+
 export function CustomerHome() {
   const { setCurrentCustomerPage } = useStore();
-  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const features = [
     {
       icon: <Award className="w-6 h-6" />,
-      title: "Premium Quality",
-      desc: "Handpicked produce directly from our fertile fields to your table, ensuring the highest standards of freshness."
+      title: "உயர்ந்த தரம்",
+      desc: "எங்கள் பண்ணைகளில் இருந்து நேரடியாகப் பறிக்கப்பட்ட பொருட்கள், உங்கள் மேசைக்கு புத்துணர்ச்சியுடன் வரும்."
     },
     {
       icon: <ShieldCheck className="w-6 h-6" />,
-      title: "100% Organic",
-      desc: "Grown without harmful chemicals. We use sustainable practices for your family's health and the earth's future."
+      title: "100% இயற்கை",
+      desc: "தீங்கு விளைவிக்கும் இரசாயனங்கள் இன்றி வளர்க்கப்படுகிறது. உங்கள் ஆரோக்கியமே எங்களின் நோக்கம்."
     },
     {
       icon: <Truck className="w-6 h-6" />,
-      title: "Same-Day Delivery",
-      desc: "Harvested in the morning, delivered by evening. Experience the unmatched taste of farm-fresh produce."
+      title: "வேகமான விநியோகம்",
+      desc: "காலையில் அறுவடை செய்யப்பட்டு, மாலையில் உங்கள் வீட்டிற்கு விநியோகிக்கப்படுகிறது."
     }
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-white overflow-hidden">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        {/* Abstract Background Shapes */}
-        <div className="absolute top-0 right-0 -z-10 w-[800px] h-[800px] bg-indigo-50/50 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 -z-10 w-[600px] h-[600px] bg-emerald-50/50 rounded-full blur-3xl -translate-x-1/3 translate-y-1/4" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <section className="relative pt-20 pb-20 lg:pt-28 lg:pb-32 min-h-[70vh] flex items-center overflow-hidden">
+        {/* Background Image Slider */}
+        <div className="absolute inset-0 z-0">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImageIndex}
+              src={heroImages[currentImageIndex]}
+              alt="Premium Farm"
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5 }}
+              className="w-full h-full object-cover"
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/40" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-8"
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl mb-8"
             >
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Harvesting now for today's delivery</span>
+              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">இன்று அறுவடை செய்யப்பட்டு விநியோகிக்கப்படுகிறது</span>
             </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-5xl sm:text-7xl lg:text-8xl font-bold text-slate-900 tracking-tight leading-[1.1] mb-8"
+              transition={{ duration: 0.8, cubicBezier: [0.16, 1, 0.3, 1] }}
+              className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6"
             >
-              Pure harvest, <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-emerald-500">
-                delivered fresh.
+              தூய அறுவடை, <br />
+              <span className="relative inline-block mt-4">
+                <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-300">
+                  புதிய விநியோகம்.
+                </span>
               </span>
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg sm:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-lg sm:text-2xl text-slate-300 mb-12 max-w-2xl mx-auto leading-relaxed font-medium"
             >
-              Experience the modern way to buy organic produce. Directly from our tech-enabled farms to your doorstep with guaranteed freshness and traceability.
+              இயற்கை விவசாய பொருட்களை வாங்குவதற்கான நவீன வழி. எங்களின் தொழில்நுட்பம் சார்ந்த பண்ணைகளில் இருந்து நேரடியாக உங்கள் வீட்டு வாசலுக்கு.
             </motion.p>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-6"
             >
-              <button 
+              <button
                 onClick={() => {
-                  setCurrentCustomerPage('product');
+                  setCurrentCustomerPage('shop');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl font-semibold transition-all shadow-sm shadow-slate-900/10 active:scale-95 group"
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-3 px-12 py-6 bg-emerald-600 hover:bg-emerald-500 text-white rounded-3xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-emerald-600/40 active:scale-95 group relative overflow-hidden"
               >
-                <span>Browse Products</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <span>பொருட்களைப் பார்க்க</span>
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setCurrentCustomerPage('contact');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-2xl font-semibold transition-all active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-12 py-6 bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 rounded-3xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-2xl"
               >
-                Contact Sales
+                தொடர்பு கொள்ள
               </button>
             </motion.div>
           </div>
-
-          {/* Hero Image / Dashboard Mockup */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-            className="mt-20 relative max-w-5xl mx-auto"
-          >
-            <div className="aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-200 bg-slate-100 relative group">
-              <img 
-                src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2000&auto=format&fit=crop" 
-                alt="Fresh organic produce" 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent flex flex-col justify-end p-8 sm:p-12">
-                <div className="bg-white/20 backdrop-blur-md border border-white/30 p-4 rounded-2xl inline-block w-max">
-                  <div className="flex items-center space-x-3 text-white">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                    <span className="font-medium">100% Quality Inspected</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 bg-slate-50">
+      {/* Features with Scroll Animation */}
+      <section className="py-32 relative">
+        <div className="absolute inset-0 bg-slate-50 -skew-y-3 origin-right -z-10" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-4">Why choose Logesh Vivasayi?</h2>
-            <p className="text-slate-500">We combine traditional farming wisdom with modern logistics to deliver an unparalleled experience.</p>
+          <div className="text-center max-w-2xl mx-auto mb-20">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-6"
+            >
+              ஏன் லோகேஷ் விவசாயி?
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-slate-500 text-lg font-medium"
+            >
+              நாங்கள் பாரம்பரிய விவசாய அறிவை நவீன தொழில்நுட்பத்துடன் இணைத்து சிறந்த அனுபவத்தை வழங்குகிறோம்.
+            </motion.p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {features.map((feature, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                transition={{ delay: idx * 0.2, duration: 0.6 }}
+                className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgba(16,185,129,0.1)] transition-all duration-500 group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 mb-6">
-                  {feature.icon}
+                <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-8 transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-500">
+                  {React.cloneElement(feature.icon as React.ReactElement, { className: "w-10 h-10" })}
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
-                <p className="text-slate-500 leading-relaxed text-sm">
+                <h3 className="text-2xl font-black text-slate-900 mb-4">{feature.title}</h3>
+                <p className="text-slate-500 leading-relaxed font-medium">
                   {feature.desc}
                 </p>
               </motion.div>
@@ -151,48 +176,118 @@ export function CustomerHome() {
         </div>
       </section>
 
-      {/* Trust & Quality Section */}
-      <section className="py-24 bg-white overflow-hidden">
+      {/* Trust Section with Parallax Effect */}
+      <section className="py-32 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-slate-900 rounded-[3rem] p-8 sm:p-16 lg:p-20 relative overflow-hidden">
-            {/* Abstract glow inside dark card */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/20 rounded-full blur-[100px] -translate-x-1/2 translate-y-1/2" />
-            
-            <div className="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-              <div className="space-y-8">
-                <div className="inline-flex px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 text-xs font-semibold tracking-wide">
-                  Our Commitment
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="bg-slate-900 rounded-[4rem] p-10 sm:p-20 relative overflow-hidden"
+          >
+            {/* Mesh Gradient Overlay */}
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_30%,#10b981_0%,transparent_50%),radial-gradient(circle_at_80%_70%,#6366f1_0%,transparent_50%)]" />
+            </div>
+
+            <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+              <div className="space-y-10">
+                <div className="inline-flex px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black tracking-widest uppercase">
+                  எங்கள் உறுதிப்பாடு
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight">
-                  Transparent farming, <br />
-                  traceable quality.
+                <h2 className="text-5xl md:text-7xl font-black text-white leading-[1] tracking-tighter">
+                  வெளிப்படையான <br />
+                  <span className="text-emerald-400">விவசாயம்.</span>
                 </h2>
-                <p className="text-slate-400 text-lg leading-relaxed">
-                  Every product from Logesh Vivasayi is grown with precise care for soil health and biodiversity. We don't just farm; we build sustainable agricultural systems for the future.
+                <p className="text-slate-400 text-xl leading-relaxed font-medium">
+                  ஒவ்வொரு தயாரிப்பும் மண்ணின் ஆரோக்கியம் மற்றும் பல்லுயிர் பெருக்கத்திற்காக துல்லியமான கவனத்துடன் விளைவிக்கப்படுகிறது.
                 </p>
-                
-                <ul className="space-y-4 pt-4">
-                  {['Verified Organic Soil', 'Traditional Seed Varieties', 'Zero Chemical Pesticides'].map((item, i) => (
-                    <li key={i} className="flex items-center space-x-3 text-slate-300 font-medium">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />
-                      </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  {['இயற்கை மண்', 'பாரம்பரிய விதைகள்', 'பூச்சிக்கொல்லி இன்றி', 'நேரடி விநியோகம்'].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="flex items-center space-x-3 text-slate-100 font-bold bg-white/5 border border-white/10 p-4 rounded-2xl"
+                    >
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                       <span>{item}</span>
-                    </li>
+                    </motion.div>
                   ))}
-                </ul>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-6 relative">
-                <div className="aspect-[4/5] rounded-[2rem] overflow-hidden bg-slate-800 shadow-2xl relative translate-y-8">
-                  <img src="https://images.unsplash.com/photo-1595856754020-0081d06e2361?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover opacity-80 hover:opacity-100 hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
                 </div>
-                <div className="aspect-[4/5] rounded-[2rem] overflow-hidden bg-slate-800 shadow-2xl relative -translate-y-8">
-                  <img src="https://images.unsplash.com/photo-1592681890670-8bf1952d7e4b?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover opacity-80 hover:opacity-100 hover:scale-105 transition-all duration-700" referrerPolicy="no-referrer" />
+              </div>
+
+              <div className="relative">
+                <div className="grid grid-cols-2 gap-8">
+                  <motion.div
+                    animate={{ y: [0, -20, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative"
+                  >
+                    <img src="https://images.unsplash.com/photo-1595856754020-0081d06e2361?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ y: [0, 20, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative translate-y-12"
+                  >
+                    <img src="https://images.unsplash.com/photo-1592681890670-8bf1952d7e4b?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </motion.div>
                 </div>
               </div>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Farm Gallery Section */}
+      <section className="py-32 bg-slate-50 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-20">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6"
+            >
+              எங்கள் <span className="text-emerald-600">பண்ணை கேலரி</span>
+            </motion.h2>
+            <p className="text-slate-500 text-lg font-medium leading-relaxed">
+              இயற்கையின் அழகையும் எங்கள் கடின உழைப்பையும் இங்கே காணலாம். தூய்மையான விவசாயத்தின் சில காட்சிகள்.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { url: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=800&auto=format&fit=crop', title: 'பசுமையான வயல்' },
+              { url: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?q=80&w=800&auto=format&fit=crop', title: 'இயற்கை அறுவடை' },
+              { url: 'https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?q=80&w=800&auto=format&fit=crop', title: 'பண்ணை பராமரிப்பு' },
+              { url: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=800&auto=format&fit=crop', title: 'நவீன விவசாயம்' },
+              { url: 'https://images.unsplash.com/photo-1595033538458-9480011d3382?q=80&w=800&auto=format&fit=crop', title: 'புதிய காய்கறிகள்' },
+              { url: 'https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?q=80&w=800&auto=format&fit=crop', title: 'இயற்கை உரம்' }
+            ].map((img, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative aspect-square rounded-[2rem] overflow-hidden bg-white shadow-xl hover:shadow-2xl transition-all duration-500"
+              >
+                <img
+                  src={img.url}
+                  alt={img.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
+                  <span className="text-white font-bold text-xl">{img.title}</span>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
