@@ -19,6 +19,7 @@ import { OrderHistory } from '../pages/OrderHistory';
 import { Reports } from '../pages/Reports';
 import { Notes } from '../pages/Notes';
 import { Settings } from '../pages/Settings';
+import { PendingAmount } from '../pages/PendingAmount';
 
 export function Layout() {
   const { user, currentAdminPage } = useStore();
@@ -39,6 +40,7 @@ export function Layout() {
       case 'reports': return <Reports />;
       case 'notes': return <Notes />;
       case 'settings': return <Settings />;
+      case 'pending-amount': return <PendingAmount />;
       default: return <Dashboard />;
     }
   };

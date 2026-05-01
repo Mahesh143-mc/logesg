@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Leaf, Award, ShieldCheck, Truck, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
+import { useTranslation } from '../../utils/translations';
 
 // Hero Images
 import hero1 from '../../image/1.jpg';
@@ -13,7 +14,8 @@ import hero5 from '../../image/6.jpg';
 const heroImages = [hero1, hero2, hero3, hero4, hero5];
 
 export function CustomerHome() {
-  const { setCurrentCustomerPage } = useStore();
+  const { setCurrentCustomerPage, language } = useStore();
+  const t = useTranslation(language);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
@@ -26,18 +28,18 @@ export function CustomerHome() {
   const features = [
     {
       icon: <Award className="w-6 h-6" />,
-      title: "உயர்ந்த தரம்",
-      desc: "எங்கள் பண்ணைகளில் இருந்து நேரடியாகப் பறிக்கப்பட்ட பொருட்கள், உங்கள் மேசைக்கு புத்துணர்ச்சியுடன் வரும்."
+      title: t('quality_title'),
+      desc: t('quality_desc')
     },
     {
       icon: <ShieldCheck className="w-6 h-6" />,
-      title: "100% இயற்கை",
-      desc: "தீங்கு விளைவிக்கும் இரசாயனங்கள் இன்றி வளர்க்கப்படுகிறது. உங்கள் ஆரோக்கியமே எங்களின் நோக்கம்."
+      title: t('natural_title'),
+      desc: t('natural_desc')
     },
     {
       icon: <Truck className="w-6 h-6" />,
-      title: "வேகமான விநியோகம்",
-      desc: "காலையில் அறுவடை செய்யப்பட்டு, மாலையில் உங்கள் வீட்டிற்கு விநியோகிக்கப்படுகிறது."
+      title: t('delivery_title'),
+      desc: t('delivery_desc')
     }
   ];
 
@@ -71,8 +73,8 @@ export function CustomerHome() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl mb-8"
             >
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">இன்று அறுவடை செய்யப்பட்டு விநியோகிக்கப்படுகிறது</span>
+               <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">{t('harvest_today')}</span>
             </motion.div>
 
             <motion.h1
@@ -81,10 +83,10 @@ export function CustomerHome() {
               transition={{ duration: 0.8, cubicBezier: [0.16, 1, 0.3, 1] }}
               className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-tight mb-6"
             >
-              தூய அறுவடை, <br />
+              {t('pure_harvest')} <br />
               <span className="relative inline-block mt-4">
                 <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-300">
-                  புதிய விநியோகம்.
+                  {t('fresh_delivery')}
                 </span>
               </span>
             </motion.h1>
@@ -95,7 +97,7 @@ export function CustomerHome() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-lg sm:text-2xl text-slate-300 mb-12 max-w-2xl mx-auto leading-relaxed font-medium"
             >
-              இயற்கை விவசாய பொருட்களை வாங்குவதற்கான நவீன வழி. எங்களின் தொழில்நுட்பம் சார்ந்த பண்ணைகளில் இருந்து நேரடியாக உங்கள் வீட்டு வாசலுக்கு.
+              {t('hero_desc')}
             </motion.p>
 
             <motion.div
@@ -112,7 +114,7 @@ export function CustomerHome() {
                 className="w-full sm:w-auto inline-flex items-center justify-center space-x-3 px-12 py-6 bg-emerald-600 hover:bg-emerald-500 text-white rounded-3xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl shadow-emerald-600/40 active:scale-95 group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                <span>பொருட்களைப் பார்க்க</span>
+                <span>{t('view_products')}</span>
                 <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
@@ -122,7 +124,7 @@ export function CustomerHome() {
                 }}
                 className="w-full sm:w-auto inline-flex items-center justify-center px-12 py-6 bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 rounded-3xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-2xl"
               >
-                தொடர்பு கொள்ள
+                {t('get_in_touch')}
               </button>
             </motion.div>
           </div>
@@ -140,7 +142,7 @@ export function CustomerHome() {
               viewport={{ once: true }}
               className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4 md:mb-6"
             >
-              ஏன் லோகேஷ் விவசாயி?
+              {t('why_logesh')}
             </motion.h2>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -149,7 +151,7 @@ export function CustomerHome() {
               transition={{ delay: 0.1 }}
               className="text-slate-500 text-base md:text-lg font-medium leading-relaxed"
             >
-              நாங்கள் பாரம்பரிய விவசாய அறிவை நவீன தொழில்நுட்பத்துடன் இணைத்து சிறந்த அனுபவத்தை வழங்குகிறோம்.
+              {t('feature_desc')}
             </motion.p>
           </div>
 
@@ -194,19 +196,27 @@ export function CustomerHome() {
             <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
               <div className="space-y-10">
                 <div className="inline-flex px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black tracking-widest uppercase">
-                  எங்கள் உறுதிப்பாடு
+                  {t('our_commitment')}
                 </div>
                 <h2 className="text-2xl sm:text-5xl md:text-7xl font-black text-white leading-tight md:leading-[1] tracking-tighter">
-                  வெளிப்படையான <span className="sm:hidden text-emerald-400">விவசாயம்.</span>
-                  <br className="hidden sm:block" />
-                  <span className="hidden sm:inline text-emerald-400">விவசாயம்.</span>
+                  {language === 'ta' ? (
+                    <>
+                      வெளிப்படையான <span className="sm:hidden text-emerald-400">விவசாயம்.</span>
+                      <br className="hidden sm:block" />
+                      <span className="hidden sm:inline text-emerald-400">விவசாயம்.</span>
+                    </>
+                  ) : (
+                    <>
+                      Transparent <span className="text-emerald-400">Farming.</span>
+                    </>
+                  )}
                 </h2>
                 <p className="text-slate-400 text-base md:text-xl leading-relaxed font-medium">
-                  ஒவ்வொரு தயாரிப்பும் மண்ணின் ஆரோக்கியம் மற்றும் பல்லுயிர் பெருக்கத்திற்காக துல்லியமான கவனத்துடன் விளைவிக்கப்படுகிறது.
+                  {t('soil_health_desc')}
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-4 md:gap-6">
-                  {['இயற்கை மண்', 'பாரம்பரிய விதைகள்', 'பூச்சிக்கொல்லி இன்றி', 'நேரடி விநியோகம்'].map((item, i) => (
+                  {[t('natural_soil'), t('traditional_seeds'), t('no_pesticides'), t('direct_delivery')].map((item, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, x: -20 }}
@@ -255,21 +265,25 @@ export function CustomerHome() {
               viewport={{ once: true }}
               className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter mb-4 md:mb-6"
             >
-              எங்கள் <span className="text-emerald-600">பண்ணை கேலரி</span>
+              {language === 'ta' ? (
+                <>எங்கள் <span className="text-emerald-600">பண்ணை கேலரி</span></>
+              ) : (
+                <>Our <span className="text-emerald-600">Farm Gallery</span></>
+              )}
             </motion.h2>
             <p className="text-slate-500 text-base md:text-lg font-medium leading-relaxed">
-              இயற்கையின் அழகையும் எங்கள் கடின உழைப்பையும் இங்கே காணலாம். தூய்மையான விவசாயத்தின் சில காட்சிகள்.
+              {t('gallery_desc')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
             {[
-              { url: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=800&auto=format&fit=crop', title: 'பசுமையான வயல்' },
-              { url: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?q=80&w=800&auto=format&fit=crop', title: 'இயற்கை அறுவடை' },
-              { url: 'https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?q=80&w=800&auto=format&fit=crop', title: 'பண்ணை பராமரிப்பு' },
-              { url: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=800&auto=format&fit=crop', title: 'நவீன விவசாயம்' },
-              { url: 'https://images.unsplash.com/photo-1595033538458-9480011d3382?q=80&w=800&auto=format&fit=crop', title: 'புதிய காய்கறிகள்' },
-              { url: 'https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?q=80&w=800&auto=format&fit=crop', title: 'இயற்கை உரம்' }
+              { url: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=800&auto=format&fit=crop', title: t('green_field') },
+              { url: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?q=80&w=800&auto=format&fit=crop', title: t('natural_harvest') },
+              { url: 'https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?q=80&w=800&auto=format&fit=crop', title: t('farm_maintenance') },
+              { url: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=800&auto=format&fit=crop', title: t('modern_farming') },
+              { url: 'https://images.unsplash.com/photo-1595033538458-9480011d3382?q=80&w=800&auto=format&fit=crop', title: t('fresh_vegetables') },
+              { url: 'https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?q=80&w=800&auto=format&fit=crop', title: t('natural_fertilizer') }
             ].map((img, i) => (
               <motion.div
                 key={i}

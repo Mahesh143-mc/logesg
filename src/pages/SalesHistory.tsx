@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, Timestamp, doc, deleteDoc, where, getDocs, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import {
@@ -20,6 +20,8 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '../lib/utils';
 import { downloadInvoicePdf } from '../utils/pdfInvoice';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import toast from 'react-hot-toast';
 
 export function SalesHistory() {
   const [sales, setSales] = useState<any[]>([]);
@@ -28,6 +30,7 @@ export function SalesHistory() {
   const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; sale: any }>({ isOpen: false, sale: null });
 
   useEffect(() => {
     const q = query(collection(db, 'sales'), orderBy('createdAt', 'desc'));
@@ -94,14 +97,44 @@ export function SalesHistory() {
     window.open(pdfUrl, '_blank');
   };
 
-  const deleteSale = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this sales record?')) {
-      try {
-        await deleteDoc(doc(db, 'sales', id));
-      } catch (error) {
-        console.error('Error deleting sale:', error);
-        alert('Failed to delete sale');
+  const deleteSale = async (sale: any) => {
+    try {
+      // 1. Revert Customer Balances
+      if (sale.customerInfo?.name) {
+        const customersRef = collection(db, 'customers');
+        let q = query(customersRef, where('phone', '==', sale.customerInfo.phone));
+        if (!sale.customerInfo.phone) {
+          q = query(customersRef, where('name', '==', sale.customerInfo.name));
+        }
+        
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const customerDoc = querySnapshot.docs[0];
+          await updateDoc(doc(db, 'customers', customerDoc.id), {
+            pendingPayment: increment(-(sale.pendingAmount || 0)),
+            totalSpent: increment(-(sale.total || 0))
+          });
+        }
       }
+
+      // 2. Restore Product Stock
+      if (sale.items && Array.isArray(sale.items)) {
+        for (const item of sale.items) {
+          if (item.id && !item.id.startsWith('manual-')) {
+            await updateDoc(doc(db, 'products', item.id), {
+              stock: increment(item.quantity)
+            });
+          }
+        }
+      }
+
+      // 3. Delete the Sale Record
+      await deleteDoc(doc(db, 'sales', sale.id));
+      toast.success('Transaction deleted and balances reverted');
+      setDeleteConfirm({ isOpen: false, sale: null });
+    } catch (error) {
+      console.error('Error deleting sale:', error);
+      toast.error('Failed to delete transaction');
     }
   };
 
@@ -429,7 +462,7 @@ export function SalesHistory() {
                           <Printer className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => deleteSale(sale.id)}
+                          onClick={() => setDeleteConfirm({ isOpen: true, sale })}
                           className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                           title="Delete Record"
                         >
@@ -558,6 +591,17 @@ export function SalesHistory() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Transaction"
+        message="Are you sure you want to delete this transaction? This action will revert customer balances and product stock. This cannot be undone."
+        confirmText="Delete Transaction"
+        cancelText="Keep Transaction"
+        onConfirm={() => deleteSale(deleteConfirm.sale)}
+        onCancel={() => setDeleteConfirm({ isOpen: false, sale: null })}
+        variant="danger"
+      />
     </div>
   );
 }

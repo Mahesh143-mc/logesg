@@ -132,9 +132,11 @@ export function Dashboard() {
     });
 
     const unsubscribeCustomers = onSnapshot(collection(db, 'customers'), (snapshot) => {
+      const customers = snapshot.docs.map(doc => doc.data());
       setStats(prev => ({
         ...prev,
-        totalCustomers: snapshot.size
+        totalCustomers: snapshot.size,
+        pendingPayments: customers.reduce((acc, curr) => acc + (curr.pendingPayment || 0), 0)
       }));
     });
 
@@ -224,6 +226,14 @@ export function Dashboard() {
           value={stats.totalCustomers.toString()} 
           icon={Users} 
           color="indigo"
+        />
+        <StatCard 
+          title="Pending Dues" 
+          value={`₹${stats.pendingPayments.toLocaleString()}`} 
+          icon={IndianRupee} 
+          color="red"
+          isAlert={stats.pendingPayments > 0}
+          onClick={() => setCurrentAdminPage('pending-amount')}
         />
       </div>
 
@@ -338,18 +348,27 @@ export function Dashboard() {
         />
       </div>
     </div>
-  );
+ );
 }
 
-function StatCard({ title, value, icon: Icon, color, trend, isAlert }: any) {
+function StatCard({ title, value, icon: Icon, color, trend, isAlert, onClick }: any) {
   return (
-    <div className="admin-card !p-6 sm:!p-8 group hover:border-indigo-500/30 hover:shadow-lg transition-all cursor-default relative overflow-hidden">
+    <div 
+      onClick={onClick}
+      className={cn(
+        "admin-card !p-6 sm:!p-8 group hover:border-indigo-500/30 hover:shadow-lg transition-all cursor-default relative overflow-hidden",
+        onClick && "cursor-pointer active:scale-[0.98]"
+      )}
+    >
       <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full opacity-5 pointer-events-none transition-transform group-hover:scale-110" 
-           style={{ backgroundColor: color === 'indigo' ? '#4f46e5' : color === 'emerald' ? '#10b981' : '#f97316' }} />
+           style={{ backgroundColor: color === 'indigo' ? '#4f46e5' : color === 'emerald' ? '#10b981' : color === 'red' ? '#ef4444' : '#f97316' }} />
       <div className="flex items-center justify-between mb-6 relative z-10">
         <div className={cn(
           "rounded-2xl p-3.5 transition-all text-white shadow-md",
-          color === 'indigo' ? "bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-500/20" : color === 'emerald' ? "bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-500/20" : "bg-gradient-to-br from-orange-400 to-orange-600 shadow-orange-500/20"
+          color === 'indigo' ? "bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-500/20" : 
+          color === 'emerald' ? "bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-500/20" : 
+          color === 'red' ? "bg-gradient-to-br from-red-500 to-red-700 shadow-red-500/20" :
+          "bg-gradient-to-br from-orange-400 to-orange-600 shadow-orange-500/20"
         )}>
           <Icon className="h-5 w-5" />
         </div>

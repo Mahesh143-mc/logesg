@@ -5,6 +5,7 @@ import { useStore } from '../../store/useStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ShoppingBag, Leaf, ChevronRight, X, Minus, Plus, ShoppingCart, Loader2, CheckCircle, MapPin, User, Phone } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useTranslation } from '../../utils/translations';
 
 interface Product {
   id: string;
@@ -17,20 +18,23 @@ interface Product {
   description?: string;
 }
 
-export function CustomerShop({ initialCategory = 'அனைத்தும்' }: { initialCategory?: string }) {
+export function CustomerShop({ initialCategory }: { initialCategory?: string }) {
+  const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart, isCartOpen, setCartOpen, language } = useStore();
+  const t = useTranslation(language);
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || t('all'));
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
+    name: '',
+    phone: '',
     place: ''
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
-  const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart, isCartOpen, setCartOpen } = useStore();
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('name', 'asc'));
@@ -45,12 +49,12 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(products.map(p => p.category || 'Uncategorized')));
-    return ['அனைத்தும்', ...cats];
-  }, [products]);
+    return [t('all'), ...cats];
+  }, [products, t]);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'அனைத்தும்' || product.category === selectedCategory;
+    const matchesCategory = selectedCategory === t('all') || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -59,7 +63,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerDetails.name || !customerDetails.phone || !customerDetails.place) {
-      alert('தயவுசெய்து அனைத்து விவரங்களையும் நிரப்பவும்');
+      alert(t('fill_all_details'));
       return;
     }
 
@@ -97,7 +101,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
       }, 3000);
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('ஏதோ தவறு நடந்துவிட்டது. மீண்டும் முயற்சிக்கவும்.');
+      alert(t('error_occurred'));
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +140,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
               </div>
               <input 
                 type="text"
-                placeholder="பொருட்களைத் தேடுக..."
+                placeholder={t('search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 md:py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all shadow-sm font-medium"
@@ -148,13 +152,13 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
               onClick={() => setIsFilterOpen(true)}
               className={cn(
                 "flex items-center space-x-2 px-4 md:px-6 py-3 md:py-4 rounded-2xl border transition-all duration-300 font-black text-[10px] md:text-xs uppercase tracking-widest flex-shrink-0",
-                selectedCategory !== 'அனைத்தும்'
+                selectedCategory !== t('all')
                   ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-600/20"
                   : "bg-white text-slate-900 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               )}
             >
-              <Leaf className={cn("w-4 h-4", selectedCategory !== 'அனைத்தும்' ? "text-white" : "text-emerald-600")} />
-              <span className="hidden sm:inline">வகை: </span>
+              <Leaf className={cn("w-4 h-4", selectedCategory !== t('all') ? "text-white" : "text-emerald-600")} />
+              <span className="hidden sm:inline">{t('category')}: </span>
               <span className="max-w-[80px] sm:max-w-none truncate">{selectedCategory}</span>
             </button>
           </div>
@@ -169,7 +173,11 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
             animate={{ opacity: 1, x: 0 }}
             className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter"
           >
-            எங்கள் <span className="text-emerald-600">பொருட்கள்</span>
+            {language === 'ta' ? (
+              <>எங்கள் <span className="text-emerald-600">பொருட்கள்</span></>
+            ) : (
+              <>Our <span className="text-emerald-600">Products</span></>
+            )}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, x: -20 }}
@@ -177,12 +185,12 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
             transition={{ delay: 0.1 }}
             className="text-slate-500 mt-4 text-lg font-medium"
           >
-            எங்களின் தரமான விவசாயத் தயாரிப்புகளை இங்கே காணலாம்.
+            {t('shop_desc')}
           </motion.p>
         </header>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4 lg:gap-6">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, idx) => (
               <motion.div
@@ -195,7 +203,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                 className="bg-white rounded-3xl md:rounded-[2.5rem] overflow-hidden border border-slate-100 hover:border-emerald-200 hover:shadow-[0_30px_60px_rgba(16,185,129,0.12)] transition-all duration-500 group flex flex-col"
               >
                 <div 
-                  className="aspect-[4/3] sm:aspect-square relative cursor-pointer overflow-hidden bg-slate-50 p-6 md:p-8 flex items-center justify-center"
+                  className="h-40 md:h-52 relative cursor-pointer overflow-hidden bg-slate-50 p-4 md:p-6 flex items-center justify-center"
                   onClick={() => setSelectedProduct(product)}
                 >
                   <img 
@@ -206,28 +214,28 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   />
                   <div className="absolute top-4 left-4 md:top-6 md:left-6">
                     <span className="px-3 py-1 md:px-4 md:py-1.5 bg-white/90 backdrop-blur-md rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black text-emerald-700 uppercase tracking-widest border border-white shadow-sm">
-                      {product.category || 'பொதுவானவை'}
+                      {product.category || (language === 'ta' ? 'பொதுவானவை' : 'General')}
                     </span>
                   </div>
                   {product.stock <= 5 && product.stock > 0 && (
                     <div className="absolute top-6 right-6">
                       <span className="px-4 py-1.5 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-amber-500/30">
-                        இருப்பு குறைவு
+                        {t('low_stock')}
                       </span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-4 md:p-8 flex flex-col flex-1">
-                  <div className="mb-3 md:mb-4">
-                    <h3 className="text-sm md:text-xl font-black text-slate-900 tracking-tight line-clamp-1">{product.name}</h3>
-                    <div className="flex items-baseline space-x-1 mt-0.5 md:mt-2">
-                      <span className="text-lg md:text-2xl font-black text-emerald-600">₹{product.price.toLocaleString()}</span>
-                      <span className="text-[10px] md:text-sm font-bold text-slate-400">/ {product.unit || '1kg'}</span>
+                <div className="p-3 md:p-4 flex flex-col flex-1">
+                  <div className="mb-2">
+                    <h3 className="text-[10px] md:text-sm font-black text-slate-900 tracking-tight line-clamp-1">{product.name}</h3>
+                    <div className="flex items-baseline space-x-1 mt-0.5">
+                      <span className="text-sm md:text-lg font-black text-emerald-600">₹{product.price.toLocaleString()}</span>
+                      <span className="text-[8px] md:text-xs font-bold text-slate-400">/ {product.unit || '1kg'}</span>
                     </div>
                   </div>
                   <p className="text-slate-500 text-[10px] md:text-sm mb-4 md:mb-8 line-clamp-2 leading-relaxed flex-1 font-medium">
-                    {product.description || 'மிகவும் கவனத்துடன் விளைவிக்கப்பட்ட பிரீமியம் தரமான தயாரிப்பு.'}
+                    {product.description || t('quality_desc')}
                   </p>
                   
                   <motion.button
@@ -242,7 +250,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                     )}
                   >
                     <Plus className="w-3 h-3 md:w-4 md:h-4" />
-                    <span>{product.stock <= 0 ? 'இல்லை' : 'சேர்க்க'}</span>
+                    <span>{product.stock <= 0 ? t('out_of_stock') : t('add')}</span>
                   </motion.button>
                 </div>
               </motion.div>
@@ -255,13 +263,13 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
             <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-slate-300 border border-slate-100">
               <Search className="w-10 h-10" />
             </div>
-            <h2 className="text-2xl font-black text-slate-900">தயாரிப்புகள் எதுவும் இல்லை</h2>
-            <p className="text-slate-500 mt-3 text-lg font-medium">வேறு வார்த்தைகளில் தேடிப் பார்க்கவும்.</p>
+            <h2 className="text-2xl font-black text-slate-900">{t('no_products')}</h2>
+            <p className="text-slate-500 mt-3 text-lg font-medium">{t('search_another')}</p>
             <button 
-              onClick={() => { setSearchTerm(''); setSelectedCategory('அனைத்தும்'); }}
+              onClick={() => { setSearchTerm(''); setSelectedCategory(t('all')); }}
               className="mt-8 text-emerald-600 font-black hover:text-emerald-700 transition-colors uppercase tracking-widest text-sm"
             >
-              அனைத்தையும் நீக்க
+              {t('clear_all')}
             </button>
           </div>
         )}
@@ -289,7 +297,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
           )}
         </div>
         <div className="text-left hidden md:block pl-4 border-l border-white/20">
-          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">மொத்தம்</div>
+          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('total')}</div>
           <div className="font-black text-lg">₹{cartTotal.toLocaleString()}</div>
         </div>
       </motion.button>
@@ -327,17 +335,17 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   >
                     <CheckCircle className="w-12 h-12" />
                   </motion.div>
-                  <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tighter">ஆர்டர் உறுதி செய்யப்பட்டது</h2>
+                  <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tighter">{t('order_placed')}</h2>
                   <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                    உங்கள் வாங்குதலுக்கு நன்றி. விரைவில் உங்கள் பொருட்கள் விநியோகிக்கப்படும்.
+                    {t('order_success_desc')}
                   </p>
                 </div>
               ) : isCheckingOut ? (
                 <div className="flex flex-col h-full bg-white">
                   <div className="p-4 md:p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10 bg-white/80 backdrop-blur-md">
                     <div>
-                      <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">செக்அவுட்</h2>
-                      <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mt-0.5">விநியோக விவரங்கள்</p>
+                      <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">{t('checkout')}</h2>
+                      <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mt-0.5">{t('delivery_details')}</p>
                     </div>
                     <button 
                       onClick={() => setIsCheckingOut(false)}
@@ -350,13 +358,13 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   <form onSubmit={handlePlaceOrder} className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 md:space-y-6">
                     <div className="bg-slate-50 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 space-y-5">
                       <div className="space-y-1.5">
-                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">முழு பெயர்</label>
+                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{t('full_name')}</label>
                         <div className="relative group">
                           <User className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                           <input 
                             required
                             type="text" 
-                            placeholder="உதாரணம்: லோகேஷ்"
+                            placeholder={language === 'ta' ? "உதாரணம்: லோகேஷ்" : "e.g. Logesh"}
                             value={customerDetails.name}
                             onChange={(e) => setCustomerDetails({...customerDetails, name: e.target.value})}
                             className="w-full bg-white border border-slate-200 rounded-lg md:rounded-xl py-2.5 md:py-3.5 pl-11 pr-6 text-xs md:text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
@@ -365,7 +373,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">தொலைபேசி எண்</label>
+                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{t('phone_number')}</label>
                         <div className="relative group">
                           <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                           <input 
@@ -380,13 +388,13 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">விநியோக முகவரி</label>
+                        <label className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{t('delivery_address')}</label>
                         <div className="relative group">
                           <MapPin className="absolute left-4 top-4 w-3.5 h-3.5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                           <textarea 
                             required
                             rows={2}
-                            placeholder="உங்கள் முழு முகவரியை இங்கே உள்ளிடவும்..."
+                            placeholder={language === 'ta' ? "உங்கள் முழு முகவரியை இங்கே உள்ளிடவும்..." : "Enter your full address here..."}
                             value={customerDetails.place}
                             onChange={(e) => setCustomerDetails({...customerDetails, place: e.target.value})}
                             className="w-full bg-white border border-slate-200 rounded-lg md:rounded-xl py-2.5 md:py-3.5 pl-11 pr-6 text-xs md:text-sm text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all resize-none font-medium"
@@ -398,12 +406,12 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                     <div className="p-5 md:p-6 bg-emerald-600 rounded-[1.5rem] md:rounded-[2rem] text-white shadow-xl shadow-emerald-600/20 flex flex-col sm:flex-row justify-between items-start sm:items-center overflow-hidden relative gap-3">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                       <div className="relative z-10">
-                        <div className="text-[9px] font-black text-emerald-100 uppercase tracking-widest mb-0.5">மொத்த தொகை</div>
+                        <div className="text-[9px] font-black text-emerald-100 uppercase tracking-widest mb-0.5">{t('total')}</div>
                         <div className="text-2xl md:text-3xl font-black">₹{cartTotal.toLocaleString()}</div>
                       </div>
                       <div className="relative z-10 flex items-center space-x-2 bg-white/20 backdrop-blur-md px-3 py-1 md:px-4 md:py-1.5 rounded-md md:rounded-lg border border-white/20 text-[9px] font-black uppercase tracking-widest">
                         <CheckCircle className="w-3.5 h-3.5" />
-                        <span>COD உண்டு</span>
+                        <span>{t('cod_available')}</span>
                       </div>
                     </div>
                   </form>
@@ -417,11 +425,11 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>செயலாக்கப்படுகின்றன...</span>
+                          <span>{t('processing')}</span>
                         </>
                       ) : (
                         <>
-                          <span>ஆர்டரை உறுதிப்படுத்து</span>
+                          <span>{t('confirm_order')}</span>
                           <ChevronRight className="w-5 h-5" />
                         </>
                       )}
@@ -432,8 +440,8 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                 <div className="flex flex-col h-full bg-white">
                   <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10 bg-white/80 backdrop-blur-md">
                     <div>
-                      <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">உங்கள் கூடை</h2>
-                      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">{cart.length} பொருட்கள்</p>
+                      <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{t('your_cart')}</h2>
+                      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">{cart.length} {t('items')}</p>
                     </div>
                     <button 
                       onClick={() => setCartOpen(false)}
@@ -450,14 +458,14 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                           <ShoppingCart className="w-8 h-8 md:w-10 md:h-10" />
                         </div>
                         <div className="space-y-2 px-6">
-                          <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">கூடை காலியாக உள்ளது</p>
-                          <p className="text-sm text-slate-500 font-medium">நீங்கள் இன்னும் எதையும் சேர்க்கவில்லை.</p>
+                          <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{t('cart_empty')}</p>
+                          <p className="text-sm text-slate-500 font-medium">{language === 'ta' ? 'நீங்கள் இன்னும் எதையும் சேர்க்கவில்லை.' : "You haven't added anything yet."}</p>
                         </div>
                         <button 
                           onClick={() => setCartOpen(false)}
                           className="mt-4 px-10 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl shadow-slate-900/20 hover:bg-slate-800 uppercase tracking-widest transition-all"
                         >
-                          ஷாப்பிங் செய்ய
+                          {t('start_shopping')}
                         </button>
                       </div>
                     ) : (
@@ -498,14 +506,14 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   {cart.length > 0 && (
                     <div className="p-6 md:p-8 bg-white border-t border-slate-100 sticky bottom-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                       <div className="flex justify-between items-center mb-6">
-                        <span className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">மொத்தம்</span>
+                        <span className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">{t('total')}</span>
                         <span className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">₹{cartTotal.toLocaleString()}</span>
                       </div>
                       <button 
                         onClick={() => setIsCheckingOut(true)}
                         className="w-full py-4 md:py-5 bg-emerald-600 text-white rounded-xl md:rounded-2xl font-black flex items-center justify-center space-x-3 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all active:scale-95 uppercase tracking-widest text-sm md:text-base"
                       >
-                        <span>செக்அவுட்</span>
+                        <span>{t('checkout')}</span>
                         <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                       </button>
                     </div>
@@ -537,8 +545,8 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
             >
               <div className="p-4 md:p-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
                 <div>
-                  <h3 className="text-base md:text-lg font-black text-slate-900 tracking-tight">வகை வாரியாக</h3>
-                  <p className="text-[8px] md:text-[9px] text-slate-500 font-black uppercase tracking-widest mt-0.5">மொத்தம் {categories.length} வகைகள்</p>
+                  <h3 className="text-base md:text-lg font-black text-slate-900 tracking-tight">{t('category')}</h3>
+                  <p className="text-[8px] md:text-[9px] text-slate-500 font-black uppercase tracking-widest mt-0.5">{language === 'ta' ? `மொத்தம் ${categories.length} வகைகள்` : `Total ${categories.length} categories`}</p>
                 </div>
                 <button 
                   onClick={() => setIsFilterOpen(false)}
@@ -583,7 +591,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                   onClick={() => setIsFilterOpen(false)}
                   className="w-full py-3 bg-slate-900 text-white rounded-lg md:rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-lg shadow-slate-900/5 hover:bg-slate-800 transition-all"
                 >
-                  மூடு
+                  {language === 'ta' ? 'மூடு' : 'Close'}
                 </button>
               </div>
             </motion.div>
@@ -627,7 +635,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                 />
                 <div className="absolute top-6 left-6 md:top-8 md:left-8">
                   <span className="px-4 py-1.5 md:px-5 md:py-2 bg-white rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black text-emerald-700 uppercase tracking-widest shadow-sm border border-slate-100">
-                    {selectedProduct.category}
+                    {selectedProduct.category || (language === 'ta' ? 'பொதுவானவை' : 'General')}
                   </span>
                 </div>
               </div>
@@ -644,22 +652,22 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                       <span className="text-sm md:text-base font-bold text-slate-400">/ {selectedProduct.unit || '1kg'}</span>
                     </div>
                     <span className="text-[10px] md:text-xs font-black text-emerald-700 px-3 py-1 md:px-4 md:py-1.5 bg-emerald-50 rounded-lg md:rounded-xl uppercase tracking-widest border border-emerald-100">
-                      {selectedProduct.stock > 0 ? 'இருப்பில் உள்ளது' : 'இருப்பு இல்லை'}
+                      {selectedProduct.stock > 0 ? t('in_stock') : t('out_of_stock')}
                     </span>
                   </div>
                   
                   <div className="space-y-8">
                     <div>
-                      <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3">விளக்கம்</h4>
+                      <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3">{t('description')}</h4>
                       <p className="text-slate-500 leading-relaxed text-base md:text-lg font-medium">
-                        {selectedProduct.description || 'மிகவும் கவனத்துடன் விளைவிக்கப்பட்ட பிரீமியம் தரமான தயாரிப்பு. எங்களின் நேரடி பண்ணைகளில் இருந்து இயற்கையான முறையில் வளர்க்கப்பட்டது.'}
+                        {selectedProduct.description || t('quality_desc')}
                       </p>
                     </div>
                     
                     <div className="grid grid-cols-1 gap-3">
                       {[
-                        { title: 'தரம் உறுதி செய்யப்பட்டது', desc: 'புத்துணர்ச்சி மற்றும் தூய்மைக்காக சோதிக்கப்பட்டது' },
-                        { title: '100% இயற்கை', desc: 'இரசாயன உரங்கள் இன்றி விளைவிக்கப்பட்டது' }
+                        { title: t('quality_assured'), desc: t('freshness_desc') },
+                        { title: t('natural_title'), desc: t('chemical_free_desc') }
                       ].map((feat, i) => (
                         <div key={i} className="flex items-center space-x-4 p-5 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100">
                           <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 flex-shrink-0">
@@ -688,7 +696,7 @@ export function CustomerShop({ initialCategory = 'அனைத்தும்' }
                     className="w-full py-4 md:py-5 bg-emerald-600 text-white rounded-xl md:rounded-2xl font-black flex items-center justify-center space-x-3 md:space-x-4 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:grayscale uppercase tracking-widest text-sm md:text-base"
                   >
                     <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" />
-                    <span>{selectedProduct.stock > 0 ? 'கூடையில் சேர்க்க' : 'இருப்பு இல்லை'}</span>
+                    <span>{selectedProduct.stock > 0 ? t('add_to_cart') : t('out_of_stock')}</span>
                   </motion.button>
                 </div>
               </div>

@@ -25,7 +25,7 @@ export function Products() {
   const [units, setUnits] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [rowsPerPage, setRowsPerPage] = useState(12);
+  const [rowsPerPage, setRowsPerPage] = useState(18);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
@@ -220,10 +220,10 @@ export function Products() {
         .image(product.publicId)
         .format('auto')
         .quality('auto')
-        .resize(auto().gravity(autoGravity()).width(200).height(200));
-      return <AdvancedImage cldImg={img} className="h-full w-full object-cover" />;
+        .resize(auto().gravity(autoGravity()).width(120).height(120));
+      return <AdvancedImage cldImg={img} className="h-full w-full object-contain" />;
     } else if (product.imageUrl) {
-      return <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" referrerPolicy="no-referrer" />;
+      return <img src={product.imageUrl} alt={product.name} className="h-full w-full object-contain" referrerPolicy="no-referrer" />;
     } else {
       return (
         <div className="flex h-full w-full items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-300 dark:text-slate-600">
@@ -422,16 +422,16 @@ export function Products() {
             onChange={(e) => setRowsPerPage(Number(e.target.value))}
             className="h-11 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm font-medium text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm appearance-none"
           >
-            <option value={8}>Show 8</option>
             <option value={12}>Show 12</option>
-            <option value={20}>Show 20</option>
-            <option value={50}>Show 50</option>
+            <option value={18}>Show 18</option>
+            <option value={24}>Show 24</option>
+            <option value={60}>Show 60</option>
           </select>
         </div>
       </div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
         {pagedProducts.map((product) => (
           <div 
             key={product.id} 
@@ -439,7 +439,7 @@ export function Products() {
             className="group cursor-pointer bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200/60 dark:border-zinc-800 shadow-sm overflow-hidden flex flex-col hover:border-indigo-500/30 dark:hover:border-indigo-500/30 transition-colors"
           >
             {/* Image Area */}
-            <div className="relative aspect-square border-b border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-800/20">
+            <div className="relative h-40 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-800/20 p-4">
               {renderProductImage(product)}
               
               {/* Overlay Actions */}
@@ -492,15 +492,15 @@ export function Products() {
             </div>
 
             {/* Content */}
-            <div className="p-4 flex-1 flex flex-col">
-              <div className="mb-4">
-                <div className="text-xs text-slate-500 font-medium mb-1">{product.category || 'Uncategorized'}</div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight line-clamp-1">{product.name}</h3>
+            <div className="p-3 flex-1 flex flex-col">
+              <div className="mb-2">
+                <div className="text-[10px] text-slate-500 font-medium mb-0.5">{product.category || 'Uncategorized'}</div>
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white tracking-tight line-clamp-1">{product.name}</h3>
               </div>
               
               <div className="mt-auto flex items-center justify-between">
-                <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">₹{product.price.toFixed(2)}</span>
-                <span className="text-sm font-medium text-slate-500">
+                <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">₹{product.price.toFixed(2)}</span>
+                <span className="text-[10px] font-medium text-slate-500">
                   {product.stock} {product.unit || 'pcs'}
                 </span>
               </div>
@@ -537,7 +537,7 @@ export function Products() {
             <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
               <div className="flex flex-col sm:flex-row gap-6">
                 {/* Image Section */}
-                <div className="w-full sm:w-1/3 aspect-square rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="w-full sm:w-1/3 h-40 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 overflow-hidden p-4">
                   {renderProductImage(viewingProduct)}
                 </div>
                 

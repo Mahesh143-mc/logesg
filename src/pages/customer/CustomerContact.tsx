@@ -1,8 +1,13 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Send, Instagram, Facebook, Twitter } from 'lucide-react';
+import { useStore } from '../../store/useStore';
+import { useTranslation } from '../../utils/translations';
 
 export function CustomerContact() {
+  const { language } = useStore();
+  const t = useTranslation(language);
+
   return (
     <div className="bg-slate-50 min-h-screen pb-32 overflow-hidden">
       {/* Hero Section */}
@@ -36,7 +41,7 @@ export function CustomerContact() {
             className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white border border-emerald-100 shadow-sm text-[10px] md:text-xs font-black text-emerald-700 uppercase tracking-widest"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>ஆதரவு மற்றும் விற்பனை</span>
+            <span>{t('support_sales')}</span>
           </motion.div>
           
           <motion.h1 
@@ -45,8 +50,13 @@ export function CustomerContact() {
             transition={{ duration: 0.8, cubicBezier: [0.16, 1, 0.3, 1] }}
             className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[1.1] md:leading-tight"
           >
-            எங்களைத் தொடர்பு <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500">கொள்க.</span>
+            {language === 'ta' ? (
+              <>எங்களைத் தொடர்பு <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500">கொள்க.</span></>
+            ) : (
+              <>Contact <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500">Us.</span></>
+            )}
           </motion.h1>
           
           <motion.p 
@@ -55,7 +65,7 @@ export function CustomerContact() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-slate-500 text-base md:text-2xl max-w-2xl mx-auto leading-relaxed font-medium"
           >
-            எங்கள் பண்ணை தயாரிப்புகள் அல்லது இயற்கை முறைகளைப் பற்றி ஏதேனும் கேள்விகள் உள்ளதா? எங்களைத் தொடர்பு கொள்ளவும்.
+            {t('contact_hero_desc')}
           </motion.p>
         </div>
       </section>
@@ -74,16 +84,16 @@ export function CustomerContact() {
             <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
             
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-black mb-4 md:mb-6 tracking-tight">தொடர்பு விவரங்கள்</h2>
+              <h2 className="text-3xl md:text-4xl font-black mb-4 md:mb-6 tracking-tight">{t('contact_info')}</h2>
               <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-10 md:mb-16 font-medium">
-                படிவத்தைப் பூர்த்தி செய்யவும், எங்கள் குழு 24 மணி நேரத்திற்குள் உங்களைத் தொடர்பு கொள்ளும்.
+                {t('contact_info_desc')}
               </p>
 
               <div className="space-y-6 md:space-y-10">
                 {[
-                  { icon: <Phone />, label: "விற்பனை மற்றும் ஆதரவு", val: "+91 98765 43210" },
-                  { icon: <Mail />, label: "மின்னஞ்சல் அனுப்புங்கள்", val: "hello@vivasayi.com" },
-                  { icon: <MapPin />, label: "தலைமையகம்", val: "கோயம்புத்தூர், தமிழ்நாடு" }
+                  { icon: <Phone />, label: t('sales_support'), val: "+91 98765 43210" },
+                  { icon: <Mail />, label: t('send_email'), val: "hello@vivasayi.com" },
+                  { icon: <MapPin />, label: t('headquarters'), val: t('coimbatore_tn') }
                 ].map((item, i) => (
                   <motion.div 
                     key={i}
@@ -123,15 +133,15 @@ export function CustomerContact() {
             <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-3">
-                  <label className="text-sm font-black text-slate-800 ml-1">முதல் பெயர்</label>
+                  <label className="text-sm font-black text-slate-800 ml-1">{t('first_name')}</label>
                   <input 
                     type="text" 
-                    placeholder="உதாரணம்: லோகேஷ்"
+                    placeholder={language === 'ta' ? "உதாரணம்: லோகேஷ்" : "e.g. Logesh"}
                     className="w-full bg-slate-50 rounded-2xl px-6 py-4 border border-slate-200 text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-sm font-black text-slate-800 ml-1">கடைசி பெயர்</label>
+                  <label className="text-sm font-black text-slate-800 ml-1">{t('last_name')}</label>
                   <input 
                     type="text" 
                     placeholder="Doe"
@@ -141,7 +151,7 @@ export function CustomerContact() {
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-black text-slate-800 ml-1">மின்னஞ்சல் முகவரி</label>
+                <label className="text-sm font-black text-slate-800 ml-1">{t('email_address')}</label>
                 <input 
                   type="email" 
                   placeholder="hello@company.com"
@@ -150,10 +160,10 @@ export function CustomerContact() {
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-black text-slate-800 ml-1">செய்தி</label>
+                <label className="text-sm font-black text-slate-800 ml-1">{t('message')}</label>
                 <textarea 
                   rows={5}
-                  placeholder="நாங்கள் உங்களுக்கு எப்படி உதவ முடியும்?"
+                  placeholder={t('how_can_we_help')}
                   className="w-full bg-slate-50 rounded-2xl px-6 py-4 border border-slate-200 text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all resize-none font-medium"
                 />
               </div>
@@ -165,7 +175,7 @@ export function CustomerContact() {
                   className="w-full sm:w-auto px-12 py-5 bg-emerald-600 text-white font-black rounded-2xl flex items-center justify-center space-x-3 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all"
                 >
                   <Send className="w-5 h-5" />
-                  <span>செய்தி அனுப்பு</span>
+                  <span>{t('send_message_btn')}</span>
                 </motion.button>
               </div>
             </form>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search } from 'lucide-react';
+import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../../store/useStore';
 import { CustomerHome } from '../../pages/customer/CustomerHome';
@@ -8,11 +8,14 @@ import { CustomerShop } from '../../pages/customer/CustomerShop';
 import { CustomerContact } from '../../pages/customer/CustomerContact';
 import { CustomerAbout } from '../../pages/customer/CustomerAbout';
 import { cn } from '../../lib/utils';
+import { useTranslation } from '../../utils/translations';
 
 export function CustomerLayout() {
-  const { cart, setCartOpen, isCartOpen, currentCustomerPage, setCurrentCustomerPage } = useStore();
+  const { cart, setCartOpen, isCartOpen, currentCustomerPage, setCurrentCustomerPage, language, setLanguage } = useStore();
+  const t = useTranslation(language);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -24,10 +27,10 @@ export function CustomerLayout() {
   }, []);
 
   const navLinks = [
-    { id: 'home', label: 'முகப்பு', icon: <HomeIcon className="w-5 h-5" /> },
-    { id: 'shop', label: 'கடை', icon: <ShoppingBag className="w-5 h-5" /> },
-    { id: 'about', label: 'எங்களைப் பற்றி', icon: <Info className="w-5 h-5" /> },
-    { id: 'contact', label: 'தொடர்புக்கு', icon: <Phone className="w-5 h-5" /> },
+    { id: 'home', label: t('home'), icon: <HomeIcon className="w-5 h-5" /> },
+    { id: 'shop', label: t('shop'), icon: <ShoppingBag className="w-5 h-5" /> },
+    { id: 'about', label: t('about'), icon: <Info className="w-5 h-5" /> },
+    { id: 'contact', label: t('contact'), icon: <Phone className="w-5 h-5" /> },
   ];
 
   const renderContent = () => {
@@ -67,8 +70,8 @@ export function CustomerLayout() {
                 <Sprout className="w-5 h-5 md:w-7 md:h-7 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg md:text-xl font-black text-white tracking-tighter leading-none">லோகேஷ்</span>
-                <span className="text-[8px] md:text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mt-0.5 md:mt-1">விவசாயி</span>
+                <span className="text-lg md:text-xl font-black text-white tracking-tighter leading-none">{t('logesh')}</span>
+                <span className="text-[8px] md:text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mt-0.5 md:mt-1">{t('farmer')}</span>
               </div>
             </motion.div>
 
@@ -111,6 +114,50 @@ export function CustomerLayout() {
                   </span>
                 )}
               </motion.button>
+
+              {/* Language Switcher */}
+              <div className="relative">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsLangOpen(!isLangOpen)}
+                  className="w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-sm group"
+                >
+                  <Globe className="w-4 h-4 md:w-5 md:h-5" />
+                </motion.button>
+                
+                <AnimatePresence>
+                  {isLangOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-2 w-32 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-1 z-[110]"
+                    >
+                      {[
+                        { code: 'ta', label: 'தமிழ்' },
+                        { code: 'en', label: 'English' }
+                      ].map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => {
+                            setLanguage(lang.code as any);
+                            setIsLangOpen(false);
+                          }}
+                          className={cn(
+                            "w-full px-4 py-2 text-left text-sm font-bold transition-colors",
+                            language === lang.code 
+                              ? "bg-emerald-600 text-white" 
+                              : "text-slate-400 hover:bg-white/5 hover:text-white"
+                          )}
+                        >
+                          {lang.label}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -209,12 +256,12 @@ export function CustomerLayout() {
                   <Sprout className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xl font-black tracking-tighter leading-none">லோகேஷ் விவசாயி</span>
-                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mt-1">இயற்கை பண்ணை</span>
+                  <span className="text-xl font-black tracking-tighter leading-none">{t('logesh_farmer')}</span>
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mt-1">{t('natural_farm')}</span>
                 </div>
               </div>
               <p className="text-slate-400 leading-relaxed font-medium">
-                நாங்கள் தரமான மற்றும் இயற்கையான விவசாயத் தயாரிப்புகளை நேரடியாக உங்கள் வீட்டிற்கு கொண்டு வருகிறோம்.
+                {t('footer_desc')}
               </p>
               <div className="flex space-x-4">
                 {[Instagram, Facebook, Twitter].map((Icon, i) => (
@@ -226,7 +273,7 @@ export function CustomerLayout() {
             </div>
 
             <div>
-              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">விரைவான இணைப்புகள்</h4>
+              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">{t('quick_links')}</h4>
               <ul className="space-y-4">
                 {navLinks.map(link => (
                   <li key={link.id}>
@@ -249,14 +296,14 @@ export function CustomerLayout() {
             </div>
 
             <div>
-              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">தொடர்புக்கு</h4>
+              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">{t('contact')}</h4>
               <ul className="space-y-6">
                 <li className="flex items-start space-x-4">
                   <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-emerald-500 flex-shrink-0">
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">அழைக்கவும்</div>
+                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('call_us')}</div>
                     <div className="font-bold text-slate-200 mt-1">+91 98765 43210</div>
                   </div>
                 </li>
@@ -265,7 +312,7 @@ export function CustomerLayout() {
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">மின்னஞ்சல்</div>
+                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('email_us')}</div>
                     <div className="font-bold text-slate-200 mt-1">support@vivasayi.com</div>
                   </div>
                 </li>
@@ -273,24 +320,24 @@ export function CustomerLayout() {
             </div>
 
             <div>
-              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">நிர்வாகி பகுதி</h4>
-              <p className="text-slate-400 text-sm mb-6 font-medium">பொருட்களை நிர்வகிக்க உள்நுழையவும்.</p>
+              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">{t('admin_area')}</h4>
+              <p className="text-slate-400 text-sm mb-6 font-medium">{t('login_to_manage')}</p>
               <Link
                 to="/login"
                 className="inline-flex items-center space-x-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-sm hover:bg-white/10 transition-all group"
               >
                 <LogIn className="w-5 h-5 text-emerald-500" />
-                <span>உள்நுழை</span>
+                <span>{t('login')}</span>
                 <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
 
           <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 text-xs font-medium text-slate-500">
-            <p>© {new Date().getFullYear()} லோகேஷ் விவசாயி. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.</p>
+            <p>© {new Date().getFullYear()} {t('logesh_farmer')}. {t('rights_reserved')}</p>
             <div className="flex space-x-8">
-              <a href="#" className="hover:text-emerald-500 transition-colors">தனியுரிமைக் கொள்கை</a>
-              <a href="#" className="hover:text-emerald-500 transition-colors">சேவை விதிமுறைகள்</a>
+              <a href="#" className="hover:text-emerald-500 transition-colors">{t('privacy_policy')}</a>
+              <a href="#" className="hover:text-emerald-500 transition-colors">{t('terms_of_service')}</a>
             </div>
           </div>
         </div>

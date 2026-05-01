@@ -24,6 +24,8 @@ function MainEntry() {
   return user ? <Layout /> : <CustomerLayout />;
 }
 
+import { Toaster } from 'react-hot-toast';
+
 export default function App() {
   const { theme } = useStore();
   
@@ -37,6 +39,7 @@ export default function App() {
 
   return (
     <Router>
+      <Toaster position="top-center" />
       <ScrollToTop />
       <Routes>
         {/* Single entry point for both Customer and Admin portals */}

@@ -16,6 +16,8 @@ interface AppState {
   setUrlMode: (mode: 'standard' | 'static') => void;
   cart: any[];
   isCartOpen: boolean;
+  language: 'ta' | 'en';
+  setLanguage: (lang: 'ta' | 'en') => void;
   setCartOpen: (isOpen: boolean) => void;
   addToCart: (product: any) => void;
   removeFromCart: (productId: string) => void;
@@ -39,6 +41,8 @@ export const useStore = create<AppState>((set) => ({
   setUrlMode: (mode) => set({ urlMode: mode }),
   cart: [],
   isCartOpen: false,
+  language: 'ta',
+  setLanguage: (lang) => set({ language: lang }),
   setCartOpen: (isOpen) => set({ isCartOpen: isOpen }),
   addToCart: (product) => set((state) => {
     const existingItem = state.cart.find((item) => item.id === product.id);

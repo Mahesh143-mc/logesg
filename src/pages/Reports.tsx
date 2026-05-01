@@ -41,6 +41,7 @@ export function Reports() {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [dateRange, setDateRange] = useState<'today' | 'yesterday' | 'last7' | 'last30' | 'thisMonth' | 'lastMonth' | 'customMonth'>('thisMonth');
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [detailView, setDetailView] = useState<'sales' | 'expenses' | 'pending' | 'profit' | null>(null);
   const [detailSearch, setDetailSearch] = useState('');
@@ -63,12 +64,17 @@ export function Reports() {
         ...doc.data(),
         date: (doc.data().date as Timestamp)?.toDate() || new Date()
       })));
+    });
+
+    const unsubscribeCustomers = onSnapshot(collection(db, 'customers'), (snapshot) => {
+      setCustomers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any })));
       setLoading(false);
     });
 
     return () => {
       unsubscribeSales();
       unsubscribeExpenses();
+      unsubscribeCustomers();
     };
   }, []);
 
@@ -117,7 +123,9 @@ export function Reports() {
   const stats = useMemo(() => {
     const totalSales = filteredData.filteredSales.reduce((acc, s) => acc + s.total, 0);
     const totalExpenses = filteredData.filteredExpenses.reduce((acc, e) => acc + e.amount, 0);
-    const totalPending = filteredData.filteredSales.reduce((acc, s) => acc + (s.pendingAmount || 0), 0);
+    
+    // Calculate accurate pending amount from real-time customer data
+    const totalPending = customers.reduce((acc, curr) => acc + (curr.pendingPayment || 0), 0);
     const netProfit = totalSales - totalExpenses;
 
     // Daily breakdown for line chart
@@ -144,10 +152,13 @@ export function Reports() {
     // Category breakdown
     const salesByCategory: any = {};
     filteredData.filteredSales.forEach(s => {
-      s.items.forEach((item: any) => {
-        const cat = item.category || 'Uncategorized';
-        salesByCategory[cat] = (salesByCategory[cat] || 0) + (item.price * item.quantity);
-      });
+      // Add safety check for items being undefined or not an array
+      if (s.items && Array.isArray(s.items)) {
+        s.items.forEach((item: any) => {
+          const cat = item.category || 'Uncategorized';
+          salesByCategory[cat] = (salesByCategory[cat] || 0) + ((item.price || 0) * (item.quantity || 0));
+        });
+      }
     });
 
     const expenseByCategory: any = {};
@@ -377,8 +388,8 @@ export function Reports() {
               </div>
             </div>
           </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[300px] w-full min-h-[300px]">
+            <ResponsiveContainer width="99%" height="100%">
               <AreaChart data={stats.dailyChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -433,9 +444,9 @@ export function Reports() {
         {/* Expenses by Category */}
         <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200/60 dark:border-zinc-800 p-6 shadow-sm flex flex-col">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight mb-6">Expenses Breakdown</h3>
-          <div className="h-[200px] w-full flex-grow relative">
+          <div className="h-[200px] w-full flex-grow relative min-h-[200px]">
             {stats.expenseCategoryData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="99%" height="100%">
                 <PieChart>
                   <Pie
                     data={stats.expenseCategoryData}
@@ -483,8 +494,8 @@ export function Reports() {
         {/* Sales by Category */}
         <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200/60 dark:border-zinc-800 p-6 shadow-sm">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight mb-6">Sales by Category</h3>
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[250px] w-full min-h-[250px]">
+            <ResponsiveContainer width="99%" height="100%">
               <BarChart data={stats.salesCategoryData} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e2e8f0" />
                 <XAxis type="number" hide />
@@ -621,36 +632,56 @@ export function Reports() {
                       <tr>
                         <th className="px-6 py-3 font-semibold text-slate-500 uppercase tracking-wider text-xs">Date</th>
                         <th className="px-6 py-3 font-semibold text-slate-500 uppercase tracking-wider text-xs">Customer / Ref</th>
-                        <th className="px-6 py-3 font-semibold text-slate-500 uppercase tracking-wider text-xs">Payment Method</th>
                         <th className="px-6 py-3 font-semibold text-slate-500 uppercase tracking-wider text-xs text-right">Amount</th>
-                        <th className="px-6 py-3 font-semibold text-slate-500 uppercase tracking-wider text-xs text-right">Pending</th>
+                        {detailView !== 'pending' && <th className="px-6 py-3 font-semibold text-slate-500 uppercase tracking-wider text-xs text-right">Status</th>}
+                        {detailView === 'pending' && <th className="px-6 py-3 font-semibold text-slate-500 uppercase tracking-wider text-xs text-right">Current Dues</th>}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-[#18181b]">
-                      {(detailView === 'profit' ? filteredData.filteredSales : 
-                        detailView === 'pending' ? filteredData.filteredSales.filter(v => v.pendingAmount > 0) :
-                        filteredData.filteredSales
-                      ).filter(s => 
-                        s.id.toLowerCase().includes(detailSearch.toLowerCase()) || 
-                        (s.customerInfo?.name || '').toLowerCase().includes(detailSearch.toLowerCase())
-                      ).map((sale) => (
-                        <tr key={sale.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                          <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{format(sale.date, 'MMM dd, yyyy')}</td>
-                          <td className="px-6 py-4">
-                            <p className="font-medium text-slate-900 dark:text-white">{sale.customerInfo?.name || 'Walk-in'}</p>
-                            <p className="text-xs text-slate-500">#{sale.id.slice(0, 8)}</p>
-                          </td>
-                          <td className="px-6 py-4 capitalize text-slate-600 dark:text-slate-400">{sale.paymentMethod}</td>
-                          <td className="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">₹{sale.total.toLocaleString()}</td>
-                          <td className="px-6 py-4 text-right">
-                            {sale.pendingAmount > 0 ? (
-                              <span className="font-semibold text-red-500">₹{sale.pendingAmount.toLocaleString()}</span>
-                            ) : (
-                              <span className="text-emerald-500 text-xs font-semibold px-2 py-1 bg-emerald-50 dark:bg-emerald-500/10 rounded-md">Paid</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {detailView === 'pending' ? (
+                        customers.filter(c => 
+                          (c.pendingPayment || 0) > 0 && 
+                          c.name.toLowerCase().includes(detailSearch.toLowerCase())
+                        ).map((customer) => (
+                          <tr key={customer.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                              {customer.updatedAt?.toDate ? format(customer.updatedAt.toDate(), 'MMM dd, yyyy') : 'N/A'}
+                            </td>
+                            <td className="px-6 py-4">
+                              <p className="font-medium text-slate-900 dark:text-white">{customer.name}</p>
+                              <p className="text-xs text-slate-500">{customer.phone || 'No phone'}</p>
+                            </td>
+                            <td className="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">
+                              ₹{(customer.totalSpent || 0).toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <span className="font-bold text-red-500">₹{(customer.pendingPayment || 0).toLocaleString()}</span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        (detailView === 'profit' ? filteredData.filteredSales : filteredData.filteredSales)
+                          .filter(s => 
+                            s.id.toLowerCase().includes(detailSearch.toLowerCase()) || 
+                            (s.customerInfo?.name || '').toLowerCase().includes(detailSearch.toLowerCase())
+                          ).map((sale) => (
+                            <tr key={sale.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                              <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{format(sale.date, 'MMM dd, yyyy')}</td>
+                              <td className="px-6 py-4">
+                                <p className="font-medium text-slate-900 dark:text-white">{sale.customerInfo?.name || 'Walk-in'}</p>
+                                <p className="text-xs text-slate-500">#{sale.id.slice(0, 8)}</p>
+                              </td>
+                              <td className="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">₹{sale.total.toLocaleString()}</td>
+                              <td className="px-6 py-4 text-right">
+                                {sale.pendingAmount > 0 ? (
+                                  <span className="text-amber-500 text-xs font-semibold px-2 py-1 bg-amber-50 dark:bg-amber-500/10 rounded-md">Partial</span>
+                                ) : (
+                                  <span className="text-emerald-500 text-xs font-semibold px-2 py-1 bg-emerald-50 dark:bg-emerald-500/10 rounded-md">Paid</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                      )}
                     </tbody>
                   </table>
                 </div>

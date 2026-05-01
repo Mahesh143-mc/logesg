@@ -1,30 +1,35 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Leaf, Users, Heart, Sprout, CheckCircle2 } from 'lucide-react';
+import { useStore } from '../../store/useStore';
+import { useTranslation } from '../../utils/translations';
 
 export function CustomerAbout() {
+  const { language } = useStore();
+  const t = useTranslation(language);
+
   const stats = [
-    { label: 'விவசாயிகள்', value: '50+' },
-    { label: 'வருட அனுபவம்', value: '15+' },
-    { label: 'மகிழ்ச்சியான வாடிக்கையாளர்கள்', value: '2000+' },
-    { label: 'இயற்கை தயாரிப்புகள்', value: '100%' },
+    { label: t('farmers'), value: '50+' },
+    { label: t('years_exp'), value: '15+' },
+    { label: t('happy_customers'), value: '2000+' },
+    { label: t('natural_products'), value: '100%' },
   ];
 
   const values = [
     {
       icon: <Leaf className="w-6 h-6" />,
-      title: "இயற்கை விவசாயம்",
-      desc: "நாங்கள் இரசாயன உரங்கள் இன்றி, இயற்கை முறையில் பயிர்களை விளைவிக்கிறோம்."
+      title: t('natural_title'),
+      desc: t('natural_farming_desc')
     },
     {
       icon: <Heart className="w-6 h-6" />,
-      title: "வாடிக்கையாளர் அன்பு",
-      desc: "உங்களின் ஆரோக்கியமே எங்களின் முதல் முன்னுரிமை."
+      title: t('customer_love'),
+      desc: t('customer_love_desc')
     },
     {
       icon: <Sprout className="w-6 h-6" />,
-      title: "நிலையான எதிர்காலம்",
-      desc: "மண்ணின் வளத்தை பாதுகாத்து அடுத்த தலைமுறைக்கு வளமான பூமியை வழங்குகிறோம்."
+      title: t('sustainable_future'),
+      desc: t('sustainable_future_desc')
     }
   ];
 
@@ -40,7 +45,7 @@ export function CustomerAbout() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6"
           >
-            எங்களைப் பற்றி
+            {t('about')}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -48,7 +53,7 @@ export function CustomerAbout() {
             transition={{ delay: 0.1 }}
             className="text-base md:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium"
           >
-            லோகேஷ் விவசாயி என்பது வெறும் விற்பனை தளம் அல்ல, இது மண்ணையும் மக்களையும் இணைக்கும் ஒரு பாலம்.
+            {t('about_hero_desc')}
           </motion.p>
         </div>
       </section>
@@ -77,24 +82,24 @@ export function CustomerAbout() {
                   </div>
                   <div>
                     <div className="text-xl md:text-2xl font-black text-slate-900">50+</div>
-                    <div className="text-[10px] md:text-sm text-slate-500 font-bold uppercase tracking-widest">நிபுணத்துவ விவசாயிகள்</div>
+                    <div className="text-[10px] md:text-sm text-slate-500 font-bold uppercase tracking-widest">{t('expert_farmers')}</div>
                   </div>
                 </div>
               </div>
             </motion.div>
 
             <div className="space-y-6 md:space-y-8">
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter">எங்களின் பயணம்</h2>
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter">{t('our_journey')}</h2>
               <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium">
-                பாரம்பரிய விவசாய முறைகளை நவீன தொழில்நுட்பத்துடன் இணைத்து, நுகர்வோருக்கு தரமான பொருட்களை வழங்குவதே எங்கள் நோக்கம். ஒவ்வொரு பயிரும் மிகுந்த கவனத்துடனும் அன்புடனும் வளர்க்கப்படுகிறது.
+                {t('journey_desc')}
               </p>
               
               <div className="space-y-4">
                 {[
-                  'நேரடி பண்ணை விநியோகம்',
-                  'ரசாயனமற்ற இயற்கை முறை',
-                  'நியாயமான விலை',
-                  'வாடிக்கையாளர் திருப்தி'
+                  t('direct_farm_supply'),
+                  t('chemical_free_natural'),
+                  t('fair_price'),
+                  t('customer_satisfaction')
                 ].map((item, i) => (
                   <div key={i} className="flex items-center space-x-3 text-slate-700 font-bold text-sm md:text-base">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -131,7 +136,7 @@ export function CustomerAbout() {
       <section className="py-16 md:py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter">எங்கள் கொள்கைகள்</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter">{t('our_values')}</h2>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">

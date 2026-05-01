@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '../lib/utils';
+import toast from 'react-hot-toast';
 
 export function Billing() {
   const { cart, addToCart, removeFromCart, updateCartQuantity, clearCart, user, profile } = useStore();
@@ -95,7 +96,7 @@ export function Billing() {
         addToCart({ id: productDoc.id, ...productDoc.data() });
         setIsScannerOpen(false);
       } else {
-        alert('Product not found');
+        toast.error('Product not found');
       }
     } catch (err) {
       console.error(err);
@@ -133,6 +134,13 @@ export function Billing() {
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
+    
+    // Mandatory Customer Name Check
+    if (!customerInfo.name || customerInfo.name.trim() === '') {
+      toast.error('Please enter a customer name to proceed.');
+      return;
+    }
+
     setIsProcessing(true);
     try {
       // Create sale record
@@ -213,11 +221,12 @@ export function Billing() {
       });
       clearCart();
       setShowSuccess(true);
-      setCustomerInfo({ name: '', phone: '', email: '' });
+      setCustomerInfo({ name: '', phone: '', email: '', customerNumberStr: '' });
       setAmountPaid(0);
+      toast.success('Transaction completed successfully');
     } catch (err) {
       console.error(err);
-      alert('Checkout failed');
+      toast.error('Checkout failed');
     } finally {
       setIsProcessing(false);
     }
@@ -580,8 +589,9 @@ export function Billing() {
             <div className="relative group">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
+                required
                 type="text"
-                placeholder="Customer Name"
+                placeholder="Customer Name *"
                 value={customerInfo.name}
                 onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
                 className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"

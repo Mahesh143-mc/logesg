@@ -16,7 +16,8 @@ import {
   Moon,
   ShieldCheck,
   Zap,
-  LogOut
+  LogOut,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useStore } from '../store/useStore';
@@ -26,14 +27,15 @@ import { db } from '../firebase';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'DASHBOARD', id: 'dashboard' },
-  { icon: ShoppingCart, label: 'TERMINAL', id: 'billing' },
   { icon: Package, label: 'PRODUCTS', id: 'products' },
-  { icon: ClipboardList, label: 'INVENTORY', id: 'inventory' },
-  { icon: Users, label: 'CUSTOMERS', id: 'customers' },
-  { icon: IndianRupee, label: 'EXPENSES', id: 'expenses' },
+  { icon: ShoppingCart, label: 'BILLING', id: 'billing' },
   { icon: ShoppingBag, label: 'ORDERS', id: 'orders', showBadge: true },
-  { icon: HistoryIcon, label: 'TRANSACTIONS', id: 'sales-history' },
-  { icon: Notebook, label: 'INTERNAL BRIEF', id: 'notes' },
+  { icon: HistoryIcon, label: 'HISTORY', id: 'sales-history' },
+  { icon: IndianRupee, label: 'PENDING DUES', id: 'pending-amount', showPendingBadge: true },
+  { icon: IndianRupee, label: 'EXPENSES', id: 'expenses' },
+  { icon: Users, label: 'CUSTOMERS', id: 'customers' },
+  { icon: ClipboardList, label: 'INVENTORY', id: 'inventory' },
+  { icon: Notebook, label: 'BRIEF', id: 'notes' },
   { icon: BarChart3, label: 'INTELLIGENCE', id: 'reports' },
   { icon: Settings, label: 'SYSTEM CORE', id: 'settings' },
 ];
@@ -41,6 +43,7 @@ const navItems = [
 export function BottomNav() {
   const { currentAdminPage, setCurrentAdminPage } = useStore();
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingAmountCount, setPendingAmountCount] = useState(0);
 
   useEffect(() => {
     const q = query(
@@ -51,10 +54,22 @@ export function BottomNav() {
       const pending = snapshot.docs.filter(doc => doc.data().status === 'pending');
       setPendingCount(pending.length);
     });
-    return unsubscribe;
+
+    const qPending = query(
+      collection(db, 'customers'),
+      where('pendingPayment', '>', 0)
+    );
+    const unsubscribePending = onSnapshot(qPending, (snapshot) => {
+      setPendingAmountCount(snapshot.docs.length);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribePending();
+    };
   }, []);
 
-  const mobileNavItems = navItems.slice(0, 5);
+  const mobileNavItems = [...navItems.slice(0, 4), navItems.find(item => item.id === 'pending-amount')].filter(Boolean);
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
@@ -68,10 +83,22 @@ export function BottomNav() {
               currentAdminPage === item.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
             )}
           >
-            <item.icon className={cn(
-              "transition-all duration-300",
-              currentAdminPage === item.id ? "h-6 w-6 stroke-[2.5px] -translate-y-0.5" : "h-5 w-5 stroke-[2px]"
-            )} />
+            <div className="relative">
+              <item.icon className={cn(
+                "transition-all duration-300",
+                currentAdminPage === item.id ? "h-6 w-6 stroke-[2.5px] -translate-y-0.5" : "h-5 w-5 stroke-[2px]"
+              )} />
+              {item.showBadge && pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[8px] font-black text-white shadow-lg">
+                  {pendingCount}
+                </span>
+              )}
+              {item.showPendingBadge && pendingAmountCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white shadow-lg">
+                  {pendingAmountCount}
+                </span>
+              )}
+            </div>
             {currentAdminPage === item.id && (
               <span className="text-[9px] font-bold tracking-wide animate-in fade-in zoom-in duration-300">{item.label.split(' ')[0]}</span>
             )}
@@ -85,6 +112,7 @@ export function BottomNav() {
 export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?: boolean }) {
   const { currentAdminPage, setCurrentAdminPage, theme, setTheme } = useStore();
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingAmountCount, setPendingAmountCount] = useState(0);
 
   useEffect(() => {
     const q = query(
@@ -95,7 +123,19 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
       const pending = snapshot.docs.filter(doc => doc.data().status === 'pending');
       setPendingCount(pending.length);
     });
-    return unsubscribe;
+
+    const qPending = query(
+      collection(db, 'customers'),
+      where('pendingPayment', '>', 0)
+    );
+    const unsubscribePending = onSnapshot(qPending, (snapshot) => {
+      setPendingAmountCount(snapshot.docs.length);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribePending();
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -152,6 +192,11 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
             {item.showBadge && pendingCount > 0 && (
               <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-orange-500 text-[10px] font-black text-white shadow-lg shadow-orange-100 dark:shadow-none">
                 {pendingCount}
+              </span>
+            )}
+            {item.showPendingBadge && pendingAmountCount > 0 && (
+              <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-red-500 text-[10px] font-black text-white shadow-lg shadow-red-100 dark:shadow-none">
+                {pendingAmountCount}
               </span>
             )}
           </button>
