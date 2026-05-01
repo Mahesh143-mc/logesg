@@ -17,7 +17,8 @@ import {
   ShieldCheck,
   Zap,
   LogOut,
-  CreditCard
+  CreditCard,
+  ExternalLink
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useStore } from '../store/useStore';
@@ -221,6 +222,21 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
               theme === 'dark' ? "left-4.5" : "left-0.5"
             )} />
           </div>
+        </button>
+
+        <button 
+          onClick={() => {
+            // This effectively "logs out" from admin view and returns to customer view
+            // by clearing the admin session/user state if that's how your logic is structured
+            // or simply toggling a view state. 
+            // Based on App.tsx: user ? <Layout /> : <CustomerLayout />
+            // We'll trigger a logout to return to the public customer site.
+            handleLogout();
+          }}
+          className="flex w-full items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 dark:shadow-none active:scale-95"
+        >
+          <ExternalLink className="w-4 h-4" />
+          <span className="text-xs font-bold tracking-wide">Visit Online Store</span>
         </button>
 
         <button 
