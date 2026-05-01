@@ -55,7 +55,7 @@ export const useStore = create<AppState>((set) => ({
       };
     }
     return { 
-      cart: [...state.cart, { ...product, quantity: product.quantity || 1 }],
+      cart: [...state.cart, { ...product, quantity: parseFloat(product.quantity) || 1 }],
       isCartOpen: true,
     };
   }),
@@ -64,7 +64,7 @@ export const useStore = create<AppState>((set) => ({
   })),
   updateCartQuantity: (productId, quantity) => set((state) => ({
     cart: state.cart.map((item) =>
-      item.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item
+      item.id === productId ? { ...item, quantity: Math.max(0.01, quantity) } : item
     ),
   })),
   updateCartItem: (productId, updates) => set((state) => ({

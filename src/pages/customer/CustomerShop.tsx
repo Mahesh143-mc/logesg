@@ -26,6 +26,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || t('all'));
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedWeight, setSelectedWeight] = useState<number>(1);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -487,11 +488,11 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                             </div>
                             <div className="flex justify-between items-center mt-2">
                               <div className="flex items-center space-x-3 bg-slate-50 rounded-lg p-1 border border-slate-100">
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity - 1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
+                                <button onClick={() => updateCartQuantity(item.id, item.quantity - 0.1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
                                   <Minus className="w-2.5 h-2.5" />
                                 </button>
-                                <span className="text-xs font-black text-slate-900 w-4 text-center">{item.quantity}</span>
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity + 1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
+                                <span className="text-[10px] font-black text-slate-900 w-8 text-center">{item.quantity.toFixed(1)}</span>
+                                <button onClick={() => updateCartQuantity(item.id, item.quantity + 0.1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
                                   <Plus className="w-2.5 h-2.5" />
                                 </button>
                               </div>
@@ -607,7 +608,10 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedProduct(null)}
+              onClick={() => {
+                setSelectedProduct(null);
+                setSelectedWeight(1);
+              }}
               className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl"
             />
             <motion.div
@@ -618,7 +622,10 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
             >
               {/* Close Button - Moved to absolute top-right for mobile visibility */}
               <button 
-                onClick={() => setSelectedProduct(null)} 
+                onClick={() => {
+                  setSelectedProduct(null);
+                  setSelectedWeight(1);
+                }} 
                 className="absolute top-4 right-4 md:top-8 md:right-8 z-20 p-3 bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl text-slate-900 shadow-xl hover:bg-white transition-all active:scale-95"
               >
                 <X className="w-6 h-6" />
@@ -680,6 +687,36 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                         </div>
                       ))}
                     </div>
+
+                    {(selectedProduct.unit?.toLowerCase().includes('kg') || !selectedProduct.unit) && (
+                      <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <h4 className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-3">{language === 'ta' ? 'எடையை தேர்வு செய்யவும்' : 'Select Weight (kg)'}</h4>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-3 bg-white rounded-xl p-1 shadow-sm border border-emerald-200">
+                            <button 
+                              onClick={() => setSelectedWeight(Math.max(0.1, selectedWeight - 0.1))}
+                              className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <input 
+                              type="number"
+                              step="0.1"
+                              value={selectedWeight}
+                              onChange={(e) => setSelectedWeight(parseFloat(e.target.value) || 0.1)}
+                              className="w-16 text-center font-black text-emerald-900 bg-transparent border-none outline-none text-lg"
+                            />
+                            <button 
+                              onClick={() => setSelectedWeight(selectedWeight + 0.1)}
+                              className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <span className="text-lg font-black text-emerald-900">kg</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -689,8 +726,9 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                     whileTap={{ scale: 0.98 }}
                     disabled={selectedProduct.stock <= 0}
                     onClick={() => {
-                      addToCart({ ...selectedProduct, quantity: 1 });
+                      addToCart({ ...selectedProduct, quantity: selectedWeight });
                       setSelectedProduct(null);
+                      setSelectedWeight(1);
                       setCartOpen(true);
                     }}
                     className="w-full py-4 md:py-5 bg-emerald-600 text-white rounded-xl md:rounded-2xl font-black flex items-center justify-center space-x-3 md:space-x-4 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:grayscale uppercase tracking-widest text-sm md:text-base"
