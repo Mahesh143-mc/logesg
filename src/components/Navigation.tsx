@@ -20,6 +20,7 @@ import {
   CreditCard,
   ExternalLink
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useStore } from '../store/useStore';
 import { useState, useEffect } from 'react';
@@ -42,9 +43,18 @@ const navItems = [
 ];
 
 export function BottomNav() {
-  const { currentAdminPage, setCurrentAdminPage } = useStore();
+    const { currentAdminPage, setCurrentAdminPage, urlMode } = useStore();
+  const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingAmountCount, setPendingAmountCount] = useState(0);
+
+  const handleNavClick = (id: string) => {
+    if (urlMode === 'static') {
+      navigate(`/logesh-vivasayi/admin/${id}`);
+    } else {
+      setCurrentAdminPage(id);
+    }
+  };
 
   useEffect(() => {
     const q = query(
@@ -78,7 +88,7 @@ export function BottomNav() {
         {mobileNavItems.map((item: any) => (
           <button
             key={item.id}
-            onClick={() => setCurrentAdminPage(item.id)}
+            onClick={() => handleNavClick(item.id)}
             className={cn(
               "flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-all active:scale-90",
               currentAdminPage === item.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
@@ -111,9 +121,19 @@ export function BottomNav() {
 }
 
 export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?: boolean }) {
-  const { currentAdminPage, setCurrentAdminPage, theme, setTheme } = useStore();
+  const { currentAdminPage, setCurrentAdminPage, theme, setTheme, urlMode } = useStore();
+  const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingAmountCount, setPendingAmountCount] = useState(0);
+
+  const handleNavClick = (id: string) => {
+    if (urlMode === 'static') {
+      navigate(`/logesh-vivasayi/admin/${id}`);
+    } else {
+      setCurrentAdminPage(id);
+    }
+    onClose?.();
+  };
 
   useEffect(() => {
     const q = query(
@@ -171,10 +191,7 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
         {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => {
-              setCurrentAdminPage(item.id);
-              onClose?.();
-            }}
+            onClick={() => handleNavClick(item.id)}
             className={cn(
               "flex w-full items-center space-x-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all group relative",
               currentAdminPage === item.id
@@ -226,12 +243,7 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
 
         <button 
           onClick={() => {
-            // This effectively "logs out" from admin view and returns to customer view
-            // by clearing the admin session/user state if that's how your logic is structured
-            // or simply toggling a view state. 
-            // Based on App.tsx: user ? <Layout /> : <CustomerLayout />
-            // We'll trigger a logout to return to the public customer site.
-            handleLogout();
+            navigate('/logesh-vivasayi/home');
           }}
           className="flex w-full items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 dark:shadow-none active:scale-95"
         >

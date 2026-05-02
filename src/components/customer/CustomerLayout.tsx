@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../../store/useStore';
@@ -10,15 +10,49 @@ import { CustomerAbout } from '../../pages/customer/CustomerAbout';
 import { cn } from '../../lib/utils';
 import { useTranslation } from '../../utils/translations';
 
+
+
 export function CustomerLayout() {
-  const { cart, setCartOpen, isCartOpen, currentCustomerPage, setCurrentCustomerPage, language, setLanguage } = useStore();
+  const { cart, setCartOpen, isCartOpen, currentCustomerPage, setCurrentCustomerPage, language, setLanguage, urlMode } = useStore();
   const t = useTranslation(language);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { pageId } = useParams();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const handleNavClick = (id: string) => {
+    if (urlMode === 'static') {
+      navigate(`/logesh-vivasayi/${id}`);
+    } else {
+      setCurrentCustomerPage(id as any);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Sync state from URL if mode is static
+  useEffect(() => {
+    if (urlMode === 'static') {
+      const validCustomerPages = ['home', 'shop', 'about', 'contact'];
+      const targetPage = (pageId && validCustomerPages.includes(pageId)) ? pageId : 'home';
+      
+      if (targetPage !== currentCustomerPage) {
+        setCurrentCustomerPage(targetPage as any);
+      }
+
+      // If at base customer path, redirect to home
+      if (location.pathname === '/logesh-vivasayi' || location.pathname === '/logesh-vivasayi/') {
+        navigate('/logesh-vivasayi/home', { replace: true });
+      }
+    } else {
+      // Standard mode: Ensure URL is at base customer path
+      if (location.pathname.startsWith('/logesh-vivasayi') && !location.pathname.startsWith('/logesh-vivasayi/admin') && location.pathname !== '/logesh-vivasayi' && location.pathname !== '/login') {
+        navigate('/logesh-vivasayi', { replace: true });
+      }
+    }
+  }, [pageId, urlMode, setCurrentCustomerPage, currentCustomerPage, location.pathname, navigate]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -60,10 +94,7 @@ export function CustomerLayout() {
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              onClick={() => {
-                setCurrentCustomerPage('home');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={() => handleNavClick('home')}
               className="flex items-center space-x-2 md:space-x-3 cursor-pointer group"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-600/30 group-hover:scale-110 transition-transform duration-500">
@@ -80,10 +111,7 @@ export function CustomerLayout() {
               {navLinks.map((link) => (
                 <button
                   key={link.id}
-                  onClick={() => {
-                    setCurrentCustomerPage(link.id as any);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
+                  onClick={() => handleNavClick(link.id)}
                   className={cn(
                     "px-8 py-2.5 rounded-[1.5rem] text-sm font-black transition-all duration-300 flex items-center space-x-2 relative",
                     currentCustomerPage === link.id
@@ -192,9 +220,8 @@ export function CustomerLayout() {
                   <button
                     key={link.id}
                     onClick={() => {
-                      setCurrentCustomerPage(link.id as any);
+                      handleNavClick(link.id);
                       setIsMenuOpen(false);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className={cn(
                       "w-full p-4 rounded-2xl text-left flex items-center justify-between transition-all group",
@@ -278,10 +305,7 @@ export function CustomerLayout() {
                 {navLinks.map(link => (
                   <li key={link.id}>
                     <button 
-                      onClick={() => {
-                        setCurrentCustomerPage(link.id as any);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
+                      onClick={() => handleNavClick(link.id)}
                       className="text-slate-400 hover:text-white transition-colors flex items-center space-x-2 group"
                     >
                       <div className={cn(

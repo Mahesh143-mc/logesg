@@ -442,8 +442,8 @@ export function Products() {
             <div className="relative h-40 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-800/20 p-4">
               {renderProductImage(product)}
               
-              {/* Overlay Actions */}
-              <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              {/* Overlay Actions (Desktop) */}
+              <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center gap-3">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -498,11 +498,49 @@ export function Products() {
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white tracking-tight line-clamp-1">{product.name}</h3>
               </div>
               
-              <div className="mt-auto flex items-center justify-between">
-                <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">₹{product.price.toFixed(2)}</span>
-                <span className="text-[10px] font-medium text-slate-500">
-                  {product.stock} {product.unit || 'pcs'}
-                </span>
+              <div className="mt-auto flex items-end justify-between">
+                <div className="flex flex-col">
+                  <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">₹{product.price.toFixed(2)}</span>
+                  <span className="text-[10px] font-medium text-slate-500">
+                    {product.stock} {product.unit || 'pcs'}
+                  </span>
+                </div>
+                
+                {/* Mobile Actions */}
+                <div className="flex items-center gap-1.5 md:hidden">
+                   <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingProduct(product);
+                      setFormData({
+                        name: product.name,
+                        description: product.description || '',
+                        category: product.category || (categories.length > 0 ? categories[0].name : ''),
+                        price: product.price,
+                        costPrice: product.costPrice || 0,
+                        stock: product.stock,
+                        lowStockThreshold: product.lowStockThreshold || 5,
+                        imageUrl: product.imageUrl || '',
+                        publicId: product.publicId || '',
+                        unit: product.unit || (units.length > 0 ? units[0].name : '')
+                      });
+                      setImagePreview(product.imageUrl || null);
+                      setIsModalOpen(true);
+                    }}
+                    className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 active:scale-95 transition-all"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(product.id);
+                    }}
+                    className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 active:scale-95 transition-all"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -35,10 +35,16 @@ export const useStore = create<AppState>((set) => ({
   setCurrentAdminPage: (page) => set({ currentAdminPage: page }),
   currentCustomerPage: 'home',
   setCurrentCustomerPage: (page) => set({ currentCustomerPage: page }),
-  theme: 'light',
-  setTheme: (theme) => set({ theme }),
-  urlMode: 'static',
-  setUrlMode: (mode) => set({ urlMode: mode }),
+  theme: (localStorage.getItem('admin_theme') as 'light' | 'dark') || 'light',
+  setTheme: (theme) => {
+    localStorage.setItem('admin_theme', theme);
+    set({ theme });
+  },
+  urlMode: (localStorage.getItem('admin_url_mode') as 'standard' | 'static') || 'standard',
+  setUrlMode: (mode) => {
+    localStorage.setItem('admin_url_mode', mode);
+    set({ urlMode: mode });
+  },
   cart: [],
   isCartOpen: false,
   language: 'ta',

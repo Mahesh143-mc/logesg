@@ -2,9 +2,9 @@ import { Sidebar, BottomNav } from './Navigation';
 import { useStore } from '../store/useStore';
 import { useAuth } from '../hooks/useAuth';
 import { Menu, Leaf } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 // Page Imports
 import { Dashboard } from '../pages/Dashboard';
@@ -21,10 +21,43 @@ import { Notes } from '../pages/Notes';
 import { Settings } from '../pages/Settings';
 import { PendingAmount } from '../pages/PendingAmount';
 
+
+
 export function Layout() {
-  const { user, currentAdminPage } = useStore();
+  const { user, currentAdminPage, setCurrentAdminPage, urlMode } = useStore();
   const { loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const { pageId } = useParams();
+
+  const location = useLocation();
+
+  // Sync state from URL if mode is static
+  useEffect(() => {
+    if (urlMode === 'static') {
+      const validAdminPages = [
+        'dashboard', 'billing', 'products', 'inventory', 'customers', 
+        'expenses', 'sales-history', 'orders', 'order-history', 
+        'reports', 'notes', 'settings', 'pending-amount'
+      ];
+      
+      const targetPage = (pageId && validAdminPages.includes(pageId)) ? pageId : 'dashboard';
+      
+      if (targetPage !== currentAdminPage) {
+        setCurrentAdminPage(targetPage);
+      }
+
+      // If at base admin path, redirect to dashboard
+      if (location.pathname === '/logesh-vivasayi/admin') {
+        navigate('/logesh-vivasayi/admin/dashboard', { replace: true });
+      }
+    } else {
+      // Standard mode: Ensure URL is at base admin path or login
+      if (location.pathname.startsWith('/logesh-vivasayi/admin') && location.pathname !== '/logesh-vivasayi/admin') {
+        navigate('/logesh-vivasayi/admin', { replace: true });
+      }
+    }
+  }, [pageId, urlMode, setCurrentAdminPage, currentAdminPage, location.pathname, navigate]);
 
   const renderPage = () => {
     switch (currentAdminPage) {
