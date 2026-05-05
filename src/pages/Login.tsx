@@ -8,7 +8,7 @@ import { Leaf, Lock, User as UserIcon, Wifi, WifiOff, ArrowLeft } from 'lucide-r
 import { cn } from '../lib/utils';
 
 export function Login() {
-  const { user, setCurrentCustomerPage } = useStore();
+  const { user, setCurrentCustomerPage, setPortal, urlMode } = useStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -32,7 +32,9 @@ export function Login() {
   }, []);
 
   if (user) {
-    return <Navigate to="/logesh-vivasayi/admin/dashboard" replace />;
+    if (urlMode === 'standard') setPortal('admin');
+    const target = urlMode === 'static' ? '/logesh-vivasayi/admin/dashboard' : '/';
+    return <Navigate to={target} replace />;
   }
 
   const handleCredentialAuth = async (e: any) => {
@@ -64,7 +66,10 @@ export function Login() {
           createdAt: serverTimestamp(),
         });
       }
-      navigate('/logesh-vivasayi/admin/dashboard');
+      
+      if (urlMode === 'standard') setPortal('admin');
+      const target = urlMode === 'static' ? '/logesh-vivasayi/admin/dashboard' : '/';
+      navigate(target);
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/configuration-not-found') {
@@ -103,7 +108,10 @@ export function Login() {
           createdAt: serverTimestamp(),
         });
       }
-      navigate('/logesh-vivasayi/admin/dashboard');
+      
+      if (urlMode === 'standard') setPortal('admin');
+      const target = urlMode === 'static' ? '/logesh-vivasayi/admin/dashboard' : '/';
+      navigate(target);
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/configuration-not-found') {
@@ -127,7 +135,7 @@ export function Login() {
 
       <button 
         onClick={() => {
-          navigate('/logesh-vivasayi/home');
+          navigate(urlMode === 'static' ? '/logesh-vivasayi/home' : '/');
         }}
         className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center space-x-2 text-sm font-semibold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors z-20 group"
       >

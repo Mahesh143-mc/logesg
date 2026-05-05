@@ -121,7 +121,7 @@ export function BottomNav() {
 }
 
 export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?: boolean }) {
-  const { currentAdminPage, setCurrentAdminPage, theme, setTheme, urlMode } = useStore();
+  const { currentAdminPage, setCurrentAdminPage, theme, setTheme, urlMode, setPortal } = useStore();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingAmountCount, setPendingAmountCount] = useState(0);
@@ -243,7 +243,8 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
 
         <button 
           onClick={() => {
-            navigate('/logesh-vivasayi/home');
+            setPortal('customer');
+            navigate(urlMode === 'static' ? '/logesh-vivasayi/home' : '/');
           }}
           className="flex w-full items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 dark:shadow-none active:scale-95"
         >

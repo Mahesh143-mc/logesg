@@ -47,9 +47,9 @@ export function CustomerLayout() {
         navigate('/logesh-vivasayi/home', { replace: true });
       }
     } else {
-      // Standard mode: Ensure URL is at base customer path
-      if (location.pathname.startsWith('/logesh-vivasayi') && !location.pathname.startsWith('/logesh-vivasayi/admin') && location.pathname !== '/logesh-vivasayi' && location.pathname !== '/login') {
-        navigate('/logesh-vivasayi', { replace: true });
+      // Standard mode: Ensure URL is at base root path
+      if (location.pathname !== '/' && location.pathname !== '/login') {
+        navigate('/', { replace: true });
       }
     }
   }, [pageId, urlMode, setCurrentCustomerPage, currentCustomerPage, location.pathname, navigate]);

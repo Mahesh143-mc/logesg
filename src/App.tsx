@@ -38,6 +38,25 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 import { Toaster } from 'react-hot-toast';
 
+function RootSelector() {
+  const { portal, urlMode } = useStore();
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white dark:bg-slate-950 transition-colors">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (urlMode === 'static') {
+    return <Navigate to="/logesh-vivasayi" replace />;
+  }
+
+  return portal === 'admin' ? <AdminRoute><Layout /></AdminRoute> : <PublicRoute><CustomerLayout /></PublicRoute>;
+}
+
 export default function App() {
   const { theme } = useStore();
   
@@ -54,23 +73,20 @@ export default function App() {
       <Toaster position="top-center" />
       <ScrollToTop />
       <Routes>
-        {/* Single entry point for both Customer and Admin portals */}
-        {/* Admin Routes */}
+        {/* Dynamic Root Route */}
+        <Route path="/" element={<RootSelector />} />
+
+        {/* Static Routing Prefixed Routes */}
         <Route path="/logesh-vivasayi/admin" element={<AdminRoute><Layout /></AdminRoute>} />
         <Route path="/logesh-vivasayi/admin/:pageId" element={<AdminRoute><Layout /></AdminRoute>} />
-        
-        {/* Customer Routes */}
         <Route path="/logesh-vivasayi" element={<PublicRoute><CustomerLayout /></PublicRoute>} />
         <Route path="/logesh-vivasayi/:pageId" element={<PublicRoute><CustomerLayout /></PublicRoute>} />
         
-        {/* Redirect root to customer home */}
-        <Route path="/" element={<Navigate to="/logesh-vivasayi" replace />} />
-        
-        {/* Auth Route remains for login access */}
+        {/* Auth Route */}
         <Route path="/login" element={<Login />} />
 
-        {/* Redirect everything else to prefixed root */}
-        <Route path="*" element={<Navigate to="/logesh-vivasayi" replace />} />
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

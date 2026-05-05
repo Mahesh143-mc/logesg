@@ -14,6 +14,8 @@ interface AppState {
   setTheme: (theme: 'light' | 'dark') => void;
   urlMode: 'standard' | 'static';
   setUrlMode: (mode: 'standard' | 'static') => void;
+  portal: 'admin' | 'customer';
+  setPortal: (portal: 'admin' | 'customer') => void;
   cart: any[];
   isCartOpen: boolean;
   language: 'ta' | 'en';
@@ -45,6 +47,8 @@ export const useStore = create<AppState>((set) => ({
     localStorage.setItem('admin_url_mode', mode);
     set({ urlMode: mode });
   },
+  portal: 'customer',
+  setPortal: (portal) => set({ portal }),
   cart: [],
   isCartOpen: false,
   language: 'ta',

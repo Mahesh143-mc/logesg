@@ -52,9 +52,9 @@ export function Layout() {
         navigate('/logesh-vivasayi/admin/dashboard', { replace: true });
       }
     } else {
-      // Standard mode: Ensure URL is at base admin path or login
-      if (location.pathname.startsWith('/logesh-vivasayi/admin') && location.pathname !== '/logesh-vivasayi/admin') {
-        navigate('/logesh-vivasayi/admin', { replace: true });
+      // Standard mode: Ensure URL is at base root path
+      if (location.pathname !== '/' && location.pathname !== '/login') {
+        navigate('/', { replace: true });
       }
     }
   }, [pageId, urlMode, setCurrentAdminPage, currentAdminPage, location.pathname, navigate]);
