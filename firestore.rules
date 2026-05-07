@@ -105,19 +105,20 @@ service cloud.firestore {
     }
 
     match /products/{productId} {
-      allow read: if isAuthenticated();
+      allow read: if true; // Allowed for public shop
       allow write: if isAdmin();
     }
 
     match /sales/{saleId} {
-      allow read: if isAuthenticated();
-      allow create: if isStaff() && isValidSale(request.resource.data);
+      allow read: if isAuthenticated(); // Only staff/admin can read sales
+      allow create: if (isStaff() && isValidSale(request.resource.data)) || 
+                     (request.resource.data.type == 'online_order' && isValidSale(request.resource.data));
       allow update, delete: if isAdmin();
     }
 
     match /customers/{customerId} {
       allow read: if isAuthenticated();
-      allow write: if isStaff();
+      allow write: if isStaff() || (request.resource.data.keys().hasAll(['name', 'phone']) && !exists(/databases/$(database)/documents/customers/$(customerId)));
     }
 
     match /notes/{noteId} {

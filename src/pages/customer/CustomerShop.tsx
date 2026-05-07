@@ -139,9 +139,10 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
               </div>
-              <input 
+                <input 
                 type="text"
                 placeholder={t('search_placeholder')}
+                aria-label={t('search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 md:py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all shadow-sm font-medium"
@@ -151,6 +152,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
             {/* Filter Toggle Button */}
             <button
               onClick={() => setIsFilterOpen(true)}
+              aria-label={t('category')}
               className={cn(
                 "flex items-center space-x-2 px-4 md:px-6 py-3 md:py-4 rounded-2xl border transition-all duration-300 font-black text-[10px] md:text-xs uppercase tracking-widest flex-shrink-0",
                 selectedCategory !== t('all')
@@ -209,7 +211,8 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 >
                   <img 
                     src={product.imageUrl || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`} 
-                    alt={product.name}
+                    alt={product.name || "Product image"}
+                    loading="lazy"
                     className="w-full h-full object-contain transition-transform duration-1000 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />
@@ -242,6 +245,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     disabled={product.stock <= 0}
+                    aria-label={`${t('add')} ${product.name}`}
                     onClick={() => addToCart({ ...product, quantity: 1 })}
                     className={cn(
                       "w-full py-2.5 md:py-4 rounded-xl md:rounded-2xl font-black flex items-center justify-center space-x-1 md:space-x-2 transition-all text-[10px] md:text-sm uppercase tracking-widest",

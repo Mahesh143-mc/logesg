@@ -133,6 +133,7 @@ export function CustomerLayout() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCartOpen(true)}
+                aria-label={`Open shopping cart (${cartItemCount} items)`}
                 className="relative w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-sm group"
               >
                 <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 group-hover:animate-bounce" />
@@ -149,6 +150,7 @@ export function CustomerLayout() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsLangOpen(!isLangOpen)}
+                  aria-label="Change language"
                   className="w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-sm group"
                 >
                   <Globe className="w-4 h-4 md:w-5 md:h-5" />
@@ -189,6 +191,7 @@ export function CustomerLayout() {
 
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 className="lg:hidden w-10 h-10 md:w-12 md:h-12 bg-emerald-600 text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-600/20"
               >
                 {isMenuOpen ? <X className="w-5 h-5 md:w-6 md:h-6" /> : <Menu className="w-5 h-5 md:w-6 md:h-6" />}

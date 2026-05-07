@@ -53,7 +53,7 @@ export function CustomerHome() {
             <motion.img
               key={currentImageIndex}
               src={heroImages[currentImageIndex]}
-              alt="Premium Farm"
+              alt={`Premium Farm Scene ${currentImageIndex + 1}`}
               initial={{ opacity: 0, scale: 1.1 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
@@ -239,14 +239,26 @@ export function CustomerHome() {
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                     className="aspect-[4/5] rounded-2xl md:rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative"
                   >
-                    <img src="https://images.unsplash.com/photo-1595856754020-0081d06e2361?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img 
+                      src="https://images.unsplash.com/photo-1595856754020-0081d06e2361?q=80&w=800&auto=format&fit=crop" 
+                      alt="Transparent Farming Process" 
+                      loading="lazy"
+                      className="w-full h-full object-cover" 
+                      referrerPolicy="no-referrer" 
+                    />
                   </motion.div>
                   <motion.div
                     animate={{ y: [0, 20, 0] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                     className="aspect-[4/5] rounded-2xl md:rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl relative translate-y-8 md:translate-y-12"
                   >
-                    <img src="https://images.unsplash.com/photo-1592681890670-8bf1952d7e4b?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img 
+                      src="https://images.unsplash.com/photo-1592681890670-8bf1952d7e4b?q=80&w=800&auto=format&fit=crop" 
+                      alt="Natural Agriculture" 
+                      loading="lazy"
+                      className="w-full h-full object-cover" 
+                      referrerPolicy="no-referrer" 
+                    />
                   </motion.div>
                 </div>
               </div>
@@ -295,7 +307,8 @@ export function CustomerHome() {
               >
                 <img
                   src={img.url}
-                  alt={img.title}
+                  alt={img.title || "Farm Gallery Image"}
+                  loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">

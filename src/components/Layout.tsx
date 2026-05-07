@@ -121,6 +121,7 @@ export function Layout() {
         <div className="md:hidden sticky top-0 z-30 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-zinc-800 px-4 h-16 flex items-center justify-between transition-colors">
           <button
             onClick={() => setIsSidebarOpen(true)}
+            aria-label="Open sidebar menu"
             className="p-2.5 bg-slate-100/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white rounded-xl active:scale-95 transition-all hover:bg-slate-200 dark:hover:bg-zinc-700"
           >
             <Menu className="w-5 h-5" />
