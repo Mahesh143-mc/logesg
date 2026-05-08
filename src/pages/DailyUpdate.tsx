@@ -17,8 +17,7 @@ import {
   ArrowUpCircle,
   Edit3,
   Check,
-  Download,
-  FileDownloader
+  Download
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, parseISO, isToday as isDateToday, isFuture } from 'date-fns';
 import { cn } from '../lib/utils';
