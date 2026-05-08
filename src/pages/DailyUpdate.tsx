@@ -14,11 +14,16 @@ import {
   Layout,
   X,
   Target,
-  ArrowUpCircle
+  ArrowUpCircle,
+  Edit3,
+  Check,
+  Download,
+  FileDownloader
 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, parseISO, isToday as isDateToday } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, parseISO, isToday as isDateToday, isFuture } from 'date-fns';
 import { cn } from '../lib/utils';
 import toast from 'react-hot-toast';
+import * as XLSX from 'xlsx';
 
 interface Column {
   id: string;
@@ -40,6 +45,8 @@ export function DailyUpdate() {
   const [newColName, setNewColName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingColId, setEditingColId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
   const tableRef = React.useRef<HTMLDivElement>(null);
   const todayRef = React.useRef<HTMLTableRowElement>(null);
 
@@ -89,8 +96,68 @@ export function DailyUpdate() {
   };
 
   const handleDeleteColumn = async (id: string) => {
-    if (window.confirm('Delete this column? Entries will still be in DB but hidden.')) {
+    if (!confirm('Are you sure you want to delete this column? Data for this column will be hidden from totals.')) return;
+    try {
       await deleteDoc(doc(db, 'dailyIncomeColumns', id));
+      toast.success('Column removed');
+    } catch (error) {
+      toast.error('Failed to remove column');
+    }
+  };
+
+  const handleUpdateColumnName = async (id: string) => {
+    if (!editingName.trim()) return;
+    try {
+      await updateDoc(doc(db, 'dailyIncomeColumns', id), {
+        name: editingName.trim()
+      });
+      setEditingColId(null);
+      toast.success('Column renamed');
+    } catch (error) {
+      toast.error('Failed to rename column');
+    }
+  };
+
+  const handleExportExcel = () => {
+    try {
+      const data = days.map(date => {
+        const dateStr = format(date, 'yyyy-MM-dd');
+        const entry = entries.find(e => e.id === dateStr);
+        
+        const row: any = {
+          'Date': format(date, 'dd/MM/yyyy'),
+          'Day': format(date, 'EEEE'),
+        };
+
+        columns.forEach(col => {
+          row[col.name] = entry?.data[col.id] || 0;
+        });
+
+        row['Daily Total'] = totalByDay(date);
+        return row;
+      });
+
+      // Add Grand Total Row
+      const grandTotalRow: any = {
+        'Date': 'GRAND TOTAL',
+        'Day': '',
+      };
+      columns.forEach(col => {
+        grandTotalRow[col.name] = totalsByColumn[col.id];
+      });
+      grandTotalRow['Daily Total'] = grandTotal;
+      data.push(grandTotalRow);
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Daily Income');
+      
+      const fileName = `Daily_Income_${format(parseISO(selectedMonth + '-01'), 'MMM_yyyy')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      toast.success('Excel exported successfully');
+    } catch (error) {
+      toast.error('Failed to export Excel');
+      console.error(error);
     }
   };
 
@@ -144,7 +211,8 @@ export function DailyUpdate() {
   const totalByDay = (date: Date) => {
     const entry = entries.find(e => e.id === format(date, 'yyyy-MM-dd'));
     if (!entry) return 0;
-    return Object.values(entry.data).reduce((acc: number, val: number) => acc + val, 0);
+    // Only sum values for columns that currently exist
+    return columns.reduce((acc: number, col) => acc + (entry.data[col.id] || 0), 0);
   };
 
   const grandTotal = useMemo(() => {
@@ -285,7 +353,7 @@ export function DailyUpdate() {
                           date={date} 
                           colId={col.id} 
                           initialValue={entry?.data[col.id] || 0} 
-                          disabled={!isToday}
+                          disabled={isFuture(date) && !isDateToday(date)}
                         />
                       </td>
                     ))}
@@ -316,7 +384,15 @@ export function DailyUpdate() {
         </div>
 
         {/* Grand Total Footer */}
-        <div className="p-3 bg-slate-50 dark:bg-[#020617] flex justify-center border-t border-slate-200 dark:border-white/5">
+        <div className="p-3 bg-slate-50 dark:bg-[#020617] flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 dark:border-white/5 px-8">
+          <button
+            onClick={handleExportExcel}
+            className="flex items-center gap-2 px-6 h-10 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 dark:shadow-none active:scale-95"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export Excel</span>
+          </button>
+
           <div className="bg-white dark:bg-white/5 backdrop-blur-md rounded-xl p-2 px-8 border border-slate-200 dark:border-white/10 shadow-lg flex items-center gap-6">
             <span className="text-[10px] font-black text-slate-500 dark:text-blue-200 uppercase tracking-widest">Grand Total</span>
             <div className="flex items-center gap-3">
@@ -324,6 +400,8 @@ export function DailyUpdate() {
               <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter font-mono">₹{grandTotal.toLocaleString()}</span>
             </div>
           </div>
+          
+          <div className="w-40 hidden sm:block"></div> {/* Spacer to keep total centered */}
         </div>
       </div>
 
@@ -361,14 +439,49 @@ export function DailyUpdate() {
 
               <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                 {columns.map((col) => (
-                  <div key={col.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 group hover:border-[#002B5B]/30 transition-all">
-                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">{col.name}</span>
-                    <button
-                      onClick={() => handleDeleteColumn(col.id)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <div key={col.id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 group hover:border-[#002B5B]/30 transition-all">
+                    {editingColId === col.id ? (
+                      <div className="flex-1 flex gap-2">
+                        <input
+                          type="text"
+                          autoFocus
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleUpdateColumnName(col.id);
+                            if (e.key === 'Escape') setEditingColId(null);
+                          }}
+                          className="flex-1 px-3 py-1.5 rounded-lg border border-indigo-500 bg-white dark:bg-slate-900 text-sm font-bold outline-none"
+                        />
+                        <button 
+                          onClick={() => handleUpdateColumnName(col.id)}
+                          className="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">{col.name}</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => {
+                              setEditingColId(col.id);
+                              setEditingName(col.name);
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteColumn(col.id)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
                 {columns.length === 0 && (
