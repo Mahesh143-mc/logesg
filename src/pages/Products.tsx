@@ -1,7 +1,7 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Plus, Search, Edit2, Trash2, QrCode, X, Upload, CheckCircle2, Package, LayoutGrid, AlertTriangle, Scale, Printer, Download } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, QrCode, X, Upload, CheckCircle2, Package, LayoutGrid, AlertTriangle, Scale, Printer, Download, Eye, EyeOff } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { cn } from '../lib/utils';
@@ -40,6 +40,8 @@ export function Products() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newUnitName, setNewUnitName] = useState('');
+  const [newUnitAllowDecimal, setNewUnitAllowDecimal] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -51,7 +53,8 @@ export function Products() {
     lowStockThreshold: 5,
     imageUrl: '',
     publicId: '',
-    unit: ''
+    unit: '',
+    visible: true
   });
 
   useEffect(() => {
@@ -106,15 +109,37 @@ export function Products() {
     e.preventDefault();
     if (!newUnitName.trim()) return;
     try {
-      await addDoc(collection(db, 'units'), {
-        name: newUnitName.trim(),
-        createdAt: serverTimestamp()
-      });
+      if (editingUnit) {
+        await updateDoc(doc(db, 'units', editingUnit.id), {
+          name: newUnitName.trim(),
+          allowDecimal: newUnitAllowDecimal,
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        await addDoc(collection(db, 'units'), {
+          name: newUnitName.trim(),
+          allowDecimal: newUnitAllowDecimal,
+          createdAt: serverTimestamp()
+        });
+      }
       setNewUnitName('');
+      setNewUnitAllowDecimal(false);
+      setEditingUnit(null);
       setIsUnitModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert('Failed to add unit');
+      alert('Failed to save unit');
+    }
+  };
+
+  const handleDeleteUnit = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this unit?')) {
+      try {
+        await deleteDoc(doc(db, 'units', id));
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete unit');
+      }
     }
   };
 
@@ -203,7 +228,7 @@ export function Products() {
       }
       
       setEditingProduct(null);
-      setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '' });
+      setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '', visible: true });
       setImageFile(null);
       setImagePreview(null);
     } catch (err: any) {
@@ -380,7 +405,8 @@ export function Products() {
                 lowStockThreshold: 5, 
                 imageUrl: '', 
                 publicId: '',
-                unit: units.length > 0 ? units[0].name : ''
+                unit: units.length > 0 ? units[0].name : '',
+                visible: true
               });
               setImageFile(null);
               setImagePreview(null);
@@ -458,7 +484,8 @@ export function Products() {
                       lowStockThreshold: product.lowStockThreshold || 5,
                       imageUrl: product.imageUrl || '',
                       publicId: product.publicId || '',
-                      unit: product.unit || (units.length > 0 ? units[0].name : '')
+                      unit: product.unit || (units.length > 0 ? units[0].name : ''),
+                      visible: product.visible !== false
                     });
                     setImagePreview(product.imageUrl || null);
                     setIsModalOpen(true);
@@ -479,6 +506,14 @@ export function Products() {
               </div>
 
               {/* Status Badge */}
+              <div className="absolute top-3 left-3 flex flex-col gap-2">
+                {!product.visible && (
+                  <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-900/80 text-white backdrop-blur-md flex items-center gap-1">
+                    <EyeOff className="w-3 h-3" />
+                    Hidden
+                  </span>
+                )}
+              </div>
               <div className="absolute top-3 right-3">
                  <span className={cn(
                   "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider",
@@ -522,7 +557,8 @@ export function Products() {
                         lowStockThreshold: product.lowStockThreshold || 5,
                         imageUrl: product.imageUrl || '',
                         publicId: product.publicId || '',
-                        unit: product.unit || (units.length > 0 ? units[0].name : '')
+                        unit: product.unit || (units.length > 0 ? units[0].name : ''),
+                        visible: product.visible !== false
                       });
                       setImagePreview(product.imageUrl || null);
                       setIsModalOpen(true);
@@ -728,54 +764,160 @@ export function Products() {
         </div>
       )}
 
-      {/* Add Unit Modal */}
+      {/* Unit Management Modal */}
       {isUnitModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl animate-in zoom-in-95 duration-200">
-            <div className="mb-6 flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Add Unit</h2>
-                <p className="text-sm text-slate-500 mt-1">Create a new measurement unit</p>
-              </div>
-              <button onClick={() => setIsUnitModalOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <form onSubmit={handleAddUnit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Unit Name</label>
-                <input
-                  required
-                  autoFocus
-                  type="text"
-                  value={newUnitName}
-                  onChange={(e) => setNewUnitName(e.target.value)}
-                  placeholder="e.g. Kilograms (kg)"
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full h-11 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors outline-none focus:ring-2 focus:ring-indigo-500/50"
-              >
-                Save Unit
-              </button>
-            </form>
-            
-            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Existing Units</h3>
-              <div className="max-h-40 overflow-y-auto custom-scrollbar">
-                {units.length === 0 ? (
-                  <p className="py-4 text-sm text-slate-500 text-center">No units found</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {units.map(u => (
-                      <span key={u.id} className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 capitalize">
-                        {u.name}
-                      </span>
-                    ))}
+          <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+            <div className="flex flex-col md:flex-row max-h-[90vh] md:h-[500px]">
+              
+              {/* Sidebar - Existing Units */}
+              <div className="w-full md:w-72 bg-slate-50 dark:bg-slate-800/20 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 flex flex-col min-h-[200px] md:min-h-0">
+                <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between md:block">
+                  <div>
+                    <h3 className="text-[10px] md:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Existing Units</h3>
+                    <p className="text-[9px] md:text-[10px] text-slate-500 mt-1 font-medium">{units.length} defined</p>
                   </div>
-                )}
+                  {/* Close button for mobile inside sidebar area if needed, but let's keep the main one */}
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 custom-scrollbar">
+                  {units.map(u => (
+                    <div 
+                      key={u.id} 
+                      className={cn(
+                        "group flex items-center justify-between p-2 md:p-3 rounded-2xl border transition-all duration-300",
+                        editingUnit?.id === u.id 
+                          ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20" 
+                          : "bg-white dark:bg-[#18181b] border-slate-100 dark:border-slate-800 hover:border-indigo-500/30"
+                      )}
+                    >
+                      <div className="flex flex-col">
+                        <span className={cn(
+                          "text-[10px] md:text-xs font-bold capitalize",
+                          editingUnit?.id === u.id ? "text-white" : "text-slate-900 dark:text-white"
+                        )}>{u.name}</span>
+                        <span className={cn(
+                          "text-[8px] font-black uppercase tracking-tighter mt-0.5",
+                          editingUnit?.id === u.id ? "text-indigo-100" : "text-slate-500"
+                        )}>
+                          {u.allowDecimal ? 'Decimal' : 'Integer'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => {
+                            setEditingUnit(u);
+                            setNewUnitName(u.name);
+                            setNewUnitAllowDecimal(u.allowDecimal);
+                          }}
+                          className={cn(
+                            "p-1 rounded-lg transition-colors",
+                            editingUnit?.id === u.id ? "hover:bg-white/20 text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-600"
+                          )}
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteUnit(u.id)}
+                          className={cn(
+                            "p-1 rounded-lg transition-colors",
+                            editingUnit?.id === u.id ? "hover:bg-white/20 text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-600"
+                          )}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {units.length === 0 && (
+                    <div className="py-8 md:py-12 text-center">
+                      <Scale className="w-6 h-6 md:w-8 md:h-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
+                      <p className="text-[9px] md:text-[10px] text-slate-500 font-medium italic">No units yet</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Main Content - Form */}
+              <div className="flex-1 p-6 md:p-8 flex flex-col bg-white dark:bg-slate-900 overflow-y-auto">
+                <div className="flex items-start justify-between mb-6 md:mb-8">
+                  <div>
+                    <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                      {editingUnit ? 'Edit Unit' : 'Create Unit'}
+                    </h2>
+                    <p className="text-[10px] md:text-xs text-slate-500 mt-1 font-medium">Define how you measure your products</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setIsUnitModalOpen(false);
+                      setEditingUnit(null);
+                      setNewUnitName('');
+                      setNewUnitAllowDecimal(false);
+                    }} 
+                    className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleAddUnit} className="space-y-6 md:space-y-8">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[9px] md:text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Unit Name</label>
+                      <input
+                        required
+                        autoFocus
+                        type="text"
+                        value={newUnitName}
+                        onChange={(e) => setNewUnitName(e.target.value)}
+                        placeholder="e.g. Kilograms (kg)"
+                        className="w-full h-11 md:h-12 px-4 md:px-5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white shadow-inner"
+                      />
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100/50 dark:border-indigo-500/10">
+                      <label className="flex items-center space-x-4 cursor-pointer group">
+                        <div 
+                          onClick={() => setNewUnitAllowDecimal(!newUnitAllowDecimal)}
+                          className={cn(
+                            "w-12 h-6 rounded-full transition-all duration-500 relative",
+                            newUnitAllowDecimal ? "bg-indigo-600 shadow-lg shadow-indigo-600/20" : "bg-slate-300 dark:bg-slate-700"
+                          )}
+                        >
+                          <div className={cn(
+                            "absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-500 shadow-sm",
+                            newUnitAllowDecimal ? "left-7" : "left-1"
+                          )} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[11px] md:text-xs font-bold text-slate-900 dark:text-white">Allow Decimal Quantity</span>
+                          <span className="text-[9px] md:text-[10px] text-slate-500 mt-0.5">Supports fractional weights like 1.5kg, 0.75kg</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    {editingUnit && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingUnit(null);
+                          setNewUnitName('');
+                          setNewUnitAllowDecimal(false);
+                        }}
+                        className="flex-1 h-11 md:h-12 rounded-2xl border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all uppercase tracking-widest"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className="flex-[2] h-11 md:h-12 rounded-2xl bg-indigo-600 text-white text-[10px] font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest"
+                    >
+                      {editingUnit ? 'Update Unit' : 'Create Unit'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -901,6 +1043,29 @@ export function Products() {
                       onChange={(e) => setFormData({ ...formData, lowStockThreshold: parseInt(e.target.value) })}
                       className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
                     />
+                  </div>
+                </div>
+
+                {/* Visibility Toggle */}
+                <div className="pt-2">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">Visible to Customers</span>
+                      <span className="text-xs text-slate-500">Hide or show this product in the shop</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, visible: !formData.visible })}
+                      className={cn(
+                        "w-12 h-6 rounded-full transition-all duration-300 relative",
+                        formData.visible ? "bg-emerald-500 shadow-lg shadow-emerald-500/20" : "bg-slate-300 dark:bg-slate-700"
+                      )}
+                    >
+                      <div className={cn(
+                        "absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300",
+                        formData.visible ? "left-7" : "left-1"
+                      )} />
+                    </button>
                   </div>
                 </div>
               </div>

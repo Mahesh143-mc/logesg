@@ -60,8 +60,10 @@ export function Billing() {
     id: '',
     name: '',
     price: 0,
-    quantity: 1
+    quantity: 1,
+    unit: ''
   });
+  const [units, setUnits] = useState<any[]>([]);
 
   const subtotal = cart.reduce((acc, item) => acc + (item.price || 0) * (item.quantity || 0), 0);
   const tax = subtotal * (globalTaxRate / 100);
@@ -101,6 +103,21 @@ export function Billing() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      const q = query(collection(db, 'units'), orderBy('name', 'asc'));
+      const snapshot = await getDocs(q);
+      setUnits(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchUnits();
+  }, []);
+
+  const isDecimalAllowed = (unitName?: string) => {
+    if (!unitName) return false;
+    const unitObj = units.find(u => u.name.toLowerCase() === unitName.toLowerCase());
+    return unitObj ? unitObj.allowDecimal : false;
   };
 
   useEffect(() => {
@@ -416,10 +433,11 @@ export function Billing() {
       id: manualProduct.id,
       name: manualProduct.name,
       price: manualProduct.price,
-      quantity: manualProduct.quantity
+      quantity: manualProduct.quantity,
+      unit: manualProduct.unit
     });
     setIsManualAddOpen(false);
-    setManualProduct({ id: '', name: '', price: 0, quantity: 1 });
+    setManualProduct({ id: '', name: '', price: 0, quantity: 1, unit: '' });
     setModalSearchTerm('');
   };
 
@@ -528,20 +546,29 @@ export function Billing() {
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center space-x-2">
                           <button 
-                            onClick={() => updateCartQuantity(item.id, item.quantity - 0.1)}
+                            onClick={() => {
+                              const step = isDecimalAllowed(item.unit) ? 0.1 : 1;
+                              updateCartQuantity(item.id, Math.max(step, item.quantity - step));
+                            }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
                           <input 
                             type="number"
-                            step="0.01"
-                            value={item.quantity}
-                            onChange={(e) => updateCartQuantity(item.id, parseFloat(e.target.value) || 0)}
+                            step={isDecimalAllowed(item.unit) ? "0.1" : "1"}
+                            value={isDecimalAllowed(item.unit) ? item.quantity : Math.round(item.quantity)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value) || 0;
+                              updateCartQuantity(item.id, isDecimalAllowed(item.unit) ? val : Math.round(val));
+                            }}
                             className="w-16 text-center font-semibold text-slate-900 dark:text-white bg-transparent border-none outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:ring-1 focus:ring-indigo-500/20 rounded-md"
                           />
                           <button 
-                            onClick={() => updateCartQuantity(item.id, item.quantity + 0.1)}
+                            onClick={() => {
+                              const step = isDecimalAllowed(item.unit) ? 0.1 : 1;
+                              updateCartQuantity(item.id, item.quantity + step);
+                            }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                           >
                             <Plus className="w-3 h-3" />
@@ -775,7 +802,8 @@ export function Billing() {
                             id: p.id,
                             name: p.name,
                             price: p.price,
-                            quantity: 1
+                            quantity: 1,
+                            unit: p.unit || ''
                           });
                         }}
                         className={cn(
@@ -809,7 +837,10 @@ export function Billing() {
                       <div className="flex items-center space-x-2">
                         <button
                           type="button"
-                          onClick={() => setManualProduct(prev => ({ ...prev, quantity: Math.max(0.01, prev.quantity - 0.1) }))}
+                          onClick={() => {
+                            const step = isDecimalAllowed(manualProduct.unit) ? 0.1 : 1;
+                            setManualProduct(prev => ({ ...prev, quantity: Math.max(step, prev.quantity - step) }));
+                          }}
                           className="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                         >
                           <Minus className="h-4 w-4" />
@@ -817,15 +848,21 @@ export function Billing() {
                         <input
                           required
                           type="number"
-                          step="0.01"
-                          min="0.01"
-                          value={manualProduct.quantity}
-                          onChange={(e) => setManualProduct({ ...manualProduct, quantity: parseFloat(e.target.value) || 0.01 })}
+                          step={isDecimalAllowed(manualProduct.unit) ? "0.1" : "1"}
+                          min={isDecimalAllowed(manualProduct.unit) ? "0.1" : "1"}
+                          value={isDecimalAllowed(manualProduct.unit) ? manualProduct.quantity : Math.round(manualProduct.quantity)}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setManualProduct({ ...manualProduct, quantity: isDecimalAllowed(manualProduct.unit) ? val : Math.round(val) });
+                          }}
                           className="h-11 flex-1 min-w-0 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-center text-sm font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <button
                           type="button"
-                          onClick={() => setManualProduct(prev => ({ ...prev, quantity: prev.quantity + 0.1 }))}
+                          onClick={() => {
+                            const step = isDecimalAllowed(manualProduct.unit) ? 0.1 : 1;
+                            setManualProduct(prev => ({ ...prev, quantity: prev.quantity + step }));
+                          }}
                           className="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                         >
                           <Plus className="h-4 w-4" />

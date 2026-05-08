@@ -16,6 +16,7 @@ interface Product {
   unit?: string;
   imageUrl?: string;
   description?: string;
+  visible?: boolean;
 }
 
 export function CustomerShop({ initialCategory }: { initialCategory?: string }) {
@@ -36,6 +37,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
     place: ''
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [units, setUnits] = useState<any[]>([]);
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('name', 'asc'));
@@ -48,15 +50,30 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    const q = query(collection(db, 'units'), orderBy('name', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnits(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return unsubscribe;
+  }, []);
+
+  const isDecimalAllowed = (unitName?: string) => {
+    if (!unitName) return false;
+    const unitObj = units.find(u => u.name.toLowerCase() === unitName.toLowerCase());
+    return unitObj ? unitObj.allowDecimal : false;
+  };
+
   const categories = useMemo(() => {
     const cats = Array.from(new Set(products.map(p => p.category || 'Uncategorized')));
     return [t('all'), ...cats];
   }, [products, t]);
 
   const filteredProducts = products.filter(product => {
+    const isVisible = product.visible !== false;
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === t('all') || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return isVisible && matchesSearch && matchesCategory;
   });
 
   const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -193,7 +210,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         </header>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product, idx) => (
               <motion.div
@@ -492,11 +509,25 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                             </div>
                             <div className="flex justify-between items-center mt-2">
                               <div className="flex items-center space-x-3 bg-slate-50 rounded-lg p-1 border border-slate-100">
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity - 0.1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
+                                <button 
+                                  onClick={() => {
+                                    const step = isDecimalAllowed(item.unit) ? 0.1 : 1;
+                                    updateCartQuantity(item.id, Math.max(step, item.quantity - step));
+                                  }} 
+                                  className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors"
+                                >
                                   <Minus className="w-2.5 h-2.5" />
                                 </button>
-                                <span className="text-[10px] font-black text-slate-900 w-8 text-center">{item.quantity.toFixed(1)}</span>
-                                <button onClick={() => updateCartQuantity(item.id, item.quantity + 0.1)} className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors">
+                                <span className="text-[10px] font-black text-slate-900 w-8 text-center">
+                                  {isDecimalAllowed(item.unit) ? item.quantity.toFixed(1) : Math.round(item.quantity)}
+                                </span>
+                                <button 
+                                  onClick={() => {
+                                    const step = isDecimalAllowed(item.unit) ? 0.1 : 1;
+                                    updateCartQuantity(item.id, item.quantity + step);
+                                  }} 
+                                  className="w-7 h-7 rounded-md bg-white border border-slate-100 flex items-center justify-center text-slate-600 hover:text-emerald-600 transition-colors"
+                                >
                                   <Plus className="w-2.5 h-2.5" />
                                 </button>
                               </div>
@@ -675,24 +706,9 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                       </p>
                     </div>
                     
-                    <div className="grid grid-cols-1 gap-3">
-                      {[
-                        { title: t('quality_assured'), desc: t('freshness_desc') },
-                        { title: t('natural_title'), desc: t('chemical_free_desc') }
-                      ].map((feat, i) => (
-                        <div key={i} className="flex items-center space-x-4 p-5 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100">
-                          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 flex-shrink-0">
-                            <CheckCircle className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <h5 className="text-sm font-black text-slate-900 uppercase tracking-widest">{feat.title}</h5>
-                            <p className="text-xs text-slate-500 mt-1 font-medium">{feat.desc}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
 
-                    {(selectedProduct.unit?.toLowerCase().includes('kg') || !selectedProduct.unit) && (
+
+                    {isDecimalAllowed(selectedProduct.unit) ? (
                       <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
                         <h4 className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-3">{language === 'ta' ? 'எடையை தேர்வு செய்யவும்' : 'Select Weight (kg)'}</h4>
                         <div className="flex items-center space-x-4">
@@ -717,7 +733,35 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
-                          <span className="text-lg font-black text-emerald-900">kg</span>
+                          <span className="text-lg font-black text-emerald-900">{selectedProduct.unit || 'kg'}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <h4 className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-3">{language === 'ta' ? 'எண்ணிக்கையை தேர்வு செய்யவும்' : 'Select Quantity'}</h4>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-3 bg-white rounded-xl p-1 shadow-sm border border-emerald-200">
+                            <button 
+                              onClick={() => setSelectedWeight(Math.max(1, selectedWeight - 1))}
+                              className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <input 
+                              type="number"
+                              step="1"
+                              value={Math.round(selectedWeight)}
+                              onChange={(e) => setSelectedWeight(parseInt(e.target.value) || 1)}
+                              className="w-16 text-center font-black text-emerald-900 bg-transparent border-none outline-none text-lg"
+                            />
+                            <button 
+                              onClick={() => setSelectedWeight(selectedWeight + 1)}
+                              className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <span className="text-lg font-black text-emerald-900">{selectedProduct.unit}</span>
                         </div>
                       </div>
                     )}
