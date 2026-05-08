@@ -774,17 +774,16 @@ export function Products() {
               <div className="w-full md:w-72 bg-slate-50 dark:bg-slate-800/20 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 flex flex-col min-h-[200px] md:min-h-0">
                 <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between md:block">
                   <div>
-                    <h3 className="text-[10px] md:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Existing Units</h3>
-                    <p className="text-[9px] md:text-[10px] text-slate-500 mt-1 font-medium">{units.length} defined</p>
+                    <h3 className="text-xs md:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Existing Units</h3>
+                    <p className="text-[10px] md:text-[10px] text-slate-500 mt-1 font-medium">{units.length} defined</p>
                   </div>
-                  {/* Close button for mobile inside sidebar area if needed, but let's keep the main one */}
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 custom-scrollbar">
                   {units.map(u => (
                     <div 
                       key={u.id} 
                       className={cn(
-                        "group flex items-center justify-between p-2 md:p-3 rounded-2xl border transition-all duration-300",
+                        "group flex items-center justify-between p-3 rounded-2xl border transition-all duration-300",
                         editingUnit?.id === u.id 
                           ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20" 
                           : "bg-white dark:bg-[#18181b] border-slate-100 dark:border-slate-800 hover:border-indigo-500/30"
@@ -792,11 +791,11 @@ export function Products() {
                     >
                       <div className="flex flex-col">
                         <span className={cn(
-                          "text-[10px] md:text-xs font-bold capitalize",
+                          "text-xs md:text-xs font-bold capitalize",
                           editingUnit?.id === u.id ? "text-white" : "text-slate-900 dark:text-white"
                         )}>{u.name}</span>
                         <span className={cn(
-                          "text-[8px] font-black uppercase tracking-tighter mt-0.5",
+                          "text-[9px] md:text-[8px] font-black uppercase tracking-tighter mt-0.5",
                           editingUnit?.id === u.id ? "text-indigo-100" : "text-slate-500"
                         )}>
                           {u.allowDecimal ? 'Decimal' : 'Integer'}
@@ -810,20 +809,20 @@ export function Products() {
                             setNewUnitAllowDecimal(u.allowDecimal);
                           }}
                           className={cn(
-                            "p-1 rounded-lg transition-colors",
+                            "p-1.5 rounded-lg transition-colors",
                             editingUnit?.id === u.id ? "hover:bg-white/20 text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-600"
                           )}
                         >
-                          <Edit2 className="w-3 h-3" />
+                          <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button 
                           onClick={() => handleDeleteUnit(u.id)}
                           className={cn(
-                            "p-1 rounded-lg transition-colors",
+                            "p-1.5 rounded-lg transition-colors",
                             editingUnit?.id === u.id ? "hover:bg-white/20 text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-600"
                           )}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -831,7 +830,7 @@ export function Products() {
                   {units.length === 0 && (
                     <div className="py-8 md:py-12 text-center">
                       <Scale className="w-6 h-6 md:w-8 md:h-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
-                      <p className="text-[9px] md:text-[10px] text-slate-500 font-medium italic">No units yet</p>
+                      <p className="text-[10px] md:text-[10px] text-slate-500 font-medium italic">No units yet</p>
                     </div>
                   )}
                 </div>
@@ -841,10 +840,10 @@ export function Products() {
               <div className="flex-1 p-6 md:p-8 flex flex-col bg-white dark:bg-slate-900 overflow-y-auto">
                 <div className="flex items-start justify-between mb-6 md:mb-8">
                   <div>
-                    <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                    <h2 className="text-xl md:text-xl font-black text-slate-900 dark:text-white tracking-tight">
                       {editingUnit ? 'Edit Unit' : 'Create Unit'}
                     </h2>
-                    <p className="text-[10px] md:text-xs text-slate-500 mt-1 font-medium">Define how you measure your products</p>
+                    <p className="text-xs md:text-xs text-slate-500 mt-1 font-medium">Define how you measure your products</p>
                   </div>
                   <button 
                     onClick={() => {
@@ -855,14 +854,14 @@ export function Products() {
                     }} 
                     className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-6 w-6" />
                   </button>
                 </div>
 
                 <form onSubmit={handleAddUnit} className="space-y-6 md:space-y-8">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-[9px] md:text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Unit Name</label>
+                      <label className="text-[10px] md:text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Unit Name</label>
                       <input
                         required
                         autoFocus
@@ -870,7 +869,7 @@ export function Products() {
                         value={newUnitName}
                         onChange={(e) => setNewUnitName(e.target.value)}
                         placeholder="e.g. Kilograms (kg)"
-                        className="w-full h-11 md:h-12 px-4 md:px-5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white shadow-inner"
+                        className="w-full h-12 md:h-12 px-4 md:px-5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white shadow-inner"
                       />
                     </div>
 
@@ -889,8 +888,8 @@ export function Products() {
                           )} />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[11px] md:text-xs font-bold text-slate-900 dark:text-white">Allow Decimal Quantity</span>
-                          <span className="text-[9px] md:text-[10px] text-slate-500 mt-0.5">Supports fractional weights like 1.5kg, 0.75kg</span>
+                          <span className="text-xs md:text-xs font-bold text-slate-900 dark:text-white">Allow Decimal Quantity</span>
+                          <span className="text-[10px] md:text-[10px] text-slate-500 mt-0.5">Supports fractional weights like 1.5kg, 0.75kg</span>
                         </div>
                       </label>
                     </div>
@@ -905,14 +904,14 @@ export function Products() {
                           setNewUnitName('');
                           setNewUnitAllowDecimal(false);
                         }}
-                        className="flex-1 h-11 md:h-12 rounded-2xl border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all uppercase tracking-widest"
+                        className="flex-1 h-12 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all uppercase tracking-widest"
                       >
                         Cancel
                       </button>
                     )}
                     <button
                       type="submit"
-                      className="flex-[2] h-11 md:h-12 rounded-2xl bg-indigo-600 text-white text-[10px] font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest"
+                      className="flex-[2] h-12 rounded-2xl bg-indigo-600 text-white text-xs font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest"
                     >
                       {editingUnit ? 'Update Unit' : 'Create Unit'}
                     </button>

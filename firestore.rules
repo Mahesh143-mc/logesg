@@ -97,6 +97,13 @@ service cloud.firestore {
              data.date is timestamp;
     }
 
+    function isValidDailyIncomeEntry(data) {
+      return data.keys().hasAll(['date', 'monthYear', 'data']) &&
+             data.date is string &&
+             data.monthYear is string &&
+             data.data is map;
+    }
+
     // Rules
     match /users/{userId} {
       allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
@@ -147,6 +154,16 @@ service cloud.firestore {
     match /expenseCategories/{catId} {
       allow read: if isStaff();
       allow write: if isAdmin();
+    }
+
+    match /dailyIncomeColumns/{columnId} {
+      allow read: if isStaff();
+      allow write: if isAdmin();
+    }
+
+    match /dailyIncomeEntries/{entryId} {
+      allow read: if isStaff();
+      allow write: if isStaff() && isValidDailyIncomeEntry(request.resource.data);
     }
 
     match /{path=**} {

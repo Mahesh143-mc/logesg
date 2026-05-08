@@ -20,6 +20,10 @@ import { Reports } from '../pages/Reports';
 import { Notes } from '../pages/Notes';
 import { Settings } from '../pages/Settings';
 import { PendingAmount } from '../pages/PendingAmount';
+import { DailyUpdate } from '../pages/DailyUpdate';
+
+// Management Layout
+
 
 
 
@@ -38,7 +42,7 @@ export function Layout() {
       const validAdminPages = [
         'dashboard', 'billing', 'products', 'inventory', 'customers', 
         'expenses', 'sales-history', 'orders', 'order-history', 
-        'reports', 'notes', 'settings', 'pending-amount'
+        'reports', 'notes', 'settings', 'pending-amount', 'daily-update'
       ];
       
       const targetPage = (pageId && validAdminPages.includes(pageId)) ? pageId : 'dashboard';
@@ -74,6 +78,7 @@ export function Layout() {
       case 'notes': return <Notes />;
       case 'settings': return <Settings />;
       case 'pending-amount': return <PendingAmount />;
+      case 'daily-update': return <DailyUpdate />;
       default: return <Dashboard />;
     }
   };

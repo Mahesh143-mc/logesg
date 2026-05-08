@@ -39,6 +39,7 @@ const navItems = [
   { icon: ClipboardList, label: 'INVENTORY', id: 'inventory' },
   { icon: Notebook, label: 'BRIEF', id: 'notes' },
   { icon: BarChart3, label: 'INTELLIGENCE', id: 'reports' },
+  { icon: Zap, label: 'DAILY UPDATE', id: 'daily-update' },
   { icon: Settings, label: 'SYSTEM CORE', id: 'settings' },
 ];
 
