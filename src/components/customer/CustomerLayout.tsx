@@ -37,7 +37,7 @@ export function CustomerLayout() {
     if (urlMode === 'static') {
       const validCustomerPages = ['home', 'shop', 'about', 'contact'];
       const targetPage = (pageId && validCustomerPages.includes(pageId)) ? pageId : 'home';
-      
+
       if (targetPage !== currentCustomerPage) {
         setCurrentCustomerPage(targetPage as any);
       }
@@ -78,20 +78,20 @@ export function CustomerLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-zinc-200 transition-colors duration-500">
       {/* Premium Navigation */}
-      <nav 
+      <nav
         className={cn(
           "fixed top-0 inset-x-0 z-[100] transition-all duration-500",
-          scrolled 
-            ? "py-2 md:py-3 bg-slate-900/95 backdrop-blur-2xl border-b border-white/5 shadow-2xl" 
-            : "py-3 md:py-4 bg-slate-900/80 backdrop-blur-lg"
+          scrolled
+            ? "py-2 md:py-3 bg-slate-950/90 dark:bg-slate-950/90 backdrop-blur-2xl border-b border-emerald-500/10 shadow-2xl shadow-emerald-500/5"
+            : "py-3 md:py-4 bg-slate-950/70 dark:bg-slate-950/70 backdrop-blur-lg border-b border-white/5"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               onClick={() => handleNavClick('home')}
@@ -155,7 +155,7 @@ export function CustomerLayout() {
                 >
                   <Globe className="w-4 h-4 md:w-5 md:h-5" />
                 </motion.button>
-                
+
                 <AnimatePresence>
                   {isLangOpen && (
                     <motion.div
@@ -176,8 +176,8 @@ export function CustomerLayout() {
                           }}
                           className={cn(
                             "w-full px-4 py-2 text-left text-sm font-bold transition-colors",
-                            language === lang.code 
-                              ? "bg-emerald-600 text-white" 
+                            language === lang.code
+                              ? "bg-emerald-600 text-white"
                               : "text-slate-400 hover:bg-white/5 hover:text-white"
                           )}
                         >
@@ -189,7 +189,7 @@ export function CustomerLayout() {
                 </AnimatePresence>
               </div>
 
-              <button 
+              <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 className="lg:hidden w-10 h-10 md:w-12 md:h-12 bg-emerald-600 text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-600/20"
@@ -238,8 +238,8 @@ export function CustomerLayout() {
                         "w-10 h-10 rounded-xl flex items-center justify-center",
                         currentCustomerPage === link.id ? "bg-white/20" : "bg-white/10 shadow-sm"
                       )}>
-                        {React.cloneElement(link.icon as React.ReactElement, { 
-                          className: cn("w-5 h-5", currentCustomerPage === link.id ? "text-white" : "text-emerald-400") 
+                        {React.cloneElement(link.icon as React.ReactElement, {
+                          className: cn("w-5 h-5", currentCustomerPage === link.id ? "text-white" : "text-emerald-400")
                         })}
                       </div>
                       <span className="text-lg font-black">{link.label}</span>
@@ -272,17 +272,17 @@ export function CustomerLayout() {
       </main>
 
       {/* Professional Footer */}
-      <footer className="bg-slate-900 text-white pt-32 pb-12 overflow-hidden relative">
+      <footer className="bg-gradient-to-b from-slate-900 to-slate-950 text-white pt-24 pb-12 overflow-hidden relative border-t border-white/5">
         {/* Abstract Background */}
         <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-20">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 animate-float-slow" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-8 mb-24">
-            <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+            <div className="space-y-6 text-left">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
                   <Sprout className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex flex-col">
@@ -290,79 +290,79 @@ export function CustomerLayout() {
                   <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mt-1">{t('natural_farm')}</span>
                 </div>
               </div>
-              <p className="text-slate-400 leading-relaxed font-medium">
+              <p className="text-slate-400 text-sm leading-relaxed font-medium">
                 {t('footer_desc')}
               </p>
-              <div className="flex space-x-4">
+              <div className="flex space-x-3 pt-2">
                 {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                  <a key={i} href="#" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-emerald-600 transition-all text-slate-400 hover:text-white">
-                    <Icon className="w-5 h-5" />
+                  <a key={i} href="#" aria-label="Social link" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-emerald-600 transition-all text-slate-400 hover:text-white">
+                    <Icon className="w-4 h-4" />
                   </a>
                 ))}
               </div>
             </div>
 
-            <div>
-              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">{t('quick_links')}</h4>
-              <ul className="space-y-4">
+            <div className="text-left">
+              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-6">{t('quick_links')}</h4>
+              <ul className="space-y-3">
                 {navLinks.map(link => (
                   <li key={link.id}>
-                    <button 
+                    <button
                       onClick={() => handleNavClick(link.id)}
-                      className="text-slate-400 hover:text-white transition-colors flex items-center space-x-2 group"
+                      className="text-slate-400 hover:text-white text-sm transition-colors flex items-center space-x-2 group font-semibold"
                     >
                       <div className={cn(
-                        "w-1.5 h-1.5 rounded-full bg-emerald-500 transition-transform",
-                        currentCustomerPage === link.id ? "scale-100" : "scale-0 group-hover:scale-100"
+                        "w-1.5 h-1.5 rounded-full bg-emerald-500 transition-all duration-300",
+                        currentCustomerPage === link.id ? "scale-100 opacity-100" : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100"
                       )} />
-                      <span className="font-bold">{link.label}</span>
+                      <span>{link.label}</span>
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div>
-              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">{t('contact')}</h4>
-              <ul className="space-y-6">
-                <li className="flex items-start space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-emerald-500 flex-shrink-0">
-                    <Phone className="w-4 h-4" />
+            <div className="text-left">
+              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-6">{t('contact')}</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start space-x-3 text-left">
+                  <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-emerald-500 flex-shrink-0">
+                    <Phone className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('call_us')}</div>
-                    <div className="font-bold text-slate-200 mt-1">+91 98765 43210</div>
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">{t('call_us')}</div>
+                    <div className="font-bold text-sm text-slate-200 mt-1">+91 98765 43210</div>
                   </div>
                 </li>
-                <li className="flex items-start space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-emerald-500 flex-shrink-0">
-                    <Mail className="w-4 h-4" />
+                <li className="flex items-start space-x-3 text-left">
+                  <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-emerald-500 flex-shrink-0">
+                    <Mail className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('email_us')}</div>
-                    <div className="font-bold text-slate-200 mt-1">support@vivasayi.com</div>
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">{t('email_us')}</div>
+                    <div className="font-bold text-sm text-slate-200 mt-1">support@vivasayi.com</div>
                   </div>
                 </li>
               </ul>
             </div>
 
-            <div>
-              <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8">{t('admin_area')}</h4>
-              <p className="text-slate-400 text-sm mb-6 font-medium">{t('login_to_manage')}</p>
+            <div className="text-left">
+              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-6">{t('admin_area')}</h4>
+              <p className="text-slate-400 text-xs mb-4 font-medium">{t('login_to_manage')}</p>
               <Link
                 to="/login"
-                className="inline-flex items-center space-x-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-sm hover:bg-white/10 transition-all group"
+                className="inline-flex items-center space-x-2.5 px-5 py-3.5 bg-white/5 border border-white/10 rounded-xl font-black text-xs hover:bg-white/10 hover:border-emerald-500/30 transition-all group uppercase tracking-widest"
               >
-                <LogIn className="w-5 h-5 text-emerald-500" />
+                <LogIn className="w-4 h-4 text-emerald-500" />
                 <span>{t('login')}</span>
-                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
           </div>
 
-          <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 text-xs font-medium text-slate-500">
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-[11px] font-semibold text-slate-500">
             <p>© {new Date().getFullYear()} {t('logesh_farmer')}. {t('rights_reserved')}</p>
-            <div className="flex space-x-8">
+            <div className="flex space-x-6">
               <a href="#" className="hover:text-emerald-500 transition-colors">{t('privacy_policy')}</a>
               <a href="#" className="hover:text-emerald-500 transition-colors">{t('terms_of_service')}</a>
             </div>
