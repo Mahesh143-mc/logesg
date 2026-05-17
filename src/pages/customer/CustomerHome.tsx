@@ -4,7 +4,7 @@ import {
   Sprout, Leaf, ArrowRight, Sparkles, Activity, ShieldCheck, 
   CloudSun, DollarSign, Users, Cpu, Layers, ShoppingBag, 
   Plus, Check, Droplets, MapPin, Zap, CheckCircle2,
-  ShoppingCart, Truck, Package, Heart, Star
+  ShoppingCart, Truck, Package, Heart, Star, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -34,10 +34,64 @@ export function CustomerHome() {
   const { setCurrentCustomerPage, language, addToCart, cart } = useStore();
   const t = useTranslation(language);
   const containerRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -340, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: 292, behavior: 'smooth' });
+    }
+  };
+
 
   // Live Firebase Products
   const [products, setProducts] = useState<FirebaseProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+
+  // Autoplay slider scrolling one-by-one
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    let autoplayActive = true;
+
+    const handleMouseEnter = () => { autoplayActive = false; };
+    const handleMouseLeave = () => { autoplayActive = true; };
+
+    slider.addEventListener('mouseenter', handleMouseEnter);
+    slider.addEventListener('mouseleave', handleMouseLeave);
+
+    const interval = setInterval(() => {
+      if (!autoplayActive) return;
+      
+      const maxScroll = slider.scrollWidth - slider.clientWidth;
+      if (slider.scrollLeft >= maxScroll - 10) {
+        slider.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        // Scroll by one compact card width + gap (260px card + 32px gap = 292px)
+        slider.scrollBy({ left: 292, behavior: 'smooth' });
+      }
+    }, 3500);
+
+    return () => {
+      clearInterval(interval);
+      slider.removeEventListener('mouseenter', handleMouseEnter);
+      slider.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [products]);
 
   // Wishlist state for premium ecommerce experience
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -790,39 +844,254 @@ export function CustomerHome() {
       </section>
 
       {/* 4️⃣ TOP PRODUCTS MARKETPLACE SECTION */}
-      <section id="marketplace-preview" className="py-24 md:py-32 relative bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-hidden">
+      <section id="marketplace-preview" className="py-12 md:py-16 relative bg-white transition-colors duration-500 overflow-hidden border-y border-slate-100">
         
         {/* Soft green gradient blur orbs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          <div className="absolute top-[10%] left-[5%] w-[450px] h-[450px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[140px]" />
-          <div className="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-lime-500/5 dark:bg-lime-500/5 rounded-full blur-[120px]" />
+          <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] bg-emerald-500/[0.03] rounded-full blur-[140px] animate-pulse" style={{ animationDuration: '8s' }} />
+          <div className="absolute bottom-[20%] right-[-10%] w-[500px] h-[500px] bg-lime-500/[0.02] rounded-full blur-[130px] animate-pulse" style={{ animationDuration: '6s' }} />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10">
           
-          {/* Centered Header based on How Logesh Vivasayi Works style */}
-          <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+          {/* Centered Header */}
+          <div className="text-center max-w-3xl mx-auto mb-10 px-4 relative z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="inline-flex px-3 py-1 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-4 font-poppins mx-auto"
+              className="inline-flex px-3 py-1 rounded bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-black uppercase tracking-[0.35em] mb-3 font-poppins mx-auto"
             >
-              {language === "ta" ? "புதிய சந்தை" : "Fresh Marketplace"}
+              {language === "ta" ? "சிறந்த தயாரிப்புகள்" : "FEATURED SHOWCASE"}
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tighter leading-tight font-poppins"
+              className="text-3xl sm:text-5xl font-black text-slate-900 tracking-[0.1em] uppercase leading-tight font-poppins"
             >
               {language === "ta" ? (
                 <>
-                  சிறந்த விற்பனை <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">விவசாய தயாரிப்புகள்</span>
+                  சிறப்பு <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">தயாரிப்புகள்</span>
                 </>
               ) : (
                 <>
-                  Top Selling <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">Farm Products</span>
+                  FEATURED <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">PRODUCTS</span>
+                </>
+              )}
+            </motion.h2>
+            <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent mx-auto mt-4" />
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-slate-500 text-[10px] sm:text-xs font-semibold tracking-wider leading-relaxed mt-3 max-w-2xl mx-auto uppercase"
+            >
+              {language === "ta" ? "லோகேஷ் விவசாயி தளத்தின் புதிய தூய்மையான தயாரிப்புகள்" : "Curated high-yield organic crops harvested at peak freshness"}
+            </motion.p>
+          </div>
+
+          {/* Dynamic Interactive Products Horizontal Slider */}
+          {loadingProducts ? (
+            <div className="h-52 flex items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+            </div>
+          ) : (
+            <div className="relative w-full px-4 md:px-12 z-10">
+              
+              {/* Left Arrow Button */}
+              <button 
+                onClick={scrollLeft}
+                className="absolute left-1 top-1/2 -translate-y-1/2 z-30 w-9 h-9 md:w-11 md:h-11 rounded-full bg-white hover:bg-emerald-600 text-slate-950 hover:text-white flex items-center justify-center border border-slate-200 shadow-2xl transition-all duration-300 active:scale-90 hover:scale-110 cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 stroke-[2.5]" />
+              </button>
+
+              {/* Slider Container */}
+              <div 
+                ref={sliderRef}
+                className="flex overflow-x-auto gap-8 py-4 px-4 scroll-smooth snap-x snap-mandatory scrollbar-none"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                <AnimatePresence mode="popLayout">
+                  {filteredProducts.map((p, index) => {
+                    const isFav = favorites.includes(p.id);
+                    const isAdded = cart.some(item => item.id === p.id);
+                    
+                    const cardThemes = [
+                      {
+                        bg: "bg-gradient-to-br from-emerald-100 via-emerald-100/90 to-emerald-200/70",
+                        border: "border-emerald-300/80 hover:border-emerald-500/50",
+                        hoverShadow: "hover:shadow-[0_20px_40px_rgba(16,185,129,0.09)]",
+                        glow: "from-emerald-500/0 to-emerald-500/10"
+                      },
+                      {
+                        bg: "bg-gradient-to-br from-amber-100 via-amber-100/90 to-amber-200/70",
+                        border: "border-amber-300/80 hover:border-amber-500/50",
+                        hoverShadow: "hover:shadow-[0_20px_40px_rgba(245,158,11,0.09)]",
+                        glow: "from-amber-500/0 to-amber-500/10"
+                      },
+                      {
+                        bg: "bg-gradient-to-br from-lime-100 via-lime-100/90 to-lime-200/70",
+                        border: "border-lime-300/80 hover:border-lime-500/50",
+                        hoverShadow: "hover:shadow-[0_20px_40px_rgba(132,204,22,0.09)]",
+                        glow: "from-lime-500/0 to-lime-500/10"
+                      },
+                      {
+                        bg: "bg-gradient-to-br from-sky-100 via-sky-100/90 to-sky-200/70",
+                        border: "border-sky-300/80 hover:border-sky-500/50",
+                        hoverShadow: "hover:shadow-[0_20px_40px_rgba(14,165,233,0.09)]",
+                        glow: "from-sky-500/0 to-sky-500/10"
+                      },
+                      {
+                        bg: "bg-gradient-to-br from-rose-100 via-rose-100/90 to-rose-200/70",
+                        border: "border-rose-300/80 hover:border-rose-500/50",
+                        hoverShadow: "hover:shadow-[0_20px_40px_rgba(244,63,94,0.09)]",
+                        glow: "from-rose-500/0 to-rose-500/10"
+                      }
+                    ];
+                    const theme = cardThemes[index % cardThemes.length];
+
+                    return (
+                      <motion.div
+                        key={p.id}
+                        layout
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                        whileHover={{ y: -6 }}
+                        onClick={() => handleAddToCart(p)}
+                        className={cn(
+                          "relative cursor-pointer flex flex-col items-center p-5 rounded-2xl text-slate-900 border shadow-[0_8px_30px_rgb(0,0,0,0.03)] transition-all duration-500 overflow-hidden w-[240px] md:w-[260px] h-[340px] shrink-0 group select-none snap-start text-center",
+                          theme.bg,
+                          theme.border,
+                          theme.hoverShadow
+                        )}
+                      >
+                        {/* Ambient Card Glow */}
+                        <div className={cn("absolute -inset-px bg-gradient-to-tr opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-500 pointer-events-none -z-10", theme.glow)} />
+
+                        {/* Top corner Favorite Icon */}
+                        <div className="absolute top-4 right-4 z-10">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(p.id);
+                            }}
+                            className="w-7 h-7 rounded-full bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors cursor-pointer border border-slate-200/60 shadow-sm"
+                          >
+                            <Heart className={cn("w-3 h-3 transition-all duration-300", isFav ? "fill-rose-500 text-rose-500 scale-110" : "")} />
+                          </button>
+                        </div>
+
+                        {/* Compact image container with smooth hover zoom and transparent background */}
+                        <div className="w-full h-36 flex items-center justify-center relative overflow-hidden mb-2 bg-transparent">
+                          <img 
+                            src={p.imageUrl || "https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop"} 
+                            alt={p.name} 
+                            className="h-32 w-32 object-contain group-hover:scale-110 transition-transform duration-700 ease-out mix-blend-multiply" 
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
+
+                        {/* Center Aligned Product Content */}
+                        <div className="flex flex-col items-center text-center space-y-1.5 w-full mt-auto">
+                          
+                          {/* Name */}
+                          <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight uppercase font-poppins line-clamp-1">
+                            {p.name}
+                          </h3>
+                          
+                          {/* Description */}
+                          <p className="text-[10px] text-slate-500 font-semibold line-clamp-2 leading-relaxed h-7">
+                            {p.description || (language === "ta" ? "உயர்தர புதிய இயற்கை தயாரிப்பு." : "Fresh and premium quality, tested for organic standards.")}
+                          </p>
+                          
+                          {/* Price */}
+                          <div className="pt-2 flex items-baseline justify-center space-x-1 border-t border-slate-100 w-full mt-1">
+                            <span className="text-base font-black text-emerald-600">₹{p.price}</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">/ {p.unit || '1kg'}</span>
+                          </div>
+
+                          {/* Added micro-notification bubble inside card to give perfect visual feedback */}
+                          {isAdded && (
+                            <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-0.5 rounded-full flex items-center space-x-1 mt-1 animate-fade-in uppercase tracking-wider">
+                              <Check className="w-2.5 h-2.5 stroke-[3.5]" />
+                              <span>ADDED TO CART</span>
+                            </span>
+                          )}
+
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+
+              {/* Right Arrow Button */}
+              <button 
+                onClick={scrollRight}
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-30 w-9 h-9 md:w-11 md:h-11 rounded-full bg-white hover:bg-emerald-600 text-slate-950 hover:text-white flex items-center justify-center border border-slate-200 shadow-2xl transition-all duration-300 active:scale-90 hover:scale-110 cursor-pointer"
+              >
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 stroke-[2.5]" />
+              </button>
+
+            </div>
+          )}
+
+          {/* Centered GO TO SHOP button below products */}
+          <div className="flex justify-center mt-10 relative z-10">
+            <button
+              onClick={() => {
+                setCurrentCustomerPage('shop');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="px-8 py-3 bg-slate-950 hover:bg-emerald-600 text-white rounded-full font-black text-xs uppercase tracking-[0.25em] transition-all duration-300 border border-transparent active:scale-95 cursor-pointer shadow-lg shadow-slate-950/15 flex items-center space-x-2 group"
+            >
+              <span>{language === "ta" ? "கடைக்குச் செல்லவும்" : "GO TO SHOP"}</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 5️⃣ PREMIUM LIFESTYLE & BRAND STORY SHOWCASE SECTION */}
+      <section id="brand-story" className="py-24 md:py-32 bg-slate-50 border-t border-slate-200/30 relative overflow-hidden">
+        
+        {/* Soft Ambient Sparkle */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[10%] right-[-5%] w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px]" />
+          <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] bg-lime-500/5 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          
+          {/* Header Description */}
+          <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex px-3 py-1 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-4 font-poppins"
+            >
+              {language === "ta" ? "நமது பாரம்பரியம்" : "OUR HERITAGE"}
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight font-poppins"
+            >
+              {language === "ta" ? (
+                <>
+                  பசுமை <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">வாழ்வியல்</span> கதை
+                </>
+              ) : (
+                <>
+                  THE STORY OF <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">VIVASAYI</span>
                 </>
               )}
             </motion.h2>
@@ -831,272 +1100,137 @@ export function CustomerHome() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold leading-relaxed mt-4 max-w-2xl mx-auto"
+              className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-3 max-w-xl mx-auto uppercase"
             >
-              {language === "ta" ? "நம்பகமான விவசாயிகளிடமிருந்து நேரடியாக புதிய, கரிம மற்றும் உயர்தர தயாரிப்புகள்." : "Fresh, organic, and high-quality agricultural products directly from trusted farmers."}
+              {language === "ta" ? "விவசாயிகளின் உன்னத உழைப்பை நவீன உலகிற்கு அறிமுகப்படுத்துகிறோம்" : "Bringing the soul of pure agriculture to the next generation"}
             </motion.p>
           </div>
 
-          {/* Dynamic Interactive Products Grid - Clean Single Row of 4 to 5 products */}
-          {loadingProducts ? (
-            <div className="h-60 flex items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5">
-              <AnimatePresence mode="popLayout">
-                {filteredProducts.slice(0, 5).map((p, index) => {
-                  const isFav = favorites.includes(p.id);
-                  const isAdded = cart.some(item => item.id === p.id);
-                  return (
-                    <motion.div
-                      key={p.id}
-                      layout
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: index * 0.05, ease: "easeOut" }}
-                      whileHover={{ y: -8 }}
-                      className="rounded-[2rem] border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-slate-900/20 backdrop-blur-xl p-4 relative group flex flex-col justify-between hover:shadow-[0_24px_48px_-12px_rgba(16,185,129,0.08)] hover:border-emerald-500/35 dark:hover:border-emerald-500/25 transition-all duration-500 overflow-hidden text-left"
-                    >
-                      {/* Ambient background blur glow effect inside card */}
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[40px] pointer-events-none group-hover:scale-150 transition-transform duration-700" />
-                      
-                      {/* TOP SECTION */}
-                      <div className="relative mb-3.5">
-                        
-                        {/* Floating organic/bestseller/fresh badges */}
-                        <div className="absolute top-0.5 left-0.5 z-10 flex flex-col gap-1.5 items-start pointer-events-none">
-                          {p.isOrganic ? (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-[8px] font-black uppercase tracking-widest border border-emerald-500/10 dark:border-emerald-500/20">
-                              {language === "ta" ? "இயற்கை" : "Organic"}
-                            </span>
-                          ) : p.isBestSeller ? (
-                            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-300 text-[8px] font-black uppercase tracking-widest border border-amber-500/10 dark:border-amber-500/20">
-                              {language === "ta" ? "சிறந்தவை" : "Best Seller"}
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 rounded-full bg-lime-500/10 dark:bg-lime-500/20 text-lime-600 dark:text-lime-300 text-[8px] font-black uppercase tracking-widest border border-lime-500/10 dark:border-lime-500/20">
-                              {language === "ta" ? "புதியது" : "Fresh"}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Wishlist Button (Heart icon) with glass overlay */}
-                        <div className="absolute top-0.5 right-0.5 z-10">
-                          <motion.button
-                            whileTap={{ scale: 0.85 }}
-                            onClick={() => toggleFavorite(p.id)}
-                            className="w-7.5 h-7.5 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/50 dark:border-white/10 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:dark:text-rose-455 transition-colors shadow-sm cursor-pointer hover:scale-105"
-                          >
-                            <Heart className={cn("w-3.5 h-3.5 transition-all duration-300", isFav ? "fill-rose-500 text-rose-500 scale-110" : "")} />
-                          </motion.button>
-                        </div>
-
-                        {/* Product Image Wrapper with soft background glow and zoom animation */}
-                        <div className="aspect-square bg-gradient-to-b from-slate-50 to-slate-100/50 dark:from-slate-900/40 dark:to-slate-900/10 rounded-2xl p-4 flex items-center justify-center relative transition-colors duration-500 overflow-hidden">
-                          
-                          {/* Ambient soft image glow orb */}
-                          <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 to-lime-500/5 opacity-40 group-hover:opacity-85 blur-[24px] rounded-full transition-opacity duration-500 pointer-events-none scale-90 group-hover:scale-110" />
-                          
-                          <img 
-                            src={p.imageUrl || "https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop"} 
-                            alt={p.name} 
-                            className="h-24 w-24 object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.06)] group-hover:scale-110 transition-transform duration-700 ease-out mix-blend-multiply dark:mix-blend-normal opacity-95 group-hover:opacity-100" 
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                      </div>
-
-                      {/* MIDDLE SECTION */}
-                      <div className="mb-4">
-                        {/* Category small text */}
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-550">
-                          {p.category}
-                        </span>
-                        
-                        {/* Product Title */}
-                        <h3 className="text-sm font-black text-slate-950 dark:text-white leading-tight tracking-tight mt-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300 line-clamp-1">
-                          {p.name}
-                        </h3>
-
-                        {/* Description */}
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed font-medium">
-                          {p.description || (language === "ta" ? "உயர்தர புதிய இயற்கை தயாரிப்பு." : "Fresh and premium quality, tested for organic standards.")}
-                        </p>
-                      </div>
-
-                      {/* BOTTOM SECTION */}
-                      <div className="pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between w-full mt-auto">
-                        
-                        {/* Price */}
-                        <div className="flex flex-col">
-                          <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Price</span>
-                          <div className="flex items-baseline space-x-0.5">
-                            <span className="text-base font-black text-slate-900 dark:text-white">₹{p.price}</span>
-                            <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">/ {p.unit || '1kg'}</span>
-                          </div>
-                        </div>
-
-                        {/* Stock & Stars column */}
-                        <div className="flex flex-col items-start space-y-1">
-                          {/* Stock status */}
-                          <div className="flex items-center space-x-1">
-                            <span className={cn(
-                              "w-1.5 h-1.5 rounded-full animate-pulse",
-                              p.stock > 20 ? "bg-emerald-500" : p.stock > 0 ? "bg-amber-500" : "bg-slate-400"
-                            )} />
-                            <span className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                              {p.stock > 20 ? (language === "ta" ? "இருப்பு" : "In Stock") : p.stock > 0 ? (language === "ta" ? `${p.stock} உள்ளது` : `Only ${p.stock}`) : (language === "ta" ? "முடிந்தது" : "Out")}
-                            </span>
-                          </div>
-
-                          {/* Star Rating */}
-                          <div className="flex items-center space-x-0.5 text-amber-500">
-                            <Star className="w-2.5 h-2.5 fill-current" />
-                            <span className="text-[9px] font-black text-slate-770 dark:text-slate-300 ml-0.5">{p.rating || 4.8}</span>
-                          </div>
-                        </div>
-
-                        {/* Modern Add to Cart button */}
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          disabled={p.stock <= 0}
-                          onClick={() => addToCart({ ...p, quantity: 1 })}
-                          className={cn(
-                            "h-8 px-3 rounded-full flex items-center justify-center space-x-1 transition-all duration-300 shadow-sm border",
-                            p.stock <= 0 
-                              ? "bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-white/5 cursor-not-allowed shadow-none" 
-                              : isAdded 
-                                ? "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white border-emerald-600 shadow-md shadow-emerald-600/20"
-                                : "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-lime-500 text-slate-950 font-black border-transparent shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/30 hover:scale-105 active:scale-95"
-                          )}
-                        >
-                          {isAdded ? (
-                            <>
-                              <Check className="w-3 h-3 stroke-[3.5]" />
-                              <span className="text-[8px] font-black tracking-wider uppercase">{language === "ta" ? "சேர்க்கப்பட்டது" : "Added"}</span>
-                            </>
-                          ) : (
-                            <>
-                              <Plus className="w-3 h-3 stroke-[3.5]" />
-                              <span className="text-[8px] font-black tracking-wider uppercase">{language === "ta" ? "சேர்" : "Add"}</span>
-                            </>
-                          )}
-                        </motion.button>
-                      </div>
-
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          )}
-        </div>
-      </section>
-
-
-      {/* 6️⃣ FUTURE VISION / CTA SECTION */}
-      <section className="py-28 md:py-36 relative overflow-hidden bg-slate-900 border-b border-white/5">
-        
-        {/* Aurora Background Effects */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-500/15 to-transparent rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute top-[20%] left-[-10%] w-[400px] h-[400px] bg-lime-500/5 rounded-full blur-[100px] pointer-events-none" />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          
-          <div className="max-w-4xl mx-auto text-center space-y-16">
+          {/* Asymmetrical 2-Column Story Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <div className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="inline-flex px-3 py-1 rounded bg-lime-500/10 text-lime-400 text-[10px] font-black uppercase tracking-widest mb-4"
-              >
-                FUTURE HORIZONS
-              </motion.div>
-              <motion.h2
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tighter leading-tight font-poppins"
-              >
-                {copy.futureVisionTitle}
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto font-medium"
-              >
-                {copy.futureVisionSubtitle}
-              </motion.p>
-            </div>
-
-            {/* Futuristic Goal Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                { title: "Smart Irrigation", val: "IoT Telemetry", icon: <Droplets className="w-6 h-6 text-blue-400" /> },
-                { title: "AI Farming Nodes", val: "Robotic Sowing", icon: <Cpu className="w-6 h-6 text-emerald-400" /> },
-                { title: "Global Showcase", val: "Direct Direct Sale", icon: <MapPin className="w-6 h-6 text-amber-400" /> },
-                { title: "Organic Abundance", val: "Carbon Neutral", icon: <Leaf className="w-6 h-6 text-lime-400" /> }
-              ].map((goal, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="p-6 rounded-2xl bg-white/5 border border-white/5 text-left space-y-4 hover:bg-white/10 hover:border-emerald-500/20 transition-all duration-300"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
-                    {goal.icon}
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-black text-white">{goal.title}</h4>
-                    <span className="text-[10px] font-bold text-slate-500 block mt-1">{goal.val}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Premium CTA Box */}
+            {/* LEFT SIDE: One Large Vertical Image Card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="p-8 sm:p-16 rounded-[3rem] bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 border border-emerald-500/20 shadow-2xl relative overflow-hidden text-center space-y-8"
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-5"
             >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
-              <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-                <h3 className="text-2xl sm:text-5xl font-black text-white tracking-tighter font-poppins">{copy.joinCTA}</h3>
-                <p className="text-slate-400 text-xs sm:text-sm font-medium leading-relaxed">
-                  {copy.joinCTASub}
-                </p>
-              </div>
+              <motion.div
+                whileHover={{ y: -8 }}
+                transition={{ type: "spring", stiffness: 200, damping: 22 }}
+                onClick={() => {
+                  setCurrentCustomerPage('shop');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="group relative w-full h-[500px] lg:h-[680px] rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/60 cursor-pointer select-none border border-slate-200/50 flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
+              >
+                {/* Image Background */}
+                <img 
+                  src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop" 
+                  alt="Fresh Organic Products" 
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
+                />
 
-              <div className="relative z-10 flex flex-col sm:flex-row justify-center items-center gap-4">
-                <button
+                {/* Dark Cinematic Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10 group-hover:via-black/55 transition-colors duration-700 pointer-events-none -z-10" />
+
+                {/* Left Aligned Content */}
+                <div className="space-y-2 md:space-y-3 transform group-hover:translate-y-[-4px] transition-transform duration-500">
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight font-poppins">
+                    {language === "ta" ? "புதிய இயற்கை தயாரிப்புகள்" : "Fresh Organic Products"}
+                  </h3>
+                  <p className="text-slate-200 text-xs sm:text-sm font-semibold max-w-sm leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+                    {language === "ta" ? "நம்பகமான விவசாயிகளிடமிருந்து நேரடியாகப் பெறப்பட்டது." : "Directly sourced from trusted farmers."}
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* RIGHT SIDE: Two Stacked Horizontal Image Cards */}
+            <div className="lg:col-span-7 flex flex-col gap-8">
+              
+              {/* TOP RIGHT CARD */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <motion.div
+                  whileHover={{ y: -8 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 22 }}
                   onClick={() => {
                     setCurrentCustomerPage('contact');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-10 py-5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-emerald-500/25 active:scale-95 flex items-center space-x-2 group relative overflow-hidden"
+                  className="group relative w-full h-[240px] lg:h-[324px] rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/60 cursor-pointer select-none border border-slate-200/50 flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  <span>Start Telemetry Demo</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            </motion.div>
+                  {/* Image Background */}
+                  <img 
+                    src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1000&auto=format&fit=crop" 
+                    alt="Join Our Farming Community" 
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
+                  />
+
+                  {/* Dark Cinematic Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10 group-hover:via-black/55 transition-colors duration-700 pointer-events-none -z-10" />
+
+                  {/* Left Aligned Content */}
+                  <div className="space-y-1.5 transform group-hover:translate-y-[-4px] transition-transform duration-500">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-tight font-poppins">
+                      {language === "ta" ? "விவசாய சமூகத்தில் இணையுங்கள்" : "Join Our Farming Community"}
+                    </h3>
+                    <p className="text-slate-200 text-xs sm:text-sm font-semibold max-w-md leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+                      {language === "ta" ? "நவீன விவசாய தீர்வுகளுடன் இணையுங்கள்." : "Connect with modern agriculture solutions."}
+                    </p>
+                  </div>
+                </motion.div>
+              </motion.div>
+
+              {/* BOTTOM RIGHT CARD */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <motion.div
+                  whileHover={{ y: -8 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 22 }}
+                  onClick={() => {
+                    setCurrentCustomerPage('shop');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="group relative w-full h-[240px] lg:h-[324px] rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/60 cursor-pointer select-none border border-slate-200/50 flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
+                >
+                  {/* Image Background */}
+                  <img 
+                    src="https://images.unsplash.com/photo-1500937386664-56d159437b7f?q=80&w=1000&auto=format&fit=crop" 
+                    alt="Sustainable Agriculture" 
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
+                  />
+
+                  {/* Dark Cinematic Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10 group-hover:via-black/55 transition-colors duration-700 pointer-events-none -z-10" />
+
+                  {/* Left Aligned Content */}
+                  <div className="space-y-1.5 transform group-hover:translate-y-[-4px] transition-transform duration-500">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-tight font-poppins">
+                      {language === "ta" ? "நிலையான விவசாயம்" : "Sustainable Agriculture"}
+                    </h3>
+                    <p className="text-slate-200 text-xs sm:text-sm font-semibold max-w-md leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+                      {language === "ta" ? "பசுமையான மற்றும் ஆரோக்கியமான எதிர்காலத்தை உருவாக்குவோம்." : "Building a greener and healthier future."}
+                    </p>
+                  </div>
+                </motion.div>
+              </motion.div>
+
+            </div>
 
           </div>
+
         </div>
       </section>
 

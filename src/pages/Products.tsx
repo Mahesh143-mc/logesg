@@ -13,9 +13,9 @@ import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
 import { AdvancedImage } from '@cloudinary/react';
 import * as XLSX from 'xlsx';
 
-const CLOUDINARY_CLOUD_NAME = 'dkt1z4j0r';
-const CLOUDINARY_API_KEY = '349418798425359';
-const CLOUDINARY_API_SECRET = 'LBY0qb3y7STXCDlM2hO5lEjcP-w';
+const CLOUDINARY_CLOUD_NAME = 'dyaufjpai';
+const CLOUDINARY_API_KEY = '692887168924367';
+const CLOUDINARY_API_SECRET = 'FgZrRjQGM1wRldX_UBMErw1qyGU';
 
 const cld = new Cloudinary({ cloud: { cloudName: CLOUDINARY_CLOUD_NAME } });
 
@@ -240,7 +240,11 @@ export function Products() {
   };
 
   const renderProductImage = (product: any) => {
-    if (product.publicId) {
+    // If the image was uploaded with the old Cloudinary cloudName (dkt1z4j0r), 
+    // fall back to rendering standard img using its original imageUrl.
+    const isOldCloudinary = product.imageUrl && product.imageUrl.includes('/dkt1z4j0r/');
+
+    if (product.publicId && !isOldCloudinary) {
       const img = cld
         .image(product.publicId)
         .format('auto')
