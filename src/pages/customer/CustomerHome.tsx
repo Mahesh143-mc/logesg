@@ -473,7 +473,7 @@ export function CustomerHome() {
       </div>
 
       {/* 2️⃣ DYNAMIC CINEMATIC HERO SECTION */}
-      <section className="relative w-full h-[100vh] flex items-center justify-center overflow-hidden bg-slate-950">
+      <section className="relative w-full h-[100vh] flex items-center justify-center overflow-hidden bg-emerald-950">
         
         {/* Background Image Slider (Fade + Scale Transition) */}
         <div className="absolute inset-0 z-0">
@@ -489,10 +489,10 @@ export function CustomerHome() {
             />
           </AnimatePresence>
           
-          {/* Multi-layered cinematic gradient overlays for pristine readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/45 to-slate-950 z-10" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.65)_100%)] z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10" />
+          {/* Multi-layered cinematic gradient overlays for pristine readability - replaced black/slate with rich deep green */}
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/85 via-emerald-950/45 to-emerald-950 z-10" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(2,44,34,0.65)_100%)] z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-transparent z-10" />
         </div>
 
         {/* Ambient Floating Particle Clouds */}
@@ -523,8 +523,8 @@ export function CustomerHome() {
 
         {/* Ambient Blur Glow Orbs */}
         <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-          <div className="absolute top-[20%] left-[10%] w-[350px] h-[350px] rounded-full bg-emerald-500/10 blur-[110px] animate-float-slow" />
-          <div className="absolute bottom-[20%] right-[10%] w-[300px] h-[300px] rounded-full bg-lime-500/5 blur-[90px] animate-float-fast" />
+          <div className="absolute top-[20%] left-[10%] w-[400px] h-[400px] rounded-full bg-emerald-500/20 blur-[110px] animate-float-slow" />
+          <div className="absolute bottom-[20%] right-[10%] w-[350px] h-[350px] rounded-full bg-lime-500/10 blur-[90px] animate-float-fast" />
         </div>
 
         {/* Center Aligned Text Content */}
@@ -745,23 +745,24 @@ export function CustomerHome() {
       </section>
 
       {/* 3.5️⃣ PREMIUM PARALLAX SHOWCASE SECTION */}
-      <section className="relative min-h-[480px] lg:min-h-[550px] flex items-center justify-center overflow-hidden py-24 md:py-28 bg-slate-950 text-white">
+      <section className="relative min-h-[480px] lg:min-h-[550px] flex items-center justify-center overflow-hidden py-24 md:py-28 bg-emerald-950 text-white">
         
         {/* Parallax Fixed Background - Extremely visible green farmland */}
         <div 
-          className="absolute inset-0 bg-cover bg-center z-0 pointer-events-none opacity-65 md:opacity-80"
+          className="absolute inset-0 bg-cover bg-center z-0 pointer-events-none opacity-70 md:opacity-85"
           style={{
             backgroundImage: "url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop')",
             backgroundAttachment: "fixed",
           }}
         />
 
-        {/* Cinematic horizontal fade overlay - reduces background color coverage, letting the right side stand clean */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/70 to-slate-950/20 md:to-transparent z-1" />
+        {/* Cinematic horizontal fade overlay - replaced black/slate with rich green/emerald blend */}
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/98 via-emerald-950/85 to-emerald-950/30 md:to-transparent z-1" />
 
         {/* Ambient Blur Lighting Effects */}
         <div className="absolute inset-0 pointer-events-none z-2 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none" />
+          <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-emerald-500/20 blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-lime-500/15 blur-[100px] pointer-events-none" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
@@ -1059,12 +1060,12 @@ export function CustomerHome() {
       </section>
 
       {/* 5️⃣ PREMIUM LIFESTYLE & BRAND STORY SHOWCASE SECTION */}
-      <section id="brand-story" className="py-24 md:py-32 bg-slate-50 border-t border-slate-200/30 relative overflow-hidden">
+      <section id="brand-story" className="py-24 md:py-32 bg-emerald-100/45 dark:bg-emerald-900/20 border-y border-emerald-500/20 dark:border-emerald-500/10 relative overflow-hidden transition-all duration-500">
         
         {/* Soft Ambient Sparkle */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[10%] right-[-5%] w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px]" />
-          <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] bg-lime-500/5 rounded-full blur-[100px]" />
+          <div className="absolute top-[10%] right-[-5%] w-[550px] h-[550px] bg-emerald-500/18 dark:bg-emerald-500/22 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[10%] left-[-5%] w-[550px] h-[550px] bg-lime-500/14 dark:bg-lime-500/16 rounded-full blur-[120px]" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -1075,7 +1076,7 @@ export function CustomerHome() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="inline-flex px-3 py-1 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-4 font-poppins"
+              className="inline-flex px-3 py-1 rounded bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-4 font-poppins border border-emerald-500/30"
             >
               {language === "ta" ? "நமது பாரம்பரியம்" : "OUR HERITAGE"}
             </motion.div>
@@ -1083,7 +1084,7 @@ export function CustomerHome() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight font-poppins"
+              className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight font-poppins"
             >
               {language === "ta" ? (
                 <>
@@ -1100,7 +1101,7 @@ export function CustomerHome() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-3 max-w-xl mx-auto uppercase"
+              className="text-emerald-800/80 dark:text-emerald-400/80 text-xs sm:text-sm font-semibold tracking-wide mt-3 max-w-xl mx-auto uppercase"
             >
               {language === "ta" ? "விவசாயிகளின் உன்னத உழைப்பை நவீன உலகிற்கு அறிமுகப்படுத்துகிறோம்" : "Bringing the soul of pure agriculture to the next generation"}
             </motion.p>

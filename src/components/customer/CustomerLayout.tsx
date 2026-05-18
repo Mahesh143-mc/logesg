@@ -88,14 +88,14 @@ export function CustomerLayout() {
       >
         <nav
           style={{ 
-            backgroundColor: scrolled ? "rgba(6, 78, 59, 0.85)" : "rgba(16, 185, 129, 0.12)", 
+            backgroundColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(6, 78, 59, 0.95)" : "rgba(16, 185, 129, 0.18)", 
             backdropFilter: "blur(20px)", 
             WebkitBackdropFilter: "blur(20px)", 
-            borderColor: scrolled ? "rgba(16, 185, 129, 0.25)" : "rgba(255, 255, 255, 0.08)" 
+            borderColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(16, 185, 129, 0.35)" : "rgba(16, 185, 129, 0.18)" 
           }}
           className={cn(
-            "w-[95%] max-w-7xl rounded-full transition-all duration-500 ease-out border shadow-2xl flex items-center justify-between py-3 px-6 md:px-8",
-            scrolled
+            "w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] max-w-7xl rounded-full transition-all duration-500 ease-out border shadow-2xl flex items-center justify-between py-3 px-6 md:px-8",
+            (scrolled || currentCustomerPage !== 'home')
               ? "shadow-[0_12px_40px_-12px_rgba(16,185,129,0.25)]"
               : "shadow-[0_8px_32px_rgba(16,185,129,0.06)]"
           )}
@@ -304,7 +304,7 @@ export function CustomerLayout() {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <main className={cn(currentCustomerPage === 'home' ? 'pt-0' : 'pt-24 md:pt-28')}>
+      <main className="pt-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentCustomerPage}
@@ -318,31 +318,41 @@ export function CustomerLayout() {
         </AnimatePresence>
       </main>
 
-      {/* Professional Footer */}
-      <footer className="bg-gradient-to-b from-slate-900 to-slate-950 text-white pt-24 pb-12 overflow-hidden relative border-t border-white/5">
-        {/* Abstract Background */}
-        <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-20">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 animate-float-slow" />
+      {/* Professional Footer with green relevant premium design */}
+      <footer className="bg-gradient-to-b from-emerald-900 via-emerald-950 to-zinc-950 text-white pt-24 pb-12 overflow-hidden relative">
+        
+        {/* Top glowing gradient border line */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+
+        {/* Abstract Background with glowing glassmorphism gradients */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+          <div className="absolute top-0 right-0 w-[550px] h-[550px] bg-emerald-500/25 rounded-full blur-[140px] -translate-y-1/3 translate-x-1/3 animate-float-slow" />
+          <div className="absolute bottom-0 left-[10%] w-[400px] h-[400px] bg-lime-500/15 rounded-full blur-[120px] translate-y-1/3 animate-float-fast" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
             <div className="space-y-6 text-left">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                <div className="w-12 h-12 bg-gradient-to-tr from-emerald-600 to-lime-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform duration-300">
                   <Sprout className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-black tracking-tighter leading-none">{t('logesh_farmer')}</span>
-                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mt-1">{t('natural_farm')}</span>
+                  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mt-1">{t('natural_farm')}</span>
                 </div>
               </div>
-              <p className="text-slate-400 text-sm leading-relaxed font-medium">
+              <p className="text-slate-300 text-sm leading-relaxed font-medium">
                 {t('footer_desc')}
               </p>
               <div className="flex space-x-3 pt-2">
                 {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                  <a key={i} href="#" aria-label="Social link" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-emerald-600 transition-all text-slate-400 hover:text-white">
+                  <a 
+                    key={i} 
+                    href="#" 
+                    aria-label="Social link" 
+                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-emerald-600 hover:border-emerald-500/35 hover:shadow-[0_0_15px_rgba(16,185,129,0.35)] transition-all text-slate-300 hover:text-white hover:scale-115 active:scale-95"
+                  >
                     <Icon className="w-4 h-4" />
                   </a>
                 ))}
@@ -350,19 +360,19 @@ export function CustomerLayout() {
             </div>
 
             <div className="text-left">
-              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-6">{t('quick_links')}</h4>
+              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-6">{t('quick_links')}</h4>
               <ul className="space-y-3">
                 {navLinks.map(link => (
                   <li key={link.id}>
                     <button
                       onClick={() => handleNavClick(link.id)}
-                      className="text-slate-400 hover:text-white text-sm transition-colors flex items-center space-x-2 group font-semibold"
+                      className="text-slate-300 hover:text-white text-sm transition-colors flex items-center space-x-2 group font-semibold"
                     >
                       <div className={cn(
                         "w-1.5 h-1.5 rounded-full bg-emerald-500 transition-all duration-300",
                         currentCustomerPage === link.id ? "scale-100 opacity-100" : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100"
                       )} />
-                      <span>{link.label}</span>
+                      <span className="group-hover:translate-x-0.5 transition-transform">{link.label}</span>
                     </button>
                   </li>
                 ))}
@@ -370,48 +380,48 @@ export function CustomerLayout() {
             </div>
 
             <div className="text-left">
-              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-6">{t('contact')}</h4>
+              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-6">{t('contact')}</h4>
               <ul className="space-y-4">
-                <li className="flex items-start space-x-3 text-left">
-                  <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-emerald-500 flex-shrink-0">
-                    <Phone className="w-3.5 h-3.5" />
+                <li className="flex items-start space-x-3.5 group">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 group-hover:bg-emerald-500/20 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:text-emerald-300 transition-all flex-shrink-0">
+                    <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">{t('call_us')}</div>
-                    <div className="font-bold text-sm text-slate-200 mt-1">+91 98765 43210</div>
+                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{t('call_us')}</div>
+                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">+91 98765 43210</div>
                   </div>
                 </li>
-                <li className="flex items-start space-x-3 text-left">
-                  <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-emerald-500 flex-shrink-0">
-                    <Mail className="w-3.5 h-3.5" />
+                <li className="flex items-start space-x-3.5 group">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 group-hover:bg-emerald-500/20 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:text-emerald-300 transition-all flex-shrink-0">
+                    <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">{t('email_us')}</div>
-                    <div className="font-bold text-sm text-slate-200 mt-1">support@vivasayi.com</div>
+                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{t('email_us')}</div>
+                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">support@vivasayi.com</div>
                   </div>
                 </li>
               </ul>
             </div>
 
             <div className="text-left">
-              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-6">{t('admin_area')}</h4>
-              <p className="text-slate-400 text-xs mb-4 font-medium">{t('login_to_manage')}</p>
+              <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-6">{t('admin_area')}</h4>
+              <p className="text-slate-300 text-xs mb-4 font-medium">{t('login_to_manage')}</p>
               <Link
                 to="/login"
-                className="inline-flex items-center space-x-2.5 px-5 py-3.5 bg-white/5 border border-white/10 rounded-xl font-black text-xs hover:bg-white/10 hover:border-emerald-500/30 transition-all group uppercase tracking-widest"
+                className="inline-flex items-center space-x-2.5 px-6 py-4 bg-emerald-500/10 hover:bg-emerald-600 border border-emerald-500/30 hover:border-emerald-500 text-white rounded-2xl font-black text-xs hover:shadow-lg hover:shadow-emerald-500/25 transition-all group uppercase tracking-widest duration-300 active:scale-95 cursor-pointer"
               >
-                <LogIn className="w-4 h-4 text-emerald-500" />
+                <LogIn className="w-4 h-4 text-emerald-400 group-hover:text-white transition-colors" />
                 <span>{t('login')}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-[11px] font-semibold text-slate-500">
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-[11px] font-semibold text-slate-400">
             <p>© {new Date().getFullYear()} {t('logesh_farmer')}. {t('rights_reserved')}</p>
             <div className="flex space-x-6">
-              <a href="#" className="hover:text-emerald-500 transition-colors">{t('privacy_policy')}</a>
-              <a href="#" className="hover:text-emerald-500 transition-colors">{t('terms_of_service')}</a>
+              <a href="#" className="hover:text-emerald-400 transition-colors">{t('privacy_policy')}</a>
+              <a href="#" className="hover:text-emerald-400 transition-colors">{t('terms_of_service')}</a>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Phone, Mail, MapPin, Send, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, Instagram, Facebook, Twitter, ChevronRight, Sprout } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
 
@@ -9,64 +9,79 @@ export function CustomerContact() {
   const t = useTranslation(language);
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-32 overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        {/* Dynamic Background Blobs */}
-        <div className="absolute top-0 inset-x-0 h-[600px] -z-10">
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.2, 1],
-              x: [0, 50, 0],
-              y: [0, 30, 0]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute top-0 right-0 w-[40%] h-[80%] bg-emerald-100/50 rounded-full blur-[100px]"
+    <div className="min-h-screen bg-slate-50/30 relative overflow-hidden font-sans pb-32">
+      {/* Background Decorative Ambient Orbs */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <motion.div
+          animate={{
+            scale: [1, 1.15, 1],
+            rotate: [0, 90, 0],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-emerald-200/30 rounded-full blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, -90, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] bg-green-200/30 rounded-full blur-[150px]"
+        />
+        {/* Glass grid overlays */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#04785706_1px,transparent_1px),linear-gradient(to_bottom,#04785706_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+      </div>
+
+      {/* Page Header / Hero Banner Section */}
+      <section className="relative w-full h-[360px] md:h-[420px] pt-24 md:pt-28 flex items-center overflow-hidden">
+        {/* Background Image with Dark Vignette Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=2000&auto=format&fit=crop"
+            alt="Farm Contact Banner"
+            className="w-full h-full object-cover object-center scale-105 filter brightness-[0.8]"
           />
-          <motion.div 
-            animate={{ 
-              scale: [1.2, 1, 1.2],
-              x: [0, -50, 0],
-              y: [0, -30, 0]
-            }}
-            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-            className="absolute top-20 left-0 w-[30%] h-[60%] bg-green-100/40 rounded-full blur-[80px]"
-          />
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-950/85 to-zinc-950/90 z-10 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-50/30 via-transparent to-transparent z-10" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 md:space-y-6">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white border border-emerald-100 shadow-sm text-[10px] md:text-xs font-black text-emerald-700 uppercase tracking-widest"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{t('support_sales')}</span>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
+        {/* Hero Grid Container */}
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-20 text-center space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, cubicBezier: [0.16, 1, 0.3, 1] }}
-            className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[1.1] md:leading-tight"
+            className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4.5 py-1.5 shadow-sm backdrop-blur-md"
           >
-            {language === 'ta' ? (
-              <>எங்களைத் தொடர்பு <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500">கொள்க.</span></>
-            ) : (
-              <>Contact <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500">Us.</span></>
-            )}
-          </motion.h1>
-          
-          <motion.p 
+            <Phone className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200">{t('support_sales')}</span>
+          </motion.div>
+
+          {/* Breadcrumb Navigation */}
+          <nav className="flex items-center justify-center space-x-2 text-xs md:text-sm font-semibold tracking-wide text-emerald-300/80 mb-2">
+            <span className="hover:text-emerald-400 cursor-pointer transition-colors" onClick={() => window.location.href = '/'}>{language === 'ta' ? 'முகப்பு' : 'Home'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="hover:text-emerald-400 cursor-pointer transition-colors" onClick={() => window.location.href = '/shop'}>{language === 'ta' ? 'அனைத்து தொகுப்புகள்' : 'All collections'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="text-emerald-100 font-bold">{language === 'ta' ? 'எங்களைத் தொடர்பு கொள்க' : 'Contact Us'}</span>
+          </nav>
+
+          <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-slate-500 text-base md:text-2xl max-w-2xl mx-auto leading-relaxed font-medium"
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase"
           >
-            {t('contact_hero_desc')}
-          </motion.p>
+            {language === 'ta' ? 'எங்களைத் தொடர்பு கொள்க' : 'Contact Us'}
+          </motion.h1>
+
         </div>
       </section>
 
@@ -75,7 +90,7 @@ export function CustomerContact() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 1 }}
-          className="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden flex flex-col lg:flex-row"
+          className="bg-white/80 backdrop-blur-md rounded-[3rem] shadow-2xl shadow-slate-200/40 border border-emerald-900/5 overflow-hidden flex flex-col lg:flex-row"
         >
           
           {/* Contact Info */}
