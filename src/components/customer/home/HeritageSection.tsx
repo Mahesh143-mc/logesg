@@ -1,14 +1,18 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { getOptimizedUrl } from '../../../lib/utils';
 
 interface HeritageSectionProps {
   language: 'ta' | 'en';
+  copy?: any;
   setCurrentCustomerPage: (page: string) => void;
+  siteImages?: Record<string, string>;
 }
 
 export const HeritageSection: React.FC<HeritageSectionProps> = ({
   language,
-  setCurrentCustomerPage
+  setCurrentCustomerPage,
+  siteImages = {} as Record<string, string>
 }) => {
   return (
     <section id="brand-story" className="py-24 md:py-32 bg-emerald-100/45 dark:bg-emerald-900/20 border-y border-emerald-500/20 dark:border-emerald-500/10 relative overflow-hidden transition-all duration-500">
@@ -80,7 +84,7 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
             >
               {/* Image Background */}
               <img 
-                src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop" 
+                src={getOptimizedUrl(siteImages.heritage_main || "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop", 1200)} 
                 alt="Fresh Organic Products" 
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
               />
@@ -121,7 +125,7 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
               >
                 {/* Image Background */}
                 <img 
-                  src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1000&auto=format&fit=crop" 
+                  src={getOptimizedUrl(siteImages.heritage_small_1 || "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1000&auto=format&fit=crop", 1000)} 
                   alt="Join Our Farming Community" 
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
                 />
@@ -159,7 +163,7 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
               >
                 {/* Image Background */}
                 <img 
-                  src="https://images.unsplash.com/photo-1500937386664-56d159437b7f?q=80&w=1000&auto=format&fit=crop" 
+                  src={getOptimizedUrl(siteImages.heritage_small_2 || "https://images.unsplash.com/photo-1500937386664-56d159437b7f?q=80&w=1000&auto=format&fit=crop", 1000)} 
                   alt="Sustainable Agriculture" 
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
                 />

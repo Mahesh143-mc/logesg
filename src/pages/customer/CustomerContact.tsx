@@ -3,10 +3,31 @@ import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Send, Instagram, Facebook, Twitter, ChevronRight, Sprout } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { getOptimizedUrl } from '../../lib/utils';
+import { useState, useEffect } from 'react';
 
 export function CustomerContact() {
   const { language } = useStore();
   const t = useTranslation(language);
+
+  const [siteImages, setSiteImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchSiteImages = async () => {
+      try {
+        const docRef = doc(db, 'siteSettings', 'frontendImages');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSiteImages(docSnap.data());
+        }
+      } catch (error) {
+        console.error("Error fetching site images:", error);
+      }
+    };
+    fetchSiteImages();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50/30 relative overflow-hidden font-sans pb-32">
@@ -45,7 +66,7 @@ export function CustomerContact() {
         {/* Background Image with Dark Vignette Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=2000&auto=format&fit=crop"
+            src={getOptimizedUrl(siteImages.contact_hero || "https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=2000&auto=format&fit=crop", 2000)}
             alt="Farm Contact Banner"
             className="w-full h-full object-cover object-center scale-105 filter brightness-[0.8]"
           />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useStore } from '../../store/useStore';
 import { motion, AnimatePresence } from 'motion/react';
@@ -83,6 +83,23 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
     phone: '',
     place: ''
   });
+
+  const [siteImages, setSiteImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchSiteImages = async () => {
+      try {
+        const docRef = doc(db, 'siteSettings', 'frontendImages');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSiteImages(docSnap.data());
+        }
+      } catch (error) {
+        console.error("Error fetching site images:", error);
+      }
+    };
+    fetchSiteImages();
+  }, []);
 
   // Accordion Sidebar Collapses
   const [collapseCat, setCollapseCat] = useState(true);
@@ -312,7 +329,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         {/* Background Image with Dark Vignette Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop"
+            src={getOptimizedUrl(siteImages.shop_hero || "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop", 2000)}
             alt="Farm Products Banner"
             className="w-full h-full object-cover object-center scale-105 filter brightness-[0.8]"
           />

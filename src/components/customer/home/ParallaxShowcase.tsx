@@ -1,13 +1,17 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ShoppingBag, Leaf } from 'lucide-react';
+import { getOptimizedUrl } from '../../../lib/utils';
 
 interface ParallaxShowcaseProps {
   language: 'ta' | 'en';
+  copy?: any;
+  siteImages?: Record<string, string>;
 }
 
 export const ParallaxShowcase: React.FC<ParallaxShowcaseProps> = ({
-  language
+  language,
+  siteImages = {} as Record<string, string>
 }) => {
   return (
     <section className="relative min-h-[480px] lg:min-h-[550px] flex items-center justify-center overflow-hidden py-24 md:py-28 bg-emerald-950 text-white">
@@ -16,7 +20,7 @@ export const ParallaxShowcase: React.FC<ParallaxShowcaseProps> = ({
       <div 
         className="absolute inset-0 bg-cover bg-center z-0 pointer-events-none opacity-70 md:opacity-85"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop')",
+          backgroundImage: `url('${getOptimizedUrl(siteImages.parallax_bg || "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop", 1920)}')`,
           backgroundAttachment: "fixed",
         }}
       />

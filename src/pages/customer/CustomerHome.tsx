@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
@@ -28,6 +28,24 @@ export function CustomerHome() {
         : [...prev, productId]
     );
   };
+
+  // Site Images from Firebase
+  const [siteImages, setSiteImages] = useState<Record<string, string>>({});
+  
+  useEffect(() => {
+    const fetchSiteImages = async () => {
+      try {
+        const docRef = doc(db, 'siteSettings', 'frontendImages');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSiteImages(docSnap.data());
+        }
+      } catch (error) {
+        console.error("Error fetching site images:", error);
+      }
+    };
+    fetchSiteImages();
+  }, []);
 
   // Local translations for advanced futuristic copy
   const localCopy = {
@@ -289,6 +307,7 @@ export function CustomerHome() {
         copy={copy} 
         setCurrentCustomerPage={setCurrentCustomerPage} 
         handleGetStartedScroll={handleGetStartedScroll} 
+        siteImages={siteImages}
       />
 
       {/* Workflow Section */}
@@ -299,7 +318,9 @@ export function CustomerHome() {
 
       {/* Farm Parallax Showcase */}
       <ParallaxShowcase 
-        language={language} 
+        language={language}
+        copy={copy}
+        siteImages={siteImages}
       />
 
       {/* Featured Products Showcase */}
@@ -317,6 +338,8 @@ export function CustomerHome() {
       {/* Heritage Story Grid */}
       <HeritageSection 
         language={language} 
+        copy={copy}
+        siteImages={siteImages}
         setCurrentCustomerPage={setCurrentCustomerPage} 
       />
 

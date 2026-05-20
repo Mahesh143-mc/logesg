@@ -8,9 +8,10 @@ import {
   Loader2, ArrowUp, ChevronDown, Check, User, Calendar, 
   ThumbsUp, Filter, ThumbsDown
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, getOptimizedUrl } from '../../lib/utils';
 import { useTranslation } from '../../utils/translations';
 import Swal from 'sweetalert2';
+import { doc, getDoc } from 'firebase/firestore';
 
 interface Review {
   id: string;
@@ -33,6 +34,22 @@ export function CustomerReviews() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
   const [productCategories, setProductCategories] = useState<string[]>([]);
+  const [siteImages, setSiteImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchSiteImages = async () => {
+      try {
+        const docRef = doc(db, 'siteSettings', 'frontendImages');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSiteImages(docSnap.data());
+        }
+      } catch (error) {
+        console.error("Error fetching site images:", error);
+      }
+    };
+    fetchSiteImages();
+  }, []);
 
   // Fetch Products to derive dynamic categories list
   useEffect(() => {
@@ -261,8 +278,8 @@ export function CustomerReviews() {
       <section className="relative w-full h-[320px] md:h-[380px] pt-24 md:pt-28 flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=2000&auto=format&fit=crop"
-            alt="Customer Feedback Banner"
+            src={getOptimizedUrl(siteImages.review_hero || "https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=2000&auto=format&fit=crop", 2000)}
+            alt="Farm Reviews Banner"
             className="w-full h-full object-cover object-center filter brightness-[0.7]"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-950/85 to-zinc-950/90 z-10 mix-blend-multiply" />

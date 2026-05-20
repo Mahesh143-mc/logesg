@@ -3,6 +3,10 @@ import { motion } from 'motion/react';
 import { Leaf, Users, Heart, Sprout, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { getOptimizedUrl } from '../../lib/utils';
+import { useState, useEffect } from 'react';
 
 export function CustomerAbout() {
   const { language } = useStore();
@@ -13,6 +17,23 @@ export function CustomerAbout() {
     { label: t('happy_customers'), value: '200+' },
     { label: t('natural_products'), value: '100%' },
   ];
+
+  const [siteImages, setSiteImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchSiteImages = async () => {
+      try {
+        const docRef = doc(db, 'siteSettings', 'frontendImages');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSiteImages(docSnap.data());
+        }
+      } catch (error) {
+        console.error("Error fetching site images:", error);
+      }
+    };
+    fetchSiteImages();
+  }, []);
 
   const values = [
     {
@@ -82,7 +103,7 @@ export function CustomerAbout() {
         {/* Background Image with Dark Vignette Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop"
+            src={getOptimizedUrl(siteImages.about_hero || "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop", 2000)}
             alt="Farm About Banner"
             className="w-full h-full object-cover object-center scale-105 filter brightness-[0.8]"
           />
@@ -142,9 +163,9 @@ export function CustomerAbout() {
             >
               <div className="aspect-[4/3] sm:aspect-square rounded-3xl md:rounded-[3rem] overflow-hidden shadow-2xl border border-emerald-900/10 shadow-emerald-950/5 hover:scale-[1.01] transition-transform duration-500">
                 <img 
-                  src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop" 
-                  alt="Our Farm" 
-                  className="w-full h-full object-cover"
+                  src={getOptimizedUrl(siteImages.about_secondary || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop", 1200)} 
+                  alt={language === "ta" ? "லோகேஷ் விவசாயி வரலாறு" : "Our Agriculture Story"} 
+                  className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-700"
                 />
               </div>
               <div className="absolute -bottom-6 -right-6 md:-bottom-8 md:-right-8 bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-3xl shadow-2xl shadow-slate-200/50 border border-emerald-100 hidden sm:block">

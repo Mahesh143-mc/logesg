@@ -19,7 +19,8 @@ import {
   LogOut,
   CreditCard,
   ExternalLink,
-  MessageSquare
+  MessageSquare,
+  Image
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -42,6 +43,7 @@ const navItems = [
   { icon: BarChart3, label: 'INTELLIGENCE', id: 'reports' },
   { icon: Zap, label: 'DAILY UPDATE', id: 'daily-update' },
   { icon: MessageSquare, label: 'REVIEWS', id: 'reviews' },
+  { icon: Image, label: 'FRONTEND IMAGES', id: 'site-images' },
   { icon: Settings, label: 'SYSTEM CORE', id: 'settings' },
 ];
 

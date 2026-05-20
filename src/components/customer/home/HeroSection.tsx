@@ -1,26 +1,29 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
+import { getOptimizedUrl } from '../../../lib/utils';
 
 interface HeroSectionProps {
   copy: any;
   setCurrentCustomerPage: (page: string) => void;
   handleGetStartedScroll: () => void;
+  siteImages?: Record<string, string>;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   copy,
   setCurrentCustomerPage,
-  handleGetStartedScroll
+  handleGetStartedScroll,
+  siteImages = {} as Record<string, string>
 }) => {
   const bgImages = useMemo(() => [
-    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1628157582853-a796fa650a6a?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1530906358829-e84b2769270f?q=80&w=1600&auto=format&fit=crop"
-  ], []);
+    siteImages.hero_1 || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1600&auto=format&fit=crop",
+    siteImages.hero_2 || "https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=1600&auto=format&fit=crop",
+    siteImages.hero_3 || "https://images.unsplash.com/photo-1628157582853-a796fa650a6a?q=80&w=1600&auto=format&fit=crop",
+    siteImages.hero_4 || "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?q=80&w=1600&auto=format&fit=crop",
+    siteImages.hero_5 || "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1600&auto=format&fit=crop",
+    siteImages.hero_6 || "https://images.unsplash.com/photo-1530906358829-e84b2769270f?q=80&w=1600&auto=format&fit=crop"
+  ], [siteImages]);
 
   const [currentBg, setCurrentBg] = useState(0);
 
@@ -44,7 +47,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             exit={{ opacity: 0, scale: 1.0 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${bgImages[currentBg]})` }}
+            style={{ backgroundImage: `url(${getOptimizedUrl(bgImages[currentBg], 1600)})` }}
           />
         </AnimatePresence>
         
