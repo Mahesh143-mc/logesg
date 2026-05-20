@@ -1,19 +1,21 @@
-import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
+import React, { useState, useEffect, type ChangeEvent, type FormEvent, type DragEvent } from 'react';
 import { collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { 
-  Plus, 
-  Search, 
-  Trash2, 
-  StickyNote, 
-  Image as LucideImageIcon, 
-  X, 
+import {
+  Plus,
+  Search,
+  Trash2,
+  StickyNote,
+  Image as LucideImageIcon,
+  X,
   Calendar,
   Save,
   FileText,
   Edit2
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { compressImage, uploadToCloudinary } from '../lib/imageUpload';
+import { cn } from '../lib/utils';
 
 interface Note {
   id: string;
@@ -31,6 +33,10 @@ export function Notes() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [idToDelete, setIdToDelete] = useState<string | null>(null);
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, 'notes'), orderBy('createdAt', 'desc'));
@@ -67,18 +73,57 @@ export function Notes() {
     }
   };
 
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>, isEditing = false) => {
+  const processAndUploadImage = async (file: File, isEditing = false) => {
+    try {
+      setUploadStatus('Compressing...');
+      const compressedFile = await compressImage(file);
+
+      setUploadStatus('Uploading...');
+      setUploadProgress(0);
+      const result = await uploadToCloudinary(compressedFile, (progress) => {
+        setUploadProgress(progress);
+      }, 'notes');
+
+      if (isEditing && editingNote) {
+        setEditingNote({ ...editingNote, image: result.url });
+      } else {
+        setNewNote(prev => ({ ...prev, image: result.url }));
+      }
+      setUploadStatus('');
+      setUploadProgress(0);
+    } catch (error) {
+      console.error('Error handling image:', error);
+      alert('Failed to process and upload image.');
+      setUploadStatus('');
+      setUploadProgress(0);
+    }
+  };
+
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>, isEditing = false) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (isEditing && editingNote) {
-          setEditingNote({ ...editingNote, image: reader.result as string });
-        } else {
-          setNewNote(prev => ({ ...prev, image: reader.result as string }));
-        }
-      };
-      reader.readAsDataURL(file);
+      await processAndUploadImage(file, isEditing);
+    }
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: DragEvent, isEditing = false) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      await processAndUploadImage(file, isEditing);
+    } else if (file) {
+      alert('Please drop a valid image file.');
     }
   };
 
@@ -96,7 +141,7 @@ export function Notes() {
     }
   };
 
-  const filteredNotes = notes.filter(note => 
+  const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     note.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -119,7 +164,7 @@ export function Notes() {
               className="w-full h-10 pl-9 pr-4 rounded-xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white shadow-sm"
             />
           </div>
-          <button 
+          <button
             onClick={() => setIsAdding(true)}
             className="h-10 flex items-center justify-center space-x-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white hover:bg-indigo-700 transition-all shadow-sm active:scale-95 whitespace-nowrap"
           >
@@ -132,29 +177,29 @@ export function Notes() {
       {/* Grid of Notes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredNotes.map((note) => (
-          <div 
-            key={note.id} 
+          <div
+            key={note.id}
             className="group relative flex flex-col rounded-2xl bg-white dark:bg-[#18181b] shadow-sm border border-slate-200/60 dark:border-zinc-800 overflow-hidden cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-md transition-all duration-300"
             onClick={() => setSelectedNote(note)}
           >
             {note.image && (
               <div className="h-32 overflow-hidden border-b border-slate-100 dark:border-slate-800">
-                <img 
-                  src={note.image} 
-                  alt={note.title} 
+                <img
+                  src={note.image}
+                  alt={note.title}
                   className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />
               </div>
             )}
-            
+
             <div className="flex-1 p-5 flex flex-col">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-1 tracking-tight">{note.title}</h3>
-                
+
                 {/* Actions (visible on hover) */}
                 <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-lg p-1 shadow-sm border border-slate-100 dark:border-slate-700">
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingNote(note);
@@ -163,7 +208,7 @@ export function Notes() {
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                   </button>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setIdToDelete(note.id);
@@ -174,7 +219,7 @@ export function Notes() {
                   </button>
                 </div>
               </div>
-              
+
               <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed flex-1 whitespace-pre-wrap">
                 {note.content}
               </p>
@@ -201,7 +246,7 @@ export function Notes() {
             <StickyNote className="h-8 w-8 opacity-50" />
           </div>
           <p className="text-sm font-medium">No notes found</p>
-          <button 
+          <button
             onClick={() => setIsAdding(true)}
             className="mt-4 text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
           >
@@ -219,8 +264,8 @@ export function Notes() {
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">Create Note</h2>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsAdding(false)}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
@@ -258,7 +303,7 @@ export function Notes() {
                   {newNote.image ? (
                     <div className="relative rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50 dark:bg-slate-800 h-48 group">
                       <img src={newNote.image} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                      <button 
+                      <button
                         type="button"
                         onClick={() => setNewNote({ ...newNote, image: '' })}
                         className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
@@ -267,26 +312,55 @@ export function Notes() {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800 cursor-pointer transition-colors group">
-                      <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 shadow-sm mb-2 transition-colors">
-                         <LucideImageIcon className="h-5 w-5" />
-                      </div>
-                      <span className="text-xs font-semibold text-slate-500">Click to upload image</span>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                    </label>
+                    <div className="flex flex-col space-y-2">
+                      <label
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, false)}
+                        className={cn(
+                          "flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed transition-colors cursor-pointer group",
+                          isDragging ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20" : "border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center shadow-sm mb-2 transition-colors",
+                          isDragging ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-800 dark:text-indigo-200" : "bg-white dark:bg-slate-700 text-slate-400 group-hover:text-indigo-500"
+                        )}>
+                          <LucideImageIcon className="h-5 w-5" />
+                        </div>
+                        <span className="text-xs font-semibold text-slate-500">
+                          {isDragging ? 'Drop to upload' : 'Click or drag image to upload'}
+                        </span>
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, false)} disabled={!!uploadStatus} />
+                      </label>
+
+                      {uploadStatus && (
+                        <div className="w-full text-center space-y-1 mt-2">
+                          <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">{uploadStatus}</p>
+                          {uploadProgress > 0 && uploadProgress < 100 && (
+                            <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-indigo-600 transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
 
               <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 flex justify-end space-x-3">
-                <button 
+                <button
                   type="button"
                   onClick={() => setIsAdding(false)}
                   className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors flex items-center space-x-2"
                 >
@@ -307,7 +381,7 @@ export function Notes() {
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Edit Note</h2>
               </div>
-              <button 
+              <button
                 onClick={() => setEditingNote(null)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
@@ -343,7 +417,7 @@ export function Notes() {
                 {editingNote.image ? (
                   <div className="relative rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50 dark:bg-slate-800 h-48 group">
                     <img src={editingNote.image} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                    <button 
+                    <button
                       onClick={() => setEditingNote({ ...editingNote, image: '' })}
                       className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                     >
@@ -351,25 +425,54 @@ export function Notes() {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800 cursor-pointer transition-colors group">
-                    <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 shadow-sm mb-2 transition-colors">
-                       <LucideImageIcon className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-semibold text-slate-500">Click to upload image</span>
-                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, true)} />
-                  </label>
+                  <div className="flex flex-col space-y-2">
+                    <label
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, true)}
+                      className={cn(
+                        "flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed transition-colors cursor-pointer group",
+                        isDragging ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20" : "border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center shadow-sm mb-2 transition-colors",
+                        isDragging ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-800 dark:text-indigo-200" : "bg-white dark:bg-slate-700 text-slate-400 group-hover:text-indigo-500"
+                      )}>
+                        <LucideImageIcon className="h-5 w-5" />
+                      </div>
+                      <span className="text-xs font-semibold text-slate-500">
+                        {isDragging ? 'Drop to upload' : 'Click or drag image to upload'}
+                      </span>
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, true)} disabled={!!uploadStatus} />
+                    </label>
+
+                    {uploadStatus && (
+                      <div className="w-full text-center space-y-1 mt-2">
+                        <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">{uploadStatus}</p>
+                        {uploadProgress > 0 && uploadProgress < 100 && (
+                          <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-indigo-600 transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
 
             <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 flex justify-end space-x-3">
-              <button 
+              <button
                 onClick={() => setEditingNote(null)}
                 className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleUpdateNote}
                 className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors flex items-center space-x-2"
               >
@@ -397,7 +500,7 @@ export function Notes() {
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedNote(null)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
@@ -408,22 +511,22 @@ export function Notes() {
             <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
               {selectedNote.image && (
                 <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                  <img 
-                    src={selectedNote.image} 
-                    alt={selectedNote.title} 
-                    className="w-full h-auto object-contain max-h-[400px]" 
+                  <img
+                    src={selectedNote.image}
+                    alt={selectedNote.title}
+                    className="w-full h-auto object-contain max-h-[400px]"
                     referrerPolicy="no-referrer"
                   />
                 </div>
               )}
-              
+
               <div className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 whitespace-pre-wrap text-sm leading-relaxed">
                 {selectedNote.content}
               </div>
             </div>
 
             <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 flex justify-end space-x-3">
-              <button 
+              <button
                 onClick={() => {
                   setEditingNote(selectedNote);
                   setSelectedNote(null);
@@ -433,7 +536,7 @@ export function Notes() {
                 <Edit2 className="w-4 h-4" />
                 <span>Edit</span>
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setIdToDelete(selectedNote.id);
                   setSelectedNote(null);

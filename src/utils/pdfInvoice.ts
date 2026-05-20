@@ -129,8 +129,8 @@ export const downloadInvoicePdf = (sale: any, profile?: any) => {
     
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(profile?.email || 'hello@reallygreatsite.com', pageWidth - 15, footerY + 5, { align: 'right' });
-    doc.text(profile?.phone || '+91 9943852902', pageWidth - 15, footerY + 9, { align: 'right' });
+    doc.text(profile?.email || 'logeshvivasayi@gmail.com', pageWidth - 15, footerY + 5, { align: 'right' });
+    doc.text(profile?.phone || '+91 87546 2190', pageWidth - 15, footerY + 9, { align: 'right' });
 
     // 7. Bottom Border
     doc.setFillColor(darkGreen[0], darkGreen[1], darkGreen[2]);

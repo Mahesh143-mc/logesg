@@ -35,7 +35,7 @@ import {
   Tag,
   FileText
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, getOptimizedUrl } from '../../lib/utils';
 import { useTranslation } from '../../utils/translations';
 import Swal from 'sweetalert2';
 
@@ -72,7 +72,6 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [selectedWeight, setSelectedWeight] = useState<number>(1);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
@@ -109,15 +108,6 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       setUnits(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
     return unsubscribe;
-  }, []);
-
-  // Scroll to Top Listener
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const isDecimalAllowed = (unitName?: string) => {
@@ -269,7 +259,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         `*Status:* Pending\n\n` +
         `Thank you for shopping with us! 🌿`;
 
-      const whatsappUrl = `https://wa.me/919943884003?text=${encodeURIComponent(whatsappMessage)}`;
+      const whatsappUrl = `https://wa.me/91875462190?text=${encodeURIComponent(whatsappMessage)}`;
 
       setIsOrderPlaced(true);
       clearCart();
@@ -755,9 +745,8 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
             )}>
               <AnimatePresence mode="popLayout">
                 {filteredAndSortedProducts.map((product, idx) => {
-                  const hasDiscount = product.price > 40; // mock discount behavior
-                  const discountPct = hasDiscount ? (product.price > 100 ? '98%' : '20%') : '';
-                  const retailPrice = hasDiscount ? product.price * (product.price > 100 ? 50 : 1.25) : product.price;
+                  const hasDiscount = false;
+                  const retailPrice = product.price;
 
                   return (
                     <motion.div
@@ -774,13 +763,11 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                         className="aspect-square relative cursor-pointer overflow-hidden bg-slate-50 rounded-2xl p-4 md:p-6 flex items-center justify-center border border-slate-100 group-hover:border-emerald-500/20 transition-all duration-300 w-full"
                         onClick={() => setSelectedProduct(product)}
                       >
-                        {/* Top Action Discount Badge */}
+                        {/* Top Action Quality Badge */}
                         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
-                          {hasDiscount && (
-                            <span className="px-2 py-0.5 bg-[#1a1a1a] text-white rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
-                              OFF {discountPct}
-                            </span>
-                          )}
+                          <span className="px-2 py-0.5 bg-[#10b981] text-white rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
+                            {language === 'ta' ? '100% தரம்' : '100% Quality'}
+                          </span>
                           {product.stock <= 5 && product.stock > 0 && (
                             <span className="px-2 py-0.5 bg-amber-500 text-white rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
                               {t('low_stock')}
@@ -892,32 +879,14 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         </div>
       </main>
 
-      {/* Floating Scroll-to-Top Button */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1, y: -2 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-40 bg-emerald-600 text-white w-12 h-12 rounded-full shadow-2xl border border-white/20 flex items-center justify-center hover:bg-emerald-700 transition-colors"
-            aria-label="Scroll to Top"
-          >
-            <ArrowUp className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* Floating Cart Trigger Button */}
       <motion.button
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        whileHover={{ scale: 1.05, y: -3 }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setCartOpen(true)}
-        className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-40 bg-gradient-to-r from-emerald-850 to-zinc-950 text-white py-3.5 px-6 rounded-full shadow-2xl flex items-center space-x-3.5 border border-white/10 group shadow-emerald-950/20"
+        className="fixed right-5 top-1/2 -mt-[26px] z-40 bg-emerald-600 text-white py-3 px-5 rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center space-x-3 border-2 border-white group"
       >
         <div className="relative">
           <ShoppingBag className="w-5 h-5" />
@@ -931,8 +900,8 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
             </motion.span>
           )}
         </div>
-        <div className="text-left pl-3.5 border-l border-white/15">
-          <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t('total')}</div>
+        <div className="text-left pl-3 border-l border-white/25">
+          <div className="text-[8px] font-black text-emerald-100 uppercase tracking-widest">{t('total')}</div>
           <div className="font-black text-sm">₹{cartTotal.toLocaleString()}</div>
         </div>
       </motion.button>
@@ -1113,7 +1082,8 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                           {/* Left Side: Product Image with light grey box */}
                           <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex-shrink-0 p-2 flex items-center justify-center transition-all duration-300 group-hover:scale-102">
                             <img
-                              src={item.imageUrl || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`}
+                              src={getOptimizedUrl(item.imageUrl)}
+                              loading="lazy"
                               className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-108"
                               referrerPolicy="no-referrer"
                             />
@@ -1380,7 +1350,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
 
               <div className="flex flex-col sm:flex-row gap-6">
                 <div className="w-full sm:w-1/2 h-52 bg-slate-50 rounded-2xl flex items-center justify-center p-4 border border-slate-100">
-                  <img src={quickViewProduct.imageUrl || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`} className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
+                  <img src={getOptimizedUrl(quickViewProduct.imageUrl)} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
                 </div>
                 <div className="flex-1 space-y-4">
                   <div>
@@ -1464,14 +1434,15 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               </button>
 
               <div className="md:w-1/2 h-56 md:h-auto bg-slate-50 relative border-b md:border-b-0 md:border-r border-slate-100 p-6 md:p-10 flex items-center justify-center">
-                <motion.img
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.15 }}
-                  src={selectedProduct.imageUrl || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`}
-                  className="w-full h-full object-contain mix-blend-multiply drop-shadow-lg"
-                  referrerPolicy="no-referrer"
-                />
+                  <motion.img
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.15 }}
+                    src={getOptimizedUrl(selectedProduct.imageUrl)}
+                    loading="lazy"
+                    className="w-full h-full object-contain mix-blend-multiply drop-shadow-lg"
+                    referrerPolicy="no-referrer"
+                  />
                 <div className="absolute top-6 left-6 md:top-8 md:left-8">
                   <span className="px-4 py-1.5 bg-white rounded-xl text-[10px] font-black text-emerald-700 uppercase tracking-widest shadow-sm border border-slate-100">
                     {selectedProduct.category || (language === 'ta' ? 'பொதுவானவை' : 'General')}

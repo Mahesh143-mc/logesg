@@ -122,7 +122,7 @@ export const translations = {
     // Contact Page
     get_in_touch_desc: 'உங்களிடம் ஏதேனும் கேள்விகள் அல்லது ஆலோசனைகள் உள்ளதா? எங்களை தொடர்பு கொள்ளவும்.',
     office_address: 'அலுவலக முகவரி',
-    office_address_val: '123 விவசாய தெரு, இயற்கை நகர், தமிழ்நாடு - 600001',
+    office_address_val: 'தெற்கு தெரு, காளியம்மன் கோவில் அருகில், எம். புதுப்பட்டி, சிவகாசி - 626130',
     message_sent: 'செய்தி அனுப்பப்பட்டது',
     message_success_desc: 'உங்கள் செய்திக்கு நன்றி. விரைவில் நாங்கள் உங்களைத் தொடர்புகொள்வோம்.',
     send_message: 'செய்தி அனுப்பவும்',
@@ -139,12 +139,26 @@ export const translations = {
     sales_support: 'விற்பனை மற்றும் ஆதரவு',
     send_email: 'மின்னஞ்சல் அனுப்புங்கள்',
     headquarters: 'தலைமையகம்',
-    coimbatore_tn: 'கோயம்புத்தூர், தமிழ்நாடு',
+    coimbatore_tn: 'சிவகாசி, தமிழ்நாடு',
     first_name: 'முதல் பெயர்',
     last_name: 'கடைசி பெயர்',
     email_address: 'மின்னஞ்சல் முகவரி',
     how_can_we_help: 'நாங்கள் உங்களுக்கு எப்படி உதவ முடியும்?',
     send_message_btn: 'செய்தி அனுப்பு',
+    
+    // Reviews Page
+    reviews: 'மதிப்புரைகள்',
+    customer_reviews: 'வாடிக்கையாளர் மதிப்புரைகள்',
+    write_review: 'மதிப்புரை எழுதவும்',
+    add_review: 'மதிப்புரையைச் சேர்க்க',
+    submit_review: 'மதிப்புரையைச் சமர்ப்பி',
+    no_reviews: 'மதிப்புரைகள் எதுவும் இல்லை',
+    rating: 'மதிப்பீடு',
+    review_placeholder: 'உங்கள் கருத்துக்களை இங்கே எழுதவும்...',
+    review_success: 'மதிப்புரை சமர்ப்பிக்கப்பட்டது!',
+    review_success_desc: 'உங்கள் மதிப்புரைக்கு மிக்க நன்றி. இது எங்களை மேம்படுத்த உதவும்.',
+    rating_required: 'மதிப்பீடு தேவை',
+    rating_required_desc: 'தயவுசெய்து 1 முதல் 5 நட்சத்திரங்களில் ஒன்றைத் தேர்ந்தெடுக்கவும்.',
   },
   en: {
     // Navigation
@@ -269,7 +283,7 @@ export const translations = {
     // Contact Page
     get_in_touch_desc: 'Do you have any questions or suggestions? Contact us.',
     office_address: 'Office Address',
-    office_address_val: '123 Farmer Street, Nature City, Tamil Nadu - 600001',
+    office_address_val: 'South Street, Near Kaaliamman Kovil, M. Pudhupatti, Sivakasi - 626130',
     message_sent: 'Message Sent',
     message_success_desc: 'Thank you for your message. We will get back to you soon.',
     send_message: 'Send Message',
@@ -286,12 +300,26 @@ export const translations = {
     sales_support: 'Sales & Support',
     send_email: 'Send us an email',
     headquarters: 'Headquarters',
-    coimbatore_tn: 'Coimbatore, Tamil Nadu',
+    coimbatore_tn: 'Sivakasi, Tamil Nadu',
     first_name: 'First Name',
     last_name: 'Last Name',
     email_address: 'Email Address',
     how_can_we_help: 'How can we help you?',
     send_message_btn: 'Send Message',
+
+    // Reviews Page
+    reviews: 'Reviews',
+    customer_reviews: 'Customer Reviews',
+    write_review: 'Write a Review',
+    add_review: 'Add Review',
+    submit_review: 'Submit Review',
+    no_reviews: 'No reviews found',
+    rating: 'Rating',
+    review_placeholder: 'Write your thoughts here...',
+    review_success: 'Review Submitted!',
+    review_success_desc: 'Thank you so much for your review. It helps us improve.',
+    rating_required: 'Rating Required',
+    rating_required_desc: 'Please select a rating between 1 and 5 stars.',
   }
 };
 

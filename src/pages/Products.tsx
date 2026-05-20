@@ -1,23 +1,13 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, DragEvent } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Plus, Search, Edit2, Trash2, QrCode, X, Upload, CheckCircle2, Package, LayoutGrid, AlertTriangle, Scale, Printer, Download, Eye, EyeOff } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { cn } from '../lib/utils';
+import { cn, getOptimizedUrl } from '../lib/utils';
 import { QRCodeSVG } from 'qrcode.react';
-import CryptoJS from 'crypto-js';
-import { Cloudinary } from '@cloudinary/url-gen';
-import { auto } from '@cloudinary/url-gen/actions/resize';
-import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
-import { AdvancedImage } from '@cloudinary/react';
 import * as XLSX from 'xlsx';
-
-const CLOUDINARY_CLOUD_NAME = 'dyaufjpai';
-const CLOUDINARY_API_KEY = '692887168924367';
-const CLOUDINARY_API_SECRET = 'FgZrRjQGM1wRldX_UBMErw1qyGU';
-
-const cld = new Cloudinary({ cloud: { cloudName: CLOUDINARY_CLOUD_NAME } });
+import { compressImage, uploadToCloudinary } from '../lib/imageUpload';
 
 export function Products() {
   const [products, setProducts] = useState<any[]>([]);
@@ -42,6 +32,11 @@ export function Products() {
   const [newUnitName, setNewUnitName] = useState('');
   const [newUnitAllowDecimal, setNewUnitAllowDecimal] = useState(false);
   const [editingUnit, setEditingUnit] = useState<any>(null);
+  
+  // Image Optimization States
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -143,50 +138,54 @@ export function Products() {
     }
   };
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
+  const processImage = async (file: File) => {
+    try {
+      setUploadStatus('Compressing image...');
+      const compressedFile = await compressImage(file);
+      
+      setImageFile(compressedFile);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(compressedFile);
+      setUploadStatus('');
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      alert('Failed to compress image.');
+      setUploadStatus('');
     }
   };
 
-  const uploadToCloudinary = async (file: File) => {
-    try {
-      const timestamp = Math.round(new Date().getTime() / 1000);
-      const folder = 'billing';
-      // Cloudinary signature: SHA1 of all parameters in alphabetical order, then append secret
-      // Parameters: folder, timestamp
-      const signature = CryptoJS.SHA1(`folder=${folder}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`).toString();
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('api_key', CLOUDINARY_API_KEY);
-      formData.append('timestamp', timestamp.toString());
-      formData.append('signature', signature);
-      formData.append('folder', folder);
-
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error?.message || 'Cloudinary upload failed');
-      }
-
-      return { url: data.secure_url, publicId: data.public_id };
-    } catch (err) {
-      console.error('Upload function error:', err);
-      throw err;
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processImage(file);
     }
   };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      await processImage(file);
+    } else if (file) {
+      alert('Please drop a valid image file.');
+    }
+  };
+
+
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -197,12 +196,18 @@ export function Products() {
 
       if (imageFile) {
         try {
-          const uploadResult = await uploadToCloudinary(imageFile);
+          setUploadStatus('Uploading optimized image...');
+          setUploadProgress(0);
+          const uploadResult = await uploadToCloudinary(imageFile, (progress) => {
+            setUploadProgress(progress);
+          });
           imageUrl = uploadResult.url;
           publicId = uploadResult.publicId;
+          setUploadStatus('Upload successful!');
         } catch (uploadErr: any) {
           alert(`Image Upload Failed: ${uploadErr.message}`);
           setIsUploading(false);
+          setUploadStatus('');
           return; // Stop submission if upload fails
         }
       }
@@ -231,11 +236,14 @@ export function Products() {
       setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '', visible: true });
       setImageFile(null);
       setImagePreview(null);
+      setUploadStatus('');
+      setUploadProgress(0);
     } catch (err: any) {
       console.error('Firestore Error:', err);
       alert(`Failed to save product: ${err.message}`);
     } finally {
       setIsUploading(false);
+      setUploadStatus('');
     }
   };
 
@@ -244,15 +252,10 @@ export function Products() {
     // fall back to rendering standard img using its original imageUrl.
     const isOldCloudinary = product.imageUrl && product.imageUrl.includes('/dkt1z4j0r/');
 
-    if (product.publicId && !isOldCloudinary) {
-      const img = cld
-        .image(product.publicId)
-        .format('auto')
-        .quality('auto')
-        .resize(auto().gravity(autoGravity()).width(120).height(120));
-      return <AdvancedImage cldImg={img} className="h-full w-full object-contain" />;
+    if (product.imageUrl && !isOldCloudinary) {
+      return <img src={getOptimizedUrl(product.imageUrl)} alt={product.name} loading="lazy" className="h-full w-full object-contain" referrerPolicy="no-referrer" />;
     } else if (product.imageUrl) {
-      return <img src={product.imageUrl} alt={product.name} className="h-full w-full object-contain" referrerPolicy="no-referrer" />;
+      return <img src={product.imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-contain" referrerPolicy="no-referrer" />;
     } else {
       return (
         <div className="flex h-full w-full items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-300 dark:text-slate-600">
@@ -414,6 +417,8 @@ export function Products() {
               });
               setImageFile(null);
               setImagePreview(null);
+              setUploadStatus('');
+              setUploadProgress(0);
               setIsModalOpen(true);
             }}
             className="h-11 px-4 flex items-center justify-center space-x-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap outline-none focus:ring-2 focus:ring-indigo-500/50"
@@ -492,6 +497,8 @@ export function Products() {
                       visible: product.visible !== false
                     });
                     setImagePreview(product.imageUrl || null);
+                    setUploadStatus('');
+                    setUploadProgress(0);
                     setIsModalOpen(true);
                   }}
                   className="p-2.5 rounded-xl bg-white text-slate-700 hover:text-indigo-600 hover:scale-110 transition-all shadow-sm"
@@ -565,6 +572,8 @@ export function Products() {
                         visible: product.visible !== false
                       });
                       setImagePreview(product.imageUrl || null);
+                      setUploadStatus('');
+                      setUploadProgress(0);
                       setIsModalOpen(true);
                     }}
                     className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 active:scale-95 transition-all"
@@ -945,13 +954,29 @@ export function Products() {
             
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
               <div className="flex flex-col items-center justify-center space-y-3">
-                <div className="relative h-32 w-32 overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                <div 
+                  className={cn(
+                    "relative h-40 w-40 overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-300",
+                    isDragging ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20" : "border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800",
+                    "hover:bg-slate-100 dark:hover:bg-slate-700"
+                  )}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                    <>
+                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">Change</span>
+                      </div>
+                    </>
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center text-slate-500">
-                      <Upload className="h-6 w-6 mb-2" />
-                      <span className="text-xs font-semibold">Upload Image</span>
+                      <Upload className={cn("h-8 w-8 mb-2 transition-colors", isDragging ? "text-indigo-500" : "text-slate-400")} />
+                      <span className="text-xs font-semibold text-center px-4">
+                        {isDragging ? 'Drop to upload' : 'Drag & drop or click to upload'}
+                      </span>
                     </div>
                   )}
                   <input
@@ -961,7 +986,24 @@ export function Products() {
                     className="absolute inset-0 cursor-pointer opacity-0"
                   />
                 </div>
-                <p className="text-xs text-slate-500">Recommended size: 500x500px</p>
+                
+                {/* Upload Status and Progress Indicator */}
+                <div className="w-full max-w-xs text-center space-y-1 min-h-[2rem]">
+                  {uploadStatus && (
+                    <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">{uploadStatus}</p>
+                  )}
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-indigo-600 transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  )}
+                  {uploadStatus === '' && (
+                     <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Recommended: PNG/JPG, Auto WebP Conversion</p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-4">

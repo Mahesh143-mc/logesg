@@ -104,6 +104,15 @@ service cloud.firestore {
              data.data is map;
     }
 
+    function isValidReview(data) {
+      return data.keys().hasAll(['name', 'rating', 'comment', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 &&
+             data.comment is string && data.comment.size() > 0 &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.createdAt is timestamp &&
+             (!data.keys().hasAny(['category']) || data.category is string);
+    }
+
     // Rules
     match /users/{userId} {
       allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
@@ -164,6 +173,16 @@ service cloud.firestore {
     match /dailyIncomeEntries/{entryId} {
       allow read: if isStaff();
       allow write: if isStaff() && isValidDailyIncomeEntry(request.resource.data);
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isValidReview(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    match /test/{docId} {
+      allow read: if true;
     }
 
     match /{path=**} {

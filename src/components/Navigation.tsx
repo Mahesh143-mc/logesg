@@ -18,7 +18,8 @@ import {
   Zap,
   LogOut,
   CreditCard,
-  ExternalLink
+  ExternalLink,
+  MessageSquare
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -40,6 +41,7 @@ const navItems = [
   { icon: Notebook, label: 'BRIEF', id: 'notes' },
   { icon: BarChart3, label: 'INTELLIGENCE', id: 'reports' },
   { icon: Zap, label: 'DAILY UPDATE', id: 'daily-update' },
+  { icon: MessageSquare, label: 'REVIEWS', id: 'reviews' },
   { icon: Settings, label: 'SYSTEM CORE', id: 'settings' },
 ];
 
@@ -178,8 +180,8 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
     )}>
       <div className="p-6 border-b border-slate-100/60 dark:border-zinc-800">
         <div className="flex items-center space-x-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-lg shadow-indigo-500/30">
-            <Leaf className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg shadow-indigo-500/10 overflow-hidden p-0.5 border border-slate-100 dark:border-zinc-800">
+            <img src="https://res.cloudinary.com/dyaufjpai/image/upload/q_auto/f_auto/v1779255158/Logo_final_-_2_unomy8.png" alt="Logesh Vivasayi Logo" className="h-full w-full object-contain" />
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-none dark:text-white">Vivasayi</h1>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, updateDoc, increment, getDoc, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useStore } from '../store/useStore';
@@ -56,6 +56,13 @@ export function Billing() {
   const [modalSearchTerm, setModalSearchTerm] = useState('');
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [modalSearchResults, setModalSearchResults] = useState<any[]>([]);
+  const [selectedModalCategory, setSelectedModalCategory] = useState('All');
+  
+  const modalCategories = useMemo(() => {
+    const cats = allProducts.map(p => p.category).filter(Boolean);
+    return ['All', ...Array.from(new Set(cats))];
+  }, [allProducts]);
+
   const [manualProduct, setManualProduct] = useState({
     id: '',
     name: '',
@@ -413,15 +420,22 @@ export function Billing() {
   }, [isManualAddOpen]);
 
   useEffect(() => {
-    if (modalSearchTerm.trim() === '') {
-      setModalSearchResults(allProducts);
-    } else {
-      const filtered = allProducts.filter(p => 
-        p.name.toLowerCase().includes(modalSearchTerm.toLowerCase())
-      );
-      setModalSearchResults(filtered);
+    let filtered = allProducts;
+    
+    if (selectedModalCategory !== 'All') {
+      filtered = filtered.filter(p => p.category === selectedModalCategory);
     }
-  }, [modalSearchTerm, allProducts]);
+    
+    if (modalSearchTerm.trim() !== '') {
+      const term = modalSearchTerm.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(term) ||
+        (p.category && p.category.toLowerCase().includes(term))
+      );
+    }
+    
+    setModalSearchResults(filtered);
+  }, [modalSearchTerm, selectedModalCategory, allProducts]);
 
   const handleManualAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -439,6 +453,7 @@ export function Billing() {
     setIsManualAddOpen(false);
     setManualProduct({ id: '', name: '', price: 0, quantity: 1, unit: '' });
     setModalSearchTerm('');
+    setSelectedModalCategory('All');
   };
 
   return (
@@ -765,7 +780,11 @@ export function Billing() {
                 <p className="text-xs font-medium text-slate-500 mt-1">Search and select an item to add to the cart</p>
               </div>
               <button 
-                onClick={() => setIsManualAddOpen(false)} 
+                onClick={() => {
+                  setIsManualAddOpen(false);
+                  setModalSearchTerm('');
+                  setSelectedModalCategory('All');
+                }} 
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <X className="h-5 w-5" />
@@ -773,16 +792,37 @@ export function Billing() {
             </div>
             
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search inventory..."
-                  value={modalSearchTerm}
-                  onChange={(e) => setModalSearchTerm(e.target.value)}
-                  className="w-full h-11 pl-9 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
-                />
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+              <div className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search inventory by name or category..."
+                    value={modalSearchTerm}
+                    onChange={(e) => setModalSearchTerm(e.target.value)}
+                    className="w-full h-11 pl-9 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+                  />
+                </div>
+                
+                {/* Category Selector Pills */}
+                <div className="flex items-center space-x-1.5 overflow-x-auto pb-1.5 scrollbar-none">
+                  {modalCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setSelectedModalCategory(cat)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all border",
+                        selectedModalCategory === cat
+                          ? "bg-indigo-600 border-indigo-600 text-white shadow-sm shadow-indigo-500/10"
+                          : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/80"
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
               </div>
               
               <div className="max-h-[300px] overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] p-2 custom-scrollbar">
@@ -819,6 +859,11 @@ export function Billing() {
                           <p className={cn("text-sm font-semibold", manualProduct.id === p.id ? "text-indigo-700 dark:text-indigo-400" : "text-slate-900 dark:text-white")}>{p.name}</p>
                           <div className="flex items-center space-x-2 mt-0.5">
                             <span className="text-xs text-slate-500">Stock: {p.stock}</span>
+                            {p.category && (
+                              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                {p.category}
+                              </span>
+                            )}
                             {p.stock <= 0 && <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">Out of stock</span>}
                           </div>
                         </div>

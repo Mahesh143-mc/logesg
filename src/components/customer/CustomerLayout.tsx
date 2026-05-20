@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search, Globe } from 'lucide-react';
+import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search, Globe, Star, ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../../store/useStore';
 import { CustomerHome } from '../../pages/customer/CustomerHome';
 import { CustomerShop } from '../../pages/customer/CustomerShop';
 import { CustomerContact } from '../../pages/customer/CustomerContact';
 import { CustomerAbout } from '../../pages/customer/CustomerAbout';
+import { CustomerReviews } from '../../pages/customer/CustomerReviews';
 import { cn } from '../../lib/utils';
 import { useTranslation } from '../../utils/translations';
 
@@ -17,6 +18,7 @@ export function CustomerLayout() {
   const t = useTranslation(language);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,7 +37,7 @@ export function CustomerLayout() {
   // Sync state from URL if mode is static
   useEffect(() => {
     if (urlMode === 'static') {
-      const validCustomerPages = ['home', 'shop', 'about', 'contact'];
+      const validCustomerPages = ['home', 'shop', 'about', 'contact', 'reviews'];
       const targetPage = (pageId && validCustomerPages.includes(pageId)) ? pageId : 'home';
 
       if (targetPage !== currentCustomerPage) {
@@ -55,7 +57,10 @@ export function CustomerLayout() {
   }, [pageId, urlMode, setCurrentCustomerPage, currentCustomerPage, location.pathname, navigate]);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+      setShowScrollTop(window.scrollY > 300);
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -63,6 +68,7 @@ export function CustomerLayout() {
   const navLinks = [
     { id: 'home', label: t('home'), icon: <HomeIcon className="w-5 h-5" /> },
     { id: 'shop', label: t('shop'), icon: <ShoppingBag className="w-5 h-5" /> },
+    { id: 'reviews', label: t('reviews'), icon: <Star className="w-5 h-5" /> },
     { id: 'about', label: t('about'), icon: <Info className="w-5 h-5" /> },
     { id: 'contact', label: t('contact'), icon: <Phone className="w-5 h-5" /> },
   ];
@@ -71,6 +77,7 @@ export function CustomerLayout() {
     switch (currentCustomerPage) {
       case 'home': return <CustomerHome />;
       case 'shop': return <CustomerShop />;
+      case 'reviews': return <CustomerReviews />;
       case 'about': return <CustomerAbout />;
       case 'contact': return <CustomerContact />;
       default: return <CustomerHome />;
@@ -107,8 +114,8 @@ export function CustomerLayout() {
             onClick={() => handleNavClick('home')}
             className="flex items-center space-x-3 cursor-pointer group"
           >
-            <div className="w-9 h-9 md:w-10 h-10 bg-gradient-to-tr from-emerald-600 via-emerald-500 to-lime-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-              <Sprout className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 overflow-hidden p-0.5">
+              <img src="https://res.cloudinary.com/dyaufjpai/image/upload/q_auto/f_auto/v1779255158/Logo_final_-_2_unomy8.png" alt="Logesh Vivasayi Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex items-start">
               <div className="flex flex-col text-left">
@@ -334,8 +341,8 @@ export function CustomerLayout() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
             <div className="space-y-6 text-left">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-tr from-emerald-600 to-lime-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform duration-300">
-                  <Sprout className="w-7 h-7 text-white" />
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform duration-300 overflow-hidden p-0.5 border border-slate-100">
+                  <img src="https://res.cloudinary.com/dyaufjpai/image/upload/q_auto/f_auto/v1779255158/Logo_final_-_2_unomy8.png" alt="Logesh Vivasayi Logo" className="w-full h-full object-contain" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-black tracking-tighter leading-none">{t('logesh_farmer')}</span>
@@ -388,7 +395,7 @@ export function CustomerLayout() {
                   </div>
                   <div>
                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{t('call_us')}</div>
-                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">+91 98765 43210</div>
+                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">+91 87546 2190</div>
                   </div>
                 </li>
                 <li className="flex items-start space-x-3.5 group">
@@ -397,7 +404,7 @@ export function CustomerLayout() {
                   </div>
                   <div>
                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{t('email_us')}</div>
-                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">support@vivasayi.com</div>
+                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">logeshvivasayi@gmail.com</div>
                   </div>
                 </li>
               </ul>
@@ -426,6 +433,24 @@ export function CustomerLayout() {
           </div>
         </div>
       </footer>
+
+      {/* Scroll to Top Button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-45 bg-emerald-600 text-white w-12 h-12 rounded-full shadow-2xl border border-white/20 flex items-center justify-center hover:bg-emerald-700 transition-colors cursor-pointer"
+            aria-label="Scroll to Top"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

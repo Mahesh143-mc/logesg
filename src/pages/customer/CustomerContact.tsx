@@ -106,9 +106,9 @@ export function CustomerContact() {
 
               <div className="space-y-6 md:space-y-10">
                 {[
-                  { icon: <Phone />, label: t('sales_support'), val: "+91 98765 43210" },
-                  { icon: <Mail />, label: t('send_email'), val: "hello@vivasayi.com" },
-                  { icon: <MapPin />, label: t('headquarters'), val: t('coimbatore_tn') }
+                  { icon: <Phone />, label: t('sales_support'), val: "+91 87546 2190" },
+                  { icon: <Mail />, label: t('send_email'), val: "logeshvivasayi@gmail.com" },
+                  { icon: <MapPin />, label: t('headquarters'), val: t('office_address_val') }
                 ].map((item, i) => (
                   <motion.div 
                     key={i}
@@ -169,7 +169,7 @@ export function CustomerContact() {
                 <label className="text-sm font-black text-slate-800 ml-1">{t('email_address')}</label>
                 <input 
                   type="email" 
-                  placeholder="hello@company.com"
+                  placeholder="example@email.com"
                   className="w-full bg-slate-50 rounded-2xl px-6 py-4 border border-slate-200 text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-medium"
                 />
               </div>

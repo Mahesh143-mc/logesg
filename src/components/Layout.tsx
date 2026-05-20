@@ -21,11 +21,8 @@ import { Notes } from '../pages/Notes';
 import { Settings } from '../pages/Settings';
 import { PendingAmount } from '../pages/PendingAmount';
 import { DailyUpdate } from '../pages/DailyUpdate';
-
+import { Reviews } from '../pages/Reviews';
 // Management Layout
-
-
-
 
 export function Layout() {
   const { user, currentAdminPage, setCurrentAdminPage, urlMode } = useStore();
@@ -40,13 +37,14 @@ export function Layout() {
   useEffect(() => {
     if (urlMode === 'static') {
       const validAdminPages = [
-        'dashboard', 'billing', 'products', 'inventory', 'customers', 
-        'expenses', 'sales-history', 'orders', 'order-history', 
-        'reports', 'notes', 'settings', 'pending-amount', 'daily-update'
+        'dashboard', 'billing', 'products', 'inventory', 'customers',
+        'expenses', 'sales-history', 'orders', 'order-history',
+        'reports', 'notes', 'settings', 'pending-amount', 'daily-update',
+        'reviews'
       ];
-      
+
       const targetPage = (pageId && validAdminPages.includes(pageId)) ? pageId : 'dashboard';
-      
+
       if (targetPage !== currentAdminPage) {
         setCurrentAdminPage(targetPage);
       }
@@ -79,6 +77,7 @@ export function Layout() {
       case 'settings': return <Settings />;
       case 'pending-amount': return <PendingAmount />;
       case 'daily-update': return <DailyUpdate />;
+      case 'reviews': return <Reviews />;
       default: return <Dashboard />;
     }
   };
