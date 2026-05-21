@@ -28,13 +28,13 @@ const PreloaderScreen = () => {
       <div className="text-center px-4">
         {/* Glowing Logo Circle */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
-          className="mx-auto w-28 h-28 md:w-32 md:h-32 bg-white rounded-full flex items-center justify-center p-2 shadow-[0_0_50px_rgba(16,185,129,0.35)] border border-emerald-500/20 mb-8"
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mx-auto w-28 h-28 md:w-32 md:h-32 bg-white rounded-full flex items-center justify-center p-2 shadow-lg shadow-emerald-900/30 border border-emerald-500/20 mb-8"
         >
           <img 
-            src="https://res.cloudinary.com/dyaufjpai/image/upload/q_auto/f_auto/v1779255158/Logo_final_-_2_unomy8.png" 
+            src="https://res.cloudinary.com/dyaufjpai/image/upload/q_auto,f_auto,w_200/v1779255158/Logo_final_-_2_unomy8.png" 
             alt="Logesh Vivasayi Logo" 
             className="w-full h-full object-contain"
           />
@@ -42,9 +42,9 @@ const PreloaderScreen = () => {
 
         {/* Brand Name with Tamil & English */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
           className="space-y-3"
         >
           <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white leading-none">

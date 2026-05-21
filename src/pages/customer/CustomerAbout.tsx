@@ -102,7 +102,7 @@ export function CustomerAbout() {
       <section className="relative w-full h-[360px] md:h-[420px] pt-24 md:pt-28 flex items-center overflow-hidden">
         {/* Background Image with Dark Vignette Overlay */}
         <div className="absolute inset-0 z-0">
-          <img
+          <img loading=" lazy\
             src={getOptimizedUrl(siteImages.about_hero || "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop", 2000)}
             alt="Farm About Banner"
             className="w-full h-full object-cover object-center scale-105 filter brightness-[0.8]"
@@ -162,7 +162,7 @@ export function CustomerAbout() {
               className="relative"
             >
               <div className="aspect-[4/3] sm:aspect-square rounded-3xl md:rounded-[3rem] overflow-hidden shadow-2xl border border-emerald-900/10 shadow-emerald-950/5 hover:scale-[1.01] transition-transform duration-500">
-                <img 
+                <img loading=" lazy\ 
                   src={getOptimizedUrl(siteImages.about_secondary || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop", 1200)} 
                   alt={language === "ta" ? "லோகேஷ் விவசாயி வரலாறு" : "Our Agriculture Story"} 
                   className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-700"

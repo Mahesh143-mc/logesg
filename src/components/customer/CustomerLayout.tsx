@@ -3,11 +3,13 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search, Globe, Star, ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../../store/useStore';
-import { CustomerHome } from '../../pages/customer/CustomerHome';
-import { CustomerShop } from '../../pages/customer/CustomerShop';
-import { CustomerContact } from '../../pages/customer/CustomerContact';
-import { CustomerAbout } from '../../pages/customer/CustomerAbout';
-import { CustomerReviews } from '../../pages/customer/CustomerReviews';
+
+
+const CustomerHome = React.lazy(() => import('../../pages/customer/CustomerHome').then(m => ({ default: m.CustomerHome })));
+const CustomerShop = React.lazy(() => import('../../pages/customer/CustomerShop').then(m => ({ default: m.CustomerShop })));
+const CustomerContact = React.lazy(() => import('../../pages/customer/CustomerContact').then(m => ({ default: m.CustomerContact })));
+const CustomerAbout = React.lazy(() => import('../../pages/customer/CustomerAbout').then(m => ({ default: m.CustomerAbout })));
+const CustomerReviews = React.lazy(() => import('../../pages/customer/CustomerReviews').then(m => ({ default: m.CustomerReviews })));
 import { cn } from '../../lib/utils';
 import { useTranslation } from '../../utils/translations';
 
@@ -74,31 +76,43 @@ export function CustomerLayout() {
   ];
 
   const renderContent = () => {
-    switch (currentCustomerPage) {
-      case 'home': return <CustomerHome />;
-      case 'shop': return <CustomerShop />;
-      case 'reviews': return <CustomerReviews />;
-      case 'about': return <CustomerAbout />;
-      case 'contact': return <CustomerContact />;
-      default: return <CustomerHome />;
-    }
+    const Content = () => {
+      switch (currentCustomerPage) {
+        case 'home': return <CustomerHome />;
+        case 'shop': return <CustomerShop />;
+        case 'reviews': return <CustomerReviews />;
+        case 'about': return <CustomerAbout />;
+        case 'contact': return <CustomerContact />;
+        default: return <CustomerHome />;
+      }
+    };
+
+    return (
+      <React.Suspense fallback={
+        <div className="flex h-screen items-center justify-center bg-slate-50">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
+        </div>
+      }>
+        <Content />
+      </React.Suspense>
+    );
   };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-zinc-200 transition-colors duration-500">
       {/* Premium Floating SaaS Glassmorphic Navigation */}
-      <div 
+      <div
         className={cn(
           "fixed top-0 inset-x-0 z-[100] transition-all duration-500 flex justify-center",
           scrolled ? "pt-2 md:pt-4" : "pt-4 md:pt-6"
         )}
       >
         <nav
-          style={{ 
-            backgroundColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(6, 78, 59, 0.95)" : "rgba(16, 185, 129, 0.18)", 
-            backdropFilter: "blur(20px)", 
-            WebkitBackdropFilter: "blur(20px)", 
-            borderColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(16, 185, 129, 0.35)" : "rgba(16, 185, 129, 0.18)" 
+          style={{
+            backgroundColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(6, 78, 59, 0.95)" : "rgba(16, 185, 129, 0.18)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(16, 185, 129, 0.35)" : "rgba(16, 185, 129, 0.18)"
           }}
           className={cn(
             "w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] max-w-7xl rounded-full transition-all duration-500 ease-out border shadow-2xl flex items-center justify-between py-3 px-6 md:px-8",
@@ -149,7 +163,7 @@ export function CustomerLayout() {
                       className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-lime-500 rounded-full shadow-[0_4px_14px_rgba(16,185,129,0.35)] -z-10"
                     />
                   )}
-                  
+
                   {/* Small Active Dot Indicator */}
                   {isActive && (
                     <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -162,7 +176,7 @@ export function CustomerLayout() {
 
           {/* Right Side: Actions & Profile Glass Icons */}
           <div className="flex items-center space-x-2 md:space-x-3">
-            
+
             {/* Cart Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -327,7 +341,7 @@ export function CustomerLayout() {
 
       {/* Professional Footer with green relevant premium design */}
       <footer className="bg-gradient-to-b from-emerald-900 via-emerald-950 to-zinc-950 text-white pt-24 pb-12 overflow-hidden relative">
-        
+
         {/* Top glowing gradient border line */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
 
@@ -354,10 +368,10 @@ export function CustomerLayout() {
               </p>
               <div className="flex space-x-3 pt-2">
                 {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                  <a 
-                    key={i} 
-                    href="#" 
-                    aria-label="Social link" 
+                  <a
+                    key={i}
+                    href="#"
+                    aria-label="Social link"
                     className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-emerald-600 hover:border-emerald-500/35 hover:shadow-[0_0_15px_rgba(16,185,129,0.35)] transition-all text-slate-300 hover:text-white hover:scale-115 active:scale-95"
                   >
                     <Icon className="w-4 h-4" />

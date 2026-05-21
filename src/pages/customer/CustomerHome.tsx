@@ -4,10 +4,11 @@ import { db } from '../../firebase';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
 import { HeroSection } from '../../components/customer/home/HeroSection';
-import { WorkflowSection } from '../../components/customer/home/WorkflowSection';
-import { ParallaxShowcase } from '../../components/customer/home/ParallaxShowcase';
-import { FeaturedProducts } from '../../components/customer/home/FeaturedProducts';
-import { HeritageSection } from '../../components/customer/home/HeritageSection';
+
+const WorkflowSection = React.lazy(() => import('../../components/customer/home/WorkflowSection').then(m => ({ default: m.WorkflowSection })));
+const ParallaxShowcase = React.lazy(() => import('../../components/customer/home/ParallaxShowcase').then(m => ({ default: m.ParallaxShowcase })));
+const FeaturedProducts = React.lazy(() => import('../../components/customer/home/FeaturedProducts').then(m => ({ default: m.FeaturedProducts })));
+const HeritageSection = React.lazy(() => import('../../components/customer/home/HeritageSection').then(m => ({ default: m.HeritageSection })));
 import { FirebaseProduct } from '../../components/customer/home/ProductCard';
 
 export function CustomerHome() {
@@ -310,38 +311,38 @@ export function CustomerHome() {
         siteImages={siteImages}
       />
 
-      {/* Workflow Section */}
-      <WorkflowSection 
-        language={language} 
-        copy={copy} 
-      />
+      {/* Below The Fold Sections with Lazy Loading */}
+      <React.Suspense fallback={<div className="h-[200px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+        {/* Farm-to-Table Workflow Section */}
+        <WorkflowSection language={language} copy={copy} />
 
-      {/* Farm Parallax Showcase */}
-      <ParallaxShowcase 
-        language={language}
-        copy={copy}
-        siteImages={siteImages}
-      />
+        {/* Featured Premium Products Carousel */}
+        <FeaturedProducts 
+          products={products}
+          loadingProducts={loadingProducts}
+          language={language}
+          favorites={favorites}
+          cart={cart}
+          toggleFavorite={toggleFavorite}
+          handleAddToCart={handleAddToCart}
+          setCurrentCustomerPage={setCurrentCustomerPage}
+        />
 
-      {/* Featured Products Showcase */}
-      <FeaturedProducts 
-        products={products}
-        loadingProducts={loadingProducts}
-        language={language}
-        favorites={favorites}
-        cart={cart}
-        toggleFavorite={toggleFavorite}
-        handleAddToCart={handleAddToCart}
-        setCurrentCustomerPage={setCurrentCustomerPage}
-      />
+        {/* Immersive Cinematic Parallax Showcase */}
+        <ParallaxShowcase 
+          language={language}
+          copy={copy}
+          siteImages={siteImages}
+        />
 
-      {/* Heritage Story Grid */}
-      <HeritageSection 
-        language={language} 
-        copy={copy}
-        siteImages={siteImages}
-        setCurrentCustomerPage={setCurrentCustomerPage} 
-      />
+        {/* Brand Heritage & Core Values */}
+        <HeritageSection 
+          language={language} 
+          copy={copy}
+          siteImages={siteImages}
+          setCurrentCustomerPage={setCurrentCustomerPage} 
+        />
+      </React.Suspense>
 
     </div>
   );

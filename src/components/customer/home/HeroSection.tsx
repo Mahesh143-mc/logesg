@@ -57,37 +57,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-transparent z-10" />
       </div>
 
-      {/* Ambient Floating Particle Clouds */}
-      <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 md:w-1.5 md:h-1.5 bg-emerald-400/40 rounded-full"
-            initial={{ 
-              x: Math.random() * 100 + "%", 
-              y: Math.random() * 100 + "%", 
-              scale: Math.random() * 0.5 + 0.5,
-              opacity: Math.random() * 0.3 + 0.15 
-            }}
-            animate={{ 
-              y: ["105vh", "-10vh"],
-              x: ["0%", (Math.random() * 20 - 10) + "%"]
-            }}
-            transition={{ 
-              duration: Math.random() * 20 + 20, 
-              repeat: Infinity, 
-              ease: "linear",
-              delay: Math.random() * -20
-            }}
-          />
-        ))}
-      </div>
 
-      {/* Ambient Blur Glow Orbs */}
-      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-        <div className="absolute top-[20%] left-[10%] w-[400px] h-[400px] rounded-full bg-emerald-500/20 blur-[110px] animate-float-slow" />
-        <div className="absolute bottom-[20%] right-[10%] w-[350px] h-[350px] rounded-full bg-lime-500/10 blur-[90px] animate-float-fast" />
-      </div>
 
       {/* Center Aligned Text Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-20 text-center space-y-6 md:space-y-8 select-none">

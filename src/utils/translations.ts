@@ -1,4 +1,4 @@
-export const translations = {
+const translations = {
   ta: {
     // Navigation
     home: 'முகப்பு',
@@ -323,8 +323,8 @@ export const translations = {
   }
 };
 
-export type Language = 'ta' | 'en';
-export type TranslationKey = keyof typeof translations.ta;
+type Language = 'ta' | 'en';
+type TranslationKey = keyof typeof translations.ta;
 
 export const useTranslation = (lang: Language) => {
   return (key: TranslationKey) => translations[lang][key] || key;

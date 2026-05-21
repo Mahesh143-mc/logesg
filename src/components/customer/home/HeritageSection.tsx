@@ -83,7 +83,7 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
               className="group relative w-full h-[500px] lg:h-[680px] rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/60 cursor-pointer select-none border border-slate-200/50 flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
             >
               {/* Image Background */}
-              <img 
+              <img loading="lazy" 
                 src={getOptimizedUrl(siteImages.heritage_main || "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop", 1200)} 
                 alt="Fresh Organic Products" 
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
@@ -124,7 +124,7 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
                 className="group relative w-full h-[240px] lg:h-[324px] rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/60 cursor-pointer select-none border border-slate-200/50 flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
               >
                 {/* Image Background */}
-                <img 
+                <img loading="lazy" 
                   src={getOptimizedUrl(siteImages.heritage_small_1 || "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1000&auto=format&fit=crop", 1000)} 
                   alt="Join Our Farming Community" 
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"
@@ -162,7 +162,7 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
                 className="group relative w-full h-[240px] lg:h-[324px] rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/60 cursor-pointer select-none border border-slate-200/50 flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
               >
                 {/* Image Background */}
-                <img 
+                <img loading="lazy" 
                   src={getOptimizedUrl(siteImages.heritage_small_2 || "https://images.unsplash.com/photo-1500937386664-56d159437b7f?q=80&w=1000&auto=format&fit=crop", 1000)} 
                   alt="Sustainable Agriculture" 
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out -z-20"

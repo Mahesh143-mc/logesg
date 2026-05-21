@@ -1367,7 +1367,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
 
               <div className="flex flex-col sm:flex-row gap-6">
                 <div className="w-full sm:w-1/2 h-52 bg-slate-50 rounded-2xl flex items-center justify-center p-4 border border-slate-100">
-                  <img src={getOptimizedUrl(quickViewProduct.imageUrl)} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
+                  <img loading="lazy" src={getOptimizedUrl(quickViewProduct.imageUrl)} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
                 </div>
                 <div className="flex-1 space-y-4">
                   <div>
