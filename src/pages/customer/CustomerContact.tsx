@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { Phone, Mail, MapPin, Send, Instagram, Facebook, Twitter, ChevronRight, Sprout } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
@@ -33,7 +33,7 @@ export function CustomerContact() {
     <div className="min-h-screen bg-slate-50/30 relative overflow-hidden font-sans pb-32">
       {/* Background Decorative Ambient Orbs */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.15, 1],
             rotate: [0, 90, 0],
@@ -45,7 +45,7 @@ export function CustomerContact() {
           }}
           className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-emerald-200/30 rounded-full blur-[120px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, -90, 0],
@@ -76,14 +76,14 @@ export function CustomerContact() {
 
         {/* Hero Grid Container */}
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-20 text-center space-y-4">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4.5 py-1.5 shadow-sm backdrop-blur-md"
           >
             <Phone className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200">{t('support_sales')}</span>
-          </motion.div>
+          </m.div>
 
           {/* Breadcrumb Navigation */}
           <nav className="flex items-center justify-center space-x-2 text-xs md:text-sm font-semibold tracking-wide text-emerald-300/80 mb-2">
@@ -94,20 +94,20 @@ export function CustomerContact() {
             <span className="text-emerald-100 font-bold">{language === 'ta' ? 'எங்களைத் தொடர்பு கொள்க' : 'Contact Us'}</span>
           </nav>
 
-          <motion.h1 
+          <m.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase"
           >
             {language === 'ta' ? 'எங்களைத் தொடர்பு கொள்க' : 'Contact Us'}
-          </motion.h1>
+          </m.h1>
 
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 mt-10">
-        <motion.div 
+        <m.div 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 1 }}
@@ -131,7 +131,7 @@ export function CustomerContact() {
                   { icon: <Mail />, label: t('send_email'), val: "logeshvivasayi@gmail.com" },
                   { icon: <MapPin />, label: t('headquarters'), val: t('office_address_val') }
                 ].map((item, i) => (
-                  <motion.div 
+                  <m.div 
                     key={i}
                     whileHover={{ x: 10 }}
                     className="flex items-center space-x-4 md:space-x-6 group cursor-pointer"
@@ -143,7 +143,7 @@ export function CustomerContact() {
                       <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{item.label}</div>
                       <div className="text-lg md:text-xl font-bold mt-1">{item.val}</div>
                     </div>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             </div>
@@ -151,14 +151,14 @@ export function CustomerContact() {
             <div className="relative z-10 pt-16 mt-16 border-t border-white/10">
               <div className="flex space-x-6">
                 {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                  <motion.a 
+                  <m.a 
                     key={i}
                     href="#" 
                     whileHover={{ scale: 1.2, y: -5 }}
                     className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-900 transition-all text-slate-400"
                   >
                     <Icon className="w-5 h-5" />
-                  </motion.a>
+                  </m.a>
                 ))}
               </div>
             </div>
@@ -205,18 +205,18 @@ export function CustomerContact() {
               </div>
 
               <div className="pt-6">
-                <motion.button 
+                <m.button 
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full sm:w-auto px-12 py-5 bg-emerald-600 text-white font-black rounded-2xl flex items-center justify-center space-x-3 shadow-2xl shadow-emerald-600/30 hover:bg-emerald-700 transition-all"
                 >
                   <Send className="w-5 h-5" />
                   <span>{t('send_message_btn')}</span>
-                </motion.button>
+                </m.button>
               </div>
             </form>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

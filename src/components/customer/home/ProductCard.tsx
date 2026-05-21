@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { Heart, Check } from 'lucide-react';
 import { cn, getOptimizedUrl } from '../../../lib/utils';
 
@@ -72,7 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const theme = cardThemes[index % cardThemes.length];
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -142,6 +142,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
 
       </div>
-    </motion.div>
+    </m.div>
   );
 };

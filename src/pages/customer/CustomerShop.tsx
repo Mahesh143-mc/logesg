@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useStore } from '../../store/useStore';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import {
   Search,
   ShoppingBag,
@@ -306,7 +306,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
 
       {/* Background Decorative Ambient Orbs */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.15, 1],
             opacity: [0.2, 0.4, 0.2]
@@ -314,7 +314,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-100/30 rounded-full blur-[140px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1.1, 0.95, 1.1],
             opacity: [0.15, 0.3, 0.15]
@@ -349,21 +349,21 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               <span className="text-emerald-100 font-bold">{language === 'ta' ? 'பொருட்கள்' : 'Products'}</span>
             </nav>
 
-            <motion.h1
+            <m.h1
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight"
             >
               {language === 'ta' ? 'பண்ணை பொருட்கள்' : 'Farm Products'}
-            </motion.h1>
-            <motion.p
+            </m.h1>
+            <m.p
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               className="text-emerald-200/80 text-sm md:text-base max-w-xl font-medium tracking-wide"
             >
               {language === 'ta' ? 'விவசாயப் பண்ணைகளிலிருந்து நேரடியாக புதிய பொருட்கள்' : 'Fresh products directly from farms'}
-            </motion.p>
+            </m.p>
           </div>
 
           {/* Search Bar inside Hero aligned right */}
@@ -464,7 +464,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </button>
                 <AnimatePresence initial={false}>
                   {collapseCat && (
-                    <motion.div
+                    <m.div
                       initial={{ height: 0 }}
                       animate={{ height: 'auto' }}
                       exit={{ height: 0 }}
@@ -494,7 +494,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                           </button>
                         ))}
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -513,7 +513,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </button>
                 <AnimatePresence initial={false}>
                   {collapseStock && (
-                    <motion.div
+                    <m.div
                       initial={{ height: 0 }}
                       animate={{ height: 'auto' }}
                       exit={{ height: 0 }}
@@ -545,7 +545,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                           </span>
                         </label>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -564,7 +564,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </button>
                 <AnimatePresence initial={false}>
                   {collapsePrice && (
-                    <motion.div
+                    <m.div
                       initial={{ height: 0 }}
                       animate={{ height: 'auto' }}
                       exit={{ height: 0 }}
@@ -591,7 +591,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                           </label>
                         ))}
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -610,7 +610,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </button>
                 <AnimatePresence initial={false}>
                   {collapseType && (
-                    <motion.div
+                    <m.div
                       initial={{ height: 0 }}
                       animate={{ height: 'auto' }}
                       exit={{ height: 0 }}
@@ -632,7 +632,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                           </div>
                         </label>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -766,7 +766,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                   const retailPrice = product.price;
 
                   return (
-                    <motion.div
+                    <m.div
                       key={product.id}
                       layout
                       initial={{ opacity: 0, y: 30 }}
@@ -849,7 +849,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                         </div>
 
                         {/* Add to Cart Button */}
-                        <motion.button
+                        <m.button
                           whileTap={{ scale: 0.95 }}
                           disabled={product.stock <= 0}
                           onClick={() => addToCart({ ...product, quantity: 1 })}
@@ -861,9 +861,9 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                           )}
                         >
                           <span>{product.stock <= 0 ? t('out_of_stock') : t('add_to_cart')}</span>
-                        </motion.button>
+                        </m.button>
                       </div>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </AnimatePresence>
@@ -897,7 +897,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       </main>
 
       {/* Floating Cart Trigger Button */}
-      <motion.button
+      <m.button
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.05 }}
@@ -908,26 +908,26 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         <div className="relative">
           <ShoppingBag className="w-5 h-5" />
           {cart.length > 0 && (
-            <motion.span
+            <m.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               className="absolute -top-3 -right-3 w-5 h-5 bg-emerald-500 rounded-full text-[9px] font-black flex items-center justify-center shadow-md border border-zinc-950"
             >
               {cart.reduce((acc, item) => acc + item.quantity, 0)}
-            </motion.span>
+            </m.span>
           )}
         </div>
         <div className="text-left pl-3 border-l border-white/25">
           <div className="text-[8px] font-black text-emerald-100 uppercase tracking-widest">{t('total')}</div>
           <div className="font-black text-sm">₹{cartTotal.toLocaleString()}</div>
         </div>
-      </motion.button>
+      </m.button>
 
       {/* Cart Sidebar Drawer */}
       <AnimatePresence>
         {isCartOpen && (
           <>
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -939,7 +939,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               }}
               className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[150]"
             />
-            <motion.div
+            <m.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -949,13 +949,13 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               {/* Checkout Success */}
               {isOrderPlaced ? (
                 <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-emerald-50">
-                  <motion.div
+                  <m.div
                     initial={{ scale: 0, rotate: -45 }}
                     animate={{ scale: 1, rotate: 0 }}
                     className="w-20 h-20 bg-emerald-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-2xl shadow-emerald-600/20"
                   >
                     <CheckCircle className="w-10 h-10" />
-                  </motion.div>
+                  </m.div>
                   <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tighter">{t('order_placed')}</h2>
                   <p className="text-slate-655 text-sm leading-relaxed font-semibold px-4">
                     {t('order_success_desc')}
@@ -1091,7 +1091,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                       </div>
                     ) : (
                       cart.map((item) => (
-                        <motion.div
+                        <m.div
                           layout
                           key={item.id}
                           className="flex items-center bg-slate-100/70 hover:bg-slate-100 py-4 border-b border-slate-100/80 px-3 rounded-xl space-x-4 relative group transition-colors duration-300"
@@ -1149,7 +1149,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                               <p className="font-black text-emerald-600 text-[16px] md:text-[17px]">₹{(item.price * item.quantity).toLocaleString()}</p>
                             </div>
                           </div>
-                        </motion.div>
+                        </m.div>
                       ))
                     )}
                   </div>
@@ -1181,7 +1181,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                   )}
                 </div>
               )}
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
@@ -1190,14 +1190,14 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       <AnimatePresence>
         {isMobileFilterOpen && (
           <div className="fixed inset-0 z-[200] flex justify-end">
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileFilterOpen(false)}
               className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
             />
-            <motion.div
+            <m.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -1336,7 +1336,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </button>
               </div>
 
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>
@@ -1345,14 +1345,14 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       <AnimatePresence>
         {quickViewProduct && (
           <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setQuickViewProduct(null)}
               className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
             />
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -1367,7 +1367,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
 
               <div className="flex flex-col sm:flex-row gap-6">
                 <div className="w-full sm:w-1/2 h-52 bg-slate-50 rounded-2xl flex items-center justify-center p-4 border border-slate-100">
-                  <img loading="lazy" src={getOptimizedUrl(quickViewProduct.imageUrl)} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
+                  <img loading="lazy" src={getOptimizedUrl(quickViewProduct.imageUrl)} className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
                 </div>
                 <div className="flex-1 space-y-4">
                   <div>
@@ -1414,7 +1414,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </button>
               </div>
 
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>
@@ -1423,7 +1423,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       <AnimatePresence>
         {selectedProduct && (
           <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sm:p-10">
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -1433,7 +1433,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               }}
               className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
             />
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
@@ -1451,7 +1451,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               </button>
 
               <div className="md:w-1/2 h-56 md:h-auto bg-slate-50 relative border-b md:border-b-0 md:border-r border-slate-100 p-6 md:p-10 flex items-center justify-center">
-                  <motion.img
+                  <m.img
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.15 }}
@@ -1552,7 +1552,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </div>
 
                 <div className="p-6 bg-white border-t border-slate-100 sticky bottom-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.01)]">
-                  <motion.button
+                  <m.button
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={selectedProduct.stock <= 0}
@@ -1566,10 +1566,10 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                   >
                     <ShoppingCart className="w-4 h-4" />
                     <span>{selectedProduct.stock > 0 ? t('add_to_cart') : t('out_of_stock')}</span>
-                  </motion.button>
+                  </m.button>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>
@@ -1577,26 +1577,26 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       {/* Full Screen Order Success Overlay */}
       <AnimatePresence>
         {isOrderPlaced && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-emerald-50/95 backdrop-blur-md z-[9999] flex flex-col items-center justify-center p-6 text-center select-none"
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-emerald-100 flex flex-col items-center"
             >
-              <motion.div
+              <m.div
                 initial={{ scale: 0, rotate: -45 }}
                 animate={{ scale: 1.1, rotate: 0 }}
                 transition={{ type: 'spring', damping: 15, delay: 0.2 }}
                 className="w-24 h-24 bg-emerald-600 rounded-3xl flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-600/35"
               >
                 <CheckCircle className="w-12 h-12" />
-              </motion.div>
+              </m.div>
               <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tighter uppercase">{t('order_placed')}</h2>
               <p className="text-slate-500 text-sm leading-relaxed font-semibold mb-6 px-4">
                 {t('order_success_desc')}
@@ -1614,8 +1614,8 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
                 <span>{language === 'ta' ? 'வாட்ஸ்அப்பிற்கு திருப்பி விடப்படுகிறது...' : 'Redirecting to WhatsApp...'}</span>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

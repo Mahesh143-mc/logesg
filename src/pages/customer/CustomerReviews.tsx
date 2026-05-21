@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useStore } from '../../store/useStore';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import { 
   Star, ShieldCheck, Sparkles, Send, MessageSquare, 
   Loader2, ArrowUp, ChevronDown, Check, User, Calendar, 
@@ -350,7 +350,7 @@ export function CustomerReviews() {
                         <span className="w-3 text-right mr-1.5">{stars}</span>
                         <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500 mr-2 flex-shrink-0" />
                         <div className="flex-1 h-2.5 bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                          <motion.div 
+                          <m.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${percent}%` }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -558,7 +558,7 @@ export function CustomerReviews() {
               <div className="space-y-4">
                 <AnimatePresence mode="popLayout">
                   {filteredReviews.map((rev, idx) => (
-                    <motion.div
+                    <m.div
                       key={rev.id}
                       layout
                       initial={{ opacity: 0, y: 20 }}
@@ -633,7 +633,7 @@ export function CustomerReviews() {
                         </div>
                       </div>
 
-                    </motion.div>
+                    </m.div>
                   ))}
                 </AnimatePresence>
               </div>
@@ -647,7 +647,7 @@ export function CustomerReviews() {
       {/* 3. Floating Scroll To Top Button */}
       <AnimatePresence>
         {showScrollTop && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -656,7 +656,7 @@ export function CustomerReviews() {
             aria-label="Scroll to Top"
           >
             <ArrowUp className="w-5 h-5" />
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 

@@ -3,7 +3,7 @@ import { useStore } from '../store/useStore';
 import { useAuth } from '../hooks/useAuth';
 import { Menu, Leaf } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import { Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 // Page Imports
@@ -102,14 +102,14 @@ export function Layout() {
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSidebarOpen(false)}
               className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[50] md:hidden"
             />
-            <motion.div
+            <m.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
@@ -117,7 +117,7 @@ export function Layout() {
               className="fixed left-0 top-0 h-full w-[280px] bg-white dark:bg-[#09090b] z-[60] shadow-2xl md:hidden"
             >
               <Sidebar onClose={() => setIsSidebarOpen(false)} isMobile />
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
@@ -140,7 +140,7 @@ export function Layout() {
         </div>
         <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={currentAdminPage}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -148,7 +148,7 @@ export function Layout() {
               transition={{ duration: 0.25, ease: 'easeOut' }}
             >
               {renderPage()}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </div>
       </main>

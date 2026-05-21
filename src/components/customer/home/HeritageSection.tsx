@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { getOptimizedUrl } from '../../../lib/utils';
 
 interface HeritageSectionProps {
@@ -27,15 +27,15 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
         
         {/* Header Description */}
         <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="inline-flex px-3 py-1 rounded bg-emerald-500/20 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-4 font-poppins border border-emerald-500/30"
           >
             {language === "ta" ? "நமது பாரம்பரியம்" : "OUR HERITAGE"}
-          </motion.div>
-          <motion.h2
+          </m.div>
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -50,8 +50,8 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
                 THE STORY OF <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">VIVASAYI</span>
               </>
             )}
-          </motion.h2>
-          <motion.p 
+          </m.h2>
+          <m.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -59,21 +59,21 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
             className="text-emerald-800/80 dark:text-emerald-400/80 text-xs sm:text-sm font-semibold tracking-wide mt-3 max-w-xl mx-auto uppercase"
           >
             {language === "ta" ? "விவசாயிகளின் உன்னத உழைப்பை நவீன உலகிற்கு அறிமுகப்படுத்துகிறோம்" : "Bringing the soul of pure agriculture to the next generation"}
-          </motion.p>
+          </m.p>
         </div>
 
         {/* Asymmetrical 2-Column Story Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* LEFT SIDE: One Large Vertical Image Card */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-5"
           >
-            <motion.div
+            <m.div
               whileHover={{ y: -8 }}
               transition={{ type: "spring", stiffness: 200, damping: 22 }}
               onClick={() => {
@@ -101,20 +101,20 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
                   {language === "ta" ? "நம்பகமான விவசாயிகளிடமிருந்து நேரடியாகப் பெறப்பட்டது." : "Directly sourced from trusted farmers."}
                 </p>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
           {/* RIGHT SIDE: Two Stacked Horizontal Image Cards */}
           <div className="lg:col-span-7 flex flex-col gap-8">
             
             {/* TOP RIGHT CARD */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
-              <motion.div
+              <m.div
                 whileHover={{ y: -8 }}
                 transition={{ type: "spring", stiffness: 200, damping: 22 }}
                 onClick={() => {
@@ -142,17 +142,17 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
                     {language === "ta" ? "நவீன விவசாய தீர்வுகளுடன் இணையுங்கள்." : "Connect with modern agriculture solutions."}
                   </p>
                 </div>
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
 
             {/* BOTTOM RIGHT CARD */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <motion.div
+              <m.div
                 whileHover={{ y: -8 }}
                 transition={{ type: "spring", stiffness: 200, damping: 22 }}
                 onClick={() => {
@@ -180,8 +180,8 @@ export const HeritageSection: React.FC<HeritageSectionProps> = ({
                     {language === "ta" ? "பசுமையான மற்றும் ஆரோக்கியமான எதிர்காலத்தை உருவாக்குவோம்." : "Building a greener and healthier future."}
                   </p>
                 </div>
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
 
           </div>
 

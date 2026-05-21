@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { ShoppingBag, Leaf } from 'lucide-react';
 import { getOptimizedUrl } from '../../../lib/utils';
 
@@ -40,7 +40,7 @@ export const ParallaxShowcase: React.FC<ParallaxShowcaseProps> = ({
           {/* LEFT SIDE: Heading and Subheading */}
           <div className="lg:col-span-8 text-left space-y-4">
             
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -70,14 +70,14 @@ export const ParallaxShowcase: React.FC<ParallaxShowcaseProps> = ({
                   "Experience fresh agriculture products with modern digital ordering and fast delivery solutions."
                 )}
               </p>
-            </motion.div>
+            </m.div>
 
           </div>
 
           {/* RIGHT SIDE: Action Buttons */}
           <div className="lg:col-span-4 flex items-center justify-start lg:justify-end">
             
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -104,7 +104,7 @@ export const ParallaxShowcase: React.FC<ParallaxShowcaseProps> = ({
                 <span>{language === "ta" ? "தயாரிப்புகளைக் காண்க" : "Explore Products"}</span>
                 <Leaf className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
               </button>
-            </motion.div>
+            </m.div>
 
           </div>
 

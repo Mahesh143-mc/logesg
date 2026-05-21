@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { Leaf, Users, Heart, Sprout, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
@@ -72,7 +72,7 @@ export function CustomerAbout() {
     <div className="min-h-screen bg-slate-50/30 relative overflow-hidden font-sans">
       {/* Background Decorative Ambient Orbs */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 1.15, 1],
             rotate: [0, 90, 0],
@@ -84,7 +84,7 @@ export function CustomerAbout() {
           }}
           className="absolute top-[10%] left-[-10%] w-[350px] md:w-[600px] h-[350px] md:h-[600px] bg-emerald-100/40 rounded-full blur-[80px] md:blur-[120px]"
         />
-        <motion.div
+        <m.div
           animate={{
             scale: [1.15, 1, 1.15],
             rotate: [90, 0, 90],
@@ -113,14 +113,14 @@ export function CustomerAbout() {
 
         {/* Hero Grid Container */}
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-20 text-center space-y-4">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4.5 py-1.5 shadow-sm backdrop-blur-md"
           >
             <Sprout className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200">{language === 'ta' ? 'எங்கள் கதை' : 'Our Story'}</span>
-          </motion.div>
+          </m.div>
 
           {/* Breadcrumb Navigation */}
           <nav className="flex items-center justify-center space-x-2 text-xs md:text-sm font-semibold tracking-wide text-emerald-300/80 mb-2">
@@ -131,23 +131,23 @@ export function CustomerAbout() {
             <span className="text-emerald-100 font-bold">{language === 'ta' ? 'எங்களைப் பற்றி' : 'About Us'}</span>
           </nav>
 
-          <motion.h1 
+          <m.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase"
           >
             {t('about')}
-          </motion.h1>
+          </m.h1>
           
-          <motion.p 
+          <m.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="text-sm md:text-base text-emerald-100 max-w-3xl mx-auto leading-relaxed font-semibold px-4"
           >
             {t('about_hero_desc')}
-          </motion.p>
+          </m.p>
         </div>
       </section>
 
@@ -155,7 +155,7 @@ export function CustomerAbout() {
       <section className="py-16 md:py-24 bg-transparent relative">
         <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -179,7 +179,7 @@ export function CustomerAbout() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             <div className="space-y-6 md:space-y-8">
               <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter uppercase">
@@ -199,7 +199,7 @@ export function CustomerAbout() {
                   language === 'ta' ? 'மலிவான நேரடி விலை நிர்ணயம்' : 'Affordable Direct Pricing',
                   language === 'ta' ? 'நம்பகமான வாடிக்கையாளர் சேவை' : 'Trusted Customer Service'
                 ].map((item, i) => (
-                  <motion.div 
+                  <m.div 
                     key={i}
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -211,7 +211,7 @@ export function CustomerAbout() {
                       <CheckCircle2 className="w-4 h-4" />
                     </div>
                     <span>{item}</span>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             </div>
@@ -224,7 +224,7 @@ export function CustomerAbout() {
         <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16">
           <div className="grid grid-cols-3 gap-6 md:gap-8">
             {stats.map((stat, i) => (
-              <motion.div
+              <m.div
                 key={i}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -234,7 +234,7 @@ export function CustomerAbout() {
               >
                 <div className="text-4xl md:text-5xl font-black text-emerald-900 mb-2.5 group-hover:scale-105 transition-transform duration-300">{stat.value}</div>
                 <div className="text-emerald-950/85 text-[11px] md:text-xs font-black uppercase tracking-widest leading-relaxed">{stat.label}</div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
@@ -250,7 +250,7 @@ export function CustomerAbout() {
           
           <div className="grid md:grid-cols-3 gap-8 md:gap-10">
             {values.map((value, i) => (
-              <motion.div
+              <m.div
                 key={i}
                 initial={{ opacity: 0, y: 25 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -265,7 +265,7 @@ export function CustomerAbout() {
                 <p className="text-slate-700 leading-relaxed text-sm font-semibold">
                   {value.desc}
                 </p>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

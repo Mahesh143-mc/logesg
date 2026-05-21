@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { ProductCard, FirebaseProduct } from './ProductCard';
 
@@ -106,15 +106,15 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         
         {/* Centered Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 px-4 relative z-10">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="inline-flex px-3 py-1 rounded bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-black uppercase tracking-[0.35em] mb-3 font-poppins mx-auto"
           >
             {language === "ta" ? "சிறந்த தயாரிப்புகள்" : "FEATURED SHOWCASE"}
-          </motion.div>
-          <motion.h2
+          </m.div>
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -129,9 +129,9 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                 FEATURED <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">PRODUCTS</span>
               </>
             )}
-          </motion.h2>
+          </m.h2>
           <div className="w-20 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent mx-auto mt-4" />
-          <motion.p 
+          <m.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -139,7 +139,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
             className="text-slate-500 text-[10px] sm:text-xs font-semibold tracking-wider leading-relaxed mt-3 max-w-2xl mx-auto uppercase"
           >
             {language === "ta" ? "லோகேஷ் விவசாயி தளத்தின் புதிய தூய்மையான தயாரிப்புகள்" : "Curated high-yield organic crops harvested at peak freshness"}
-          </motion.p>
+          </m.p>
         </div>
 
         {/* Dynamic Category Filtering Pills */}

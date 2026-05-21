@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useStore } from './store/useStore';
 import { useAuth } from './hooks/useAuth';
 import { Toaster } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence, LazyMotion, domAnimation } from 'motion/react';
 
 // Lazy load components
 const Layout = lazy(() => import('./components/Layout').then(m => ({ default: m.Layout })));
@@ -19,7 +19,7 @@ const LoadingSpinner = () => (
 
 const PreloaderScreen = () => {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6, ease: "easeInOut" }}
@@ -27,7 +27,7 @@ const PreloaderScreen = () => {
     >
       <div className="text-center px-4">
         {/* Glowing Logo Circle */}
-        <motion.div
+        <m.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -38,10 +38,10 @@ const PreloaderScreen = () => {
             alt="Logesh Vivasayi Logo" 
             className="w-full h-full object-contain"
           />
-        </motion.div>
+        </m.div>
 
         {/* Brand Name with Tamil & English */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
@@ -53,10 +53,10 @@ const PreloaderScreen = () => {
           <p className="text-xs font-bold text-emerald-400 uppercase tracking-[0.25em]">
             Logesh Vivasayi
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Quality Badging */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.6 }}
@@ -65,11 +65,11 @@ const PreloaderScreen = () => {
           <span>100% தரம்</span>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span>100% இயற்கை</span>
-        </motion.div>
+        </m.div>
 
         {/* Animated Loading Bar */}
         <div className="w-48 h-1 bg-emerald-950/60 rounded-full overflow-hidden mx-auto mt-8 border border-emerald-500/5">
-          <motion.div 
+          <m.div 
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
             transition={{ duration: 1.8, ease: "easeInOut" }}
@@ -82,7 +82,7 @@ const PreloaderScreen = () => {
           Loading Freshness...
         </p>
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -153,7 +153,7 @@ export default function App() {
   const showSplash = !minTimePassed || loading;
 
   return (
-    <>
+    <LazyMotion features={domAnimation}>
       <AnimatePresence>
         {showSplash && <PreloaderScreen />}
       </AnimatePresence>
@@ -179,6 +179,6 @@ export default function App() {
           </Routes>
         </Suspense>
       </Router>
-    </>
+    </LazyMotion>
   );
 }

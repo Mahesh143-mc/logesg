@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ShoppingBag, Sprout, Phone, MapPin, Mail, Instagram, Facebook, Twitter, LogIn, Menu, X, ChevronRight, Home as HomeIcon, Info, Search, Globe, Star, ArrowUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import { useStore } from '../../store/useStore';
 
 
@@ -122,7 +122,7 @@ export function CustomerLayout() {
           )}
         >
           {/* Left Side: Logo & Pulsing Online Indicator */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => handleNavClick('home')}
@@ -140,7 +140,7 @@ export function CustomerLayout() {
                 <span className="text-[8px] md:text-[9px] font-bold text-emerald-300/80 uppercase tracking-[0.25em] mt-0.5">{t('farmer')}</span>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Center: Premium Floating Pill Navigation Menu */}
           <div className="hidden lg:flex items-center space-x-1.5 bg-emerald-950/20 backdrop-blur-md p-1 rounded-full border border-emerald-500/20 shadow-inner">
@@ -157,7 +157,7 @@ export function CustomerLayout() {
                 >
                   {/* Dynamic background slider using Framer Motion */}
                   {isActive && (
-                    <motion.div
+                    <m.div
                       layoutId="activeNavHighlight"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-lime-500 rounded-full shadow-[0_4px_14px_rgba(16,185,129,0.35)] -z-10"
@@ -178,7 +178,7 @@ export function CustomerLayout() {
           <div className="flex items-center space-x-2 md:space-x-3">
 
             {/* Cart Button */}
-            <motion.button
+            <m.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setCartOpen(true)}
@@ -191,11 +191,11 @@ export function CustomerLayout() {
                   {cartItemCount}
                 </span>
               )}
-            </motion.button>
+            </m.button>
 
             {/* Language Switcher */}
             <div className="relative">
-              <motion.button
+              <m.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsLangOpen(!isLangOpen)}
@@ -203,11 +203,11 @@ export function CustomerLayout() {
                 className="w-9 h-9 md:w-10 md:h-10 bg-emerald-950/20 border border-emerald-500/20 hover:border-emerald-400/40 rounded-full flex items-center justify-center text-emerald-100 hover:text-white hover:bg-emerald-500/10 transition-all shadow-lg hover:shadow-[0_0_12px_rgba(16,185,129,0.35)] cursor-pointer"
               >
                 <Globe className="w-4 h-4" />
-              </motion.button>
+              </m.button>
 
               <AnimatePresence>
                 {isLangOpen && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -233,13 +233,13 @@ export function CustomerLayout() {
                         {lang.label}
                       </button>
                     ))}
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>
 
             {/* Profile Admin Portal Shortcut */}
-            <motion.button
+            <m.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/login')}
@@ -247,7 +247,7 @@ export function CustomerLayout() {
               className="hidden sm:flex w-9 h-9 md:w-10 md:h-10 bg-emerald-950/20 border border-emerald-500/20 hover:border-emerald-400/40 rounded-full items-center justify-center text-emerald-100 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all shadow-lg hover:shadow-[0_0_12px_rgba(16,185,129,0.35)] cursor-pointer"
             >
               <LogIn className="w-4 h-4" />
-            </motion.button>
+            </m.button>
 
             {/* Mobile Hamburger menu */}
             <button
@@ -267,7 +267,7 @@ export function CustomerLayout() {
         {isMenuOpen && (
           <>
             {/* Backdrop blur overlay */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -275,7 +275,7 @@ export function CustomerLayout() {
               className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[80] lg:hidden"
             />
             {/* Slide Down Glass Menu Drawer */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -319,7 +319,7 @@ export function CustomerLayout() {
                   );
                 })}
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
@@ -327,7 +327,7 @@ export function CustomerLayout() {
       {/* Main Content Area */}
       <main className="pt-0">
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={currentCustomerPage}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -335,7 +335,7 @@ export function CustomerLayout() {
             transition={{ duration: 0.5, cubicBezier: [0.16, 1, 0.3, 1] }}
           >
             {renderContent()}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </main>
 
@@ -451,7 +451,7 @@ export function CustomerLayout() {
       {/* Scroll to Top Button */}
       <AnimatePresence>
         {showScrollTop && (
-          <motion.button
+          <m.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
@@ -462,7 +462,7 @@ export function CustomerLayout() {
             aria-label="Scroll to Top"
           >
             <ArrowUp className="w-5 h-5" />
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
     </div>

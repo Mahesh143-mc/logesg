@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { ShoppingBag, ShoppingCart, Truck, Package, ArrowRight } from 'lucide-react';
 
 interface WorkflowSectionProps {
@@ -80,15 +80,15 @@ export const WorkflowSection: React.FC<WorkflowSectionProps> = ({
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20 md:mb-28">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="inline-flex px-3 py-1 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-4 font-poppins"
           >
             {copy.workflowTag}
-          </motion.div>
-          <motion.h2
+          </m.div>
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -103,8 +103,8 @@ export const WorkflowSection: React.FC<WorkflowSectionProps> = ({
                 How <span className="bg-gradient-to-r from-emerald-600 via-lime-500 to-emerald-500 bg-clip-text text-transparent">Logesh Vivasayi</span> Works
               </>
             )}
-          </motion.h2>
-          <motion.p 
+          </m.h2>
+          <m.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -112,7 +112,7 @@ export const WorkflowSection: React.FC<WorkflowSectionProps> = ({
             className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold mt-3 max-w-xl mx-auto"
           >
             {copy.workflowSubheading}
-          </motion.p>
+          </m.p>
         </div>
 
         {/* Workflow Cards Grid */}
@@ -121,7 +121,7 @@ export const WorkflowSection: React.FC<WorkflowSectionProps> = ({
           {/* Desktop Connecting Line between cards */}
           <div className="absolute top-[40%] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-emerald-500/20 via-lime-500/40 to-emerald-500/20 -translate-y-1/2 hidden lg:block z-0 overflow-hidden">
             {/* Laser scanning dot walking the line */}
-            <motion.div 
+            <m.div 
               animate={{ x: ["-100%", "200%"] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "linear" }}
               className="w-1/3 h-full bg-gradient-to-r from-transparent via-emerald-400 to-transparent"
@@ -132,7 +132,7 @@ export const WorkflowSection: React.FC<WorkflowSectionProps> = ({
             {workflowSteps.map((step, idx) => {
               const IconComponent = step.icon;
               return (
-                <motion.div
+                <m.div
                   key={idx}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -141,7 +141,7 @@ export const WorkflowSection: React.FC<WorkflowSectionProps> = ({
                   className="relative group"
                 >
                   {/* Step Card Container */}
-                  <motion.div
+                  <m.div
                     whileHover={{ y: -6 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     className={`w-full h-full rounded-[2rem] ${step.cardBg} backdrop-blur-xl border p-6 md:p-7.5 flex flex-col justify-start items-start text-left shadow-lg shadow-slate-100/10 dark:shadow-black/15 relative overflow-hidden transition-all duration-300 min-h-[220px] lg:min-h-[250px] ${step.cardBorder}`}
@@ -178,22 +178,22 @@ export const WorkflowSection: React.FC<WorkflowSectionProps> = ({
                       </p>
                     </div>
 
-                  </motion.div>
+                  </m.div>
 
                   {/* Glowing connector arrows for Desktop (idx < 3) */}
                   {idx < 3 && (
                     <div className="absolute top-[40%] -right-4 -translate-y-1/2 z-30 hidden lg:flex items-center justify-center pointer-events-none">
-                      <motion.div
+                      <m.div
                         animate={{ x: [0, 5, 0] }}
                         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                         className="w-8 h-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-white/10 flex items-center justify-center shadow-lg text-emerald-500 dark:text-emerald-400"
                       >
                         <ArrowRight className="w-4 h-4 font-black" />
-                      </motion.div>
+                      </m.div>
                     </div>
                   )}
 
-                </motion.div>
+                </m.div>
               );
             })}
           </div>
