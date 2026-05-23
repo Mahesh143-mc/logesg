@@ -329,7 +329,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/30 pb-32 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50/30 pb-32 relative overflow-x-hidden overflow-y-auto font-sans antialiased">
 
       {/* Background Decorative Ambient Orbs */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
