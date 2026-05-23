@@ -65,6 +65,9 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [units, setUnits] = useState<any[]>([]);
+  
+  // Pagination State
+  const [visibleCount, setVisibleCount] = useState(20);
 
   // Filter & Search States
   const [searchTerm, setSearchTerm] = useState('');
@@ -583,7 +586,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               gridCols === 4 && "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
             )}>
               <AnimatePresence mode="popLayout">
-                {filteredAndSortedProducts.map((product, idx) => {
+                {filteredAndSortedProducts.slice(0, visibleCount).map((product, idx) => {
                   const hasDiscount = false;
                   const retailPrice = product.price;
 
@@ -607,7 +610,19 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               </AnimatePresence>
             </div>
             )}
-
+            
+            {/* Load More Button */}
+            {!isLoadingProducts && visibleCount < filteredAndSortedProducts.length && (
+              <div className="flex justify-center mt-12 mb-8">
+                <button
+                  onClick={() => setVisibleCount(prev => prev + 20)}
+                  className="px-8 py-3 bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-sm active:scale-95 flex items-center space-x-2"
+                >
+                  <span>{language === 'ta' ? 'மேலும் காண்க' : 'Load More Products'}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             {/* Zero State View */}
             {!isLoadingProducts && filteredAndSortedProducts.length === 0 && (
               <div className="py-24 text-center bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6">
