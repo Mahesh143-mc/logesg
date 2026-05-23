@@ -4,6 +4,7 @@ import { useStore } from './store/useStore';
 import { useAuth } from './hooks/useAuth';
 import { Toaster } from 'react-hot-toast';
 import { m, AnimatePresence, LazyMotion, domAnimation } from 'motion/react';
+import Lenis from 'lenis';
 
 // Lazy load components
 const Layout = lazy(() => import('./components/Layout').then(m => ({ default: m.Layout })));
@@ -134,6 +135,17 @@ export default function App() {
   const { theme } = useStore();
   const [minTimePassed, setMinTimePassed] = useState(false);
   const { loading } = useAuth();
+
+  useEffect(() => {
+    // Initialize Lenis smooth scrolling
+    const lenis = new Lenis({
+      autoRaf: true,
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+    
+    return () => lenis.destroy();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {

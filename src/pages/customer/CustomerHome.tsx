@@ -246,9 +246,13 @@ export function CustomerHome() {
 
   // Fetch products from Firebase Firestore
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    let isResolved = false;
+
     try {
       const q = query(collection(db, 'products'), orderBy('name', 'asc'));
       const unsubscribe = onSnapshot(q, (snapshot) => {
+        isResolved = true;
         if (!snapshot.empty) {
           setProducts(snapshot.docs.map(doc => ({
             id: doc.id,
@@ -259,11 +263,25 @@ export function CustomerHome() {
         }
         setLoadingProducts(false);
       }, (error) => {
+        isResolved = true;
         console.error("Firestore loading error, falling back to mocks:", error);
         setProducts(mockProducts);
         setLoadingProducts(false);
       });
-      return unsubscribe;
+
+      // Timeout fallback for when Firebase silently hangs (e.g. offline or pending auth)
+      timeoutId = setTimeout(() => {
+        if (!isResolved) {
+          console.warn("Firestore taking too long, falling back to mock products.");
+          setProducts(mockProducts);
+          setLoadingProducts(false);
+        }
+      }, 4000);
+
+      return () => {
+        unsubscribe();
+        clearTimeout(timeoutId);
+      };
     } catch (e) {
       console.warn("Failed to load Firebase, displaying premium fallback products:", e);
       setProducts(mockProducts);
@@ -312,11 +330,13 @@ export function CustomerHome() {
       />
 
       {/* Below The Fold Sections with Lazy Loading */}
+      {/* Farm-to-Table Workflow Section */}
       <React.Suspense fallback={<div className="h-[200px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
-        {/* Farm-to-Table Workflow Section */}
         <WorkflowSection language={language} copy={copy} />
+      </React.Suspense>
 
-        {/* Featured Premium Products Carousel */}
+      {/* Featured Premium Products Carousel */}
+      <React.Suspense fallback={<div className="h-[400px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
         <FeaturedProducts 
           products={products}
           loadingProducts={loadingProducts}
@@ -327,15 +347,18 @@ export function CustomerHome() {
           handleAddToCart={handleAddToCart}
           setCurrentCustomerPage={setCurrentCustomerPage}
         />
-
-        {/* Immersive Cinematic Parallax Showcase */}
+      </React.Suspense>
+      
+      <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
         <ParallaxShowcase 
           language={language}
           copy={copy}
           siteImages={siteImages}
         />
-
-        {/* Brand Heritage & Core Values */}
+      </React.Suspense>
+      
+      {/* Brand Heritage & Core Values */}
+      <React.Suspense fallback={<div className="h-[400px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
         <HeritageSection 
           language={language} 
           copy={copy}

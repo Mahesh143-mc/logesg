@@ -903,7 +903,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setCartOpen(true)}
-        className="fixed right-5 top-1/2 -mt-[26px] z-40 bg-emerald-600 text-white py-3 px-5 rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center space-x-3 border-2 border-white group"
+        className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[100] bg-emerald-600 text-white py-3 px-5 rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center space-x-3 border-2 border-white group"
       >
         <div className="relative">
           <ShoppingBag className="w-5 h-5" />

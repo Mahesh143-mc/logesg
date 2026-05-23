@@ -76,16 +76,15 @@ export function CustomerLayout() {
   ];
 
   const renderContent = () => {
-    const Content = () => {
-      switch (currentCustomerPage) {
-        case 'home': return <CustomerHome />;
-        case 'shop': return <CustomerShop />;
-        case 'reviews': return <CustomerReviews />;
-        case 'about': return <CustomerAbout />;
-        case 'contact': return <CustomerContact />;
-        default: return <CustomerHome />;
-      }
-    };
+    let PageComponent;
+    switch (currentCustomerPage) {
+      case 'home': PageComponent = <CustomerHome />; break;
+      case 'shop': PageComponent = <CustomerShop />; break;
+      case 'reviews': PageComponent = <CustomerReviews />; break;
+      case 'about': PageComponent = <CustomerAbout />; break;
+      case 'contact': PageComponent = <CustomerContact />; break;
+      default: PageComponent = <CustomerHome />; break;
+    }
 
     return (
       <React.Suspense fallback={
@@ -93,7 +92,7 @@ export function CustomerLayout() {
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
         </div>
       }>
-        <Content />
+        {PageComponent}
       </React.Suspense>
     );
   };
@@ -458,7 +457,7 @@ export function CustomerLayout() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-45 bg-emerald-600 text-white w-12 h-12 rounded-full shadow-2xl border border-white/20 flex items-center justify-center hover:bg-emerald-700 transition-colors cursor-pointer"
+            className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-[100] bg-emerald-600 text-white w-12 h-12 rounded-full shadow-2xl border border-white/20 flex items-center justify-center hover:bg-emerald-700 transition-colors cursor-pointer"
             aria-label="Scroll to Top"
           >
             <ArrowUp className="w-5 h-5" />
