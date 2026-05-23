@@ -67,6 +67,11 @@ export function CustomerLayout() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [currentCustomerPage]);
+
   const navLinks = [
     { id: 'home', label: t('home'), icon: <HomeIcon className="w-5 h-5" /> },
     { id: 'shop', label: t('shop'), icon: <ShoppingBag className="w-5 h-5" /> },

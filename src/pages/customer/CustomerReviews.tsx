@@ -81,41 +81,7 @@ export function CustomerReviews() {
     category: ''
   });
 
-  // Mock Reviews Fallback
-  const mockReviews: Review[] = useMemo(() => [
-    {
-      id: "mock-r1",
-      name: language === "ta" ? "ரமேஷ் குமார்" : "Ramesh Kumar",
-      rating: 5,
-      comment: language === "ta" ? "தக்காளி மற்றும் கேரட் மிகவும் புதியதாகவும் சுவையாகவும் உள்ளன. சிறந்த சேவை மற்றும் விரைவான டெலிவரி!" : "The organic tomatoes and carrots are extremely fresh and sweet. Excellent service and fast delivery! Highly recommended.",
-      category: language === "ta" ? "காய்கறிகள்" : "Vegetables",
-      createdAt: { seconds: Math.floor(Date.now() / 1000) - 3600 * 24 * 1 } // 1 day ago
-    },
-    {
-      id: "mock-r2",
-      name: language === "ta" ? "பிரியா சுந்தர்" : "Priya Sundar",
-      rating: 5,
-      comment: language === "ta" ? "வாழைப்பழங்கள் மற்றும் மாம்பழங்கள் மிகவும் சுவையாக உள்ளன. இரசாயனம் இல்லாத இயற்கை பழங்கள் கிடைப்பது மகிழ்ச்சி அளிக்கிறது." : "Bananas and mangoes are incredibly sweet and delicious. Happy to get 100% pesticide-free fruits here.",
-      category: language === "ta" ? "பழங்கள்" : "Fruits",
-      createdAt: { seconds: Math.floor(Date.now() / 1000) - 3600 * 24 * 3 } // 3 days ago
-    },
-    {
-      id: "mock-r3",
-      name: language === "ta" ? "லோகேஸ்வரன் எஸ்." : "Logeshwaran S.",
-      rating: 4,
-      comment: language === "ta" ? "பாரம்பரிய அரிசி வகைகள் மிக உயர்ந்த தரம் வாய்ந்தது. சமைக்கும் போது நல்ல மணம் வீசுகிறது." : "Traditional rice varieties are of high quality. Smells wonderful when cooked. Direct support to farmers makes it even better.",
-      category: language === "ta" ? "தானியங்கள்" : "Grains",
-      createdAt: { seconds: Math.floor(Date.now() / 1000) - 3600 * 24 * 6 } // 6 days ago
-    },
-    {
-      id: "mock-r4",
-      name: language === "ta" ? "மீனா கிருஷ்ணன்" : "Meena Krishnan",
-      rating: 5,
-      comment: language === "ta" ? "கீரை வகைகள் மிகவும் பசுமையாகவும் சுத்தமாகவும் உள்ளன. லோகேஷ் விவசாயி தளம் மிகவும் பயனுள்ளதாக உள்ளது." : "The greens are highly fresh and clean. Very helpful portal to purchase organic items easily.",
-      category: language === "ta" ? "காய்கறிகள்" : "Vegetables",
-      createdAt: { seconds: Math.floor(Date.now() / 1000) - 3600 * 24 * 10 } // 10 days ago
-    }
-  ], [language]);
+
 
   // Fetch reviews from Firestore
   useEffect(() => {
@@ -128,21 +94,21 @@ export function CustomerReviews() {
             ...doc.data()
           } as Review)));
         } else {
-          setReviews(mockReviews);
+          setReviews([]);
         }
         setLoading(false);
       }, (error) => {
-        console.error("Firestore loading error for reviews, falling back to mocks:", error);
-        setReviews(mockReviews);
+        console.error("Firestore loading error for reviews:", error);
+        setReviews([]);
         setLoading(false);
       });
       return unsubscribe;
     } catch (e) {
-      console.warn("Failed to subscribe to reviews collection, displaying mocks:", e);
-      setReviews(mockReviews);
+      console.warn("Failed to subscribe to reviews collection:", e);
+      setReviews([]);
       setLoading(false);
     }
-  }, [mockReviews]);
+  }, []);
 
   // Scroll to Top Listener
   useEffect(() => {
