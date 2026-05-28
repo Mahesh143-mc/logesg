@@ -413,7 +413,7 @@ export function CustomerLayout() {
                   </div>
                   <div>
                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{t('call_us')}</div>
-                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">+91 87546 2190</div>
+                    <div className="font-bold text-sm text-slate-200 mt-1.5 group-hover:text-white transition-colors">+91 87546 21690</div>
                   </div>
                 </li>
                 <li className="flex items-start space-x-3.5 group">
