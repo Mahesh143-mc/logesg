@@ -258,7 +258,7 @@ export function OrderHistory() {
                     <div key={i} className="flex justify-between items-center">
                       <div className="flex flex-col">
                         <span className="text-lg font-bold text-slate-900 tracking-tight">{item.name}</span>
-                        <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-1">Qty: {item.quantity}</span>
+                        <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-1">Qty: {Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                       </div>
                       <span className="text-xl font-bold text-slate-900 tracking-tighter">₹{(item.price * item.quantity).toLocaleString()}</span>
                     </div>

@@ -274,7 +274,7 @@ export function Billing() {
     // Table
     const tableData = cart.map(item => [
       item.name,
-      item.quantity,
+      Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 }),
       `₹${item.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       `₹${(item.price * item.quantity).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     ]);
@@ -374,7 +374,7 @@ export function Billing() {
         ${sale.items.map((item: any) => `
           <tr>
             <td class="col-name">${item.name}</td>
-            <td class="col-qty">${item.quantity}</td>
+            <td class="col-qty">${Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
             <td class="col-price">${(item.price * item.quantity).toFixed(2)}</td>
           </tr>
         `).join('')}

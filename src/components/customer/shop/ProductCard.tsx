@@ -1,7 +1,7 @@
 import React from 'react';
 import { m } from 'motion/react';
 import { Heart, Eye, Star } from 'lucide-react';
-import { cn } from '../../../lib/utils';
+import { cn, getOptimizedUrl } from '../../../lib/utils';
 import { Product } from '../../../pages/customer/CustomerShop';
 
 interface ProductCardProps {
@@ -18,7 +18,7 @@ interface ProductCardProps {
   retailPrice: number;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   product,
   idx,
   language,
@@ -67,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
 
         <img
-          src={product.imageUrl || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`}
+          src={getOptimizedUrl(product.imageUrl, 400) || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`}
           alt={product.name}
           loading="lazy"
           className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105"
@@ -130,4 +130,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
     </m.div>
   );
-}
+});

@@ -249,21 +249,7 @@ export function DesktopFilters({
           </AnimatePresence>
         </div>
 
-        {/* Quick Trust Badges */}
-        <div className="bg-gradient-to-br from-emerald-950 to-zinc-950 rounded-2xl p-5 text-white shadow-lg space-y-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-          <div className="flex items-center space-x-3">
-            <ShieldCheck className="w-6 h-6 text-emerald-400" />
-            <span className="text-xs font-black uppercase tracking-wider">{language === 'ta' ? '100% தூய்மையானது' : '100% Pure Organic'}</span>
-          </div>
-          <p className="text-[10px] text-emerald-100/60 leading-relaxed font-medium">
-            {language === 'ta' ? 'நேரடியாக உள்ளூர் விவசாயிகளிடம் இருந்து பெறப்பட்டு பாதுகாப்பான முறையில் பேக் செய்யப்பட்டது.' : 'Directly harvested from local biofarms with premium organic certifications.'}
-          </p>
-          <div className="flex items-center space-x-2 text-[10px] text-emerald-400 font-bold">
-            <Truck className="w-4 h-4" />
-            <span>{language === 'ta' ? 'அடுத்த நாள் டெலிவரி' : 'Next-Day Fast Delivery'}</span>
-          </div>
-        </div>
+
       </div>
     </aside>
   );

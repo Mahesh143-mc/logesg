@@ -2,11 +2,10 @@ import { useState, useEffect, ChangeEvent, DragEvent } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Plus, Search, Edit2, Trash2, QrCode, X, Upload, CheckCircle2, Package, LayoutGrid, AlertTriangle, Scale, Printer, Download, Eye, EyeOff } from 'lucide-react';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+
 import { cn, getOptimizedUrl } from '../lib/utils';
 import { QRCodeSVG } from 'qrcode.react';
-import * as XLSX from 'xlsx';
+
 import { compressImage, uploadToCloudinary } from '../lib/imageUpload';
 
 export function Products() {
@@ -346,7 +345,8 @@ export function Products() {
 
   const pagedProducts = filteredProducts.slice(0, rowsPerPage);
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
+    const XLSX = await import('xlsx');
     const headers = ['Product ID', 'Name', 'Description', 'Category', 'Selling Price', 'Total Stock', 'Low Stock Alert', 'Unit'];
     
     const rows = filteredProducts.map((p: any) => [
@@ -548,7 +548,7 @@ export function Products() {
                 <div className="flex flex-col">
                   <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">₹{product.price.toFixed(2)}</span>
                   <span className="text-[10px] font-medium text-slate-500">
-                    {product.stock} {product.unit || 'pcs'}
+                    {Number(product.stock).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {product.unit || 'pcs'}
                   </span>
                 </div>
                 

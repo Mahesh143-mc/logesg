@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, limit, startAfter, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useStore } from '../../store/useStore';
 import { m, AnimatePresence } from 'motion/react';
@@ -42,8 +42,9 @@ import Swal from 'sweetalert2';
 // Extracted worker components
 import { ProductCard } from '../../components/customer/shop/ProductCard';
 import { DesktopFilters, MobileFilters } from '../../components/customer/shop/ShopFilters';
-import { QuickViewModal } from '../../components/customer/shop/QuickViewModal';
-import { ProductDetailsModal } from '../../components/customer/shop/ProductDetailsModal';
+const QuickViewModal = React.lazy(() => import('../../components/customer/shop/QuickViewModal').then(m => ({ default: m.QuickViewModal })));
+const ProductDetailsModal = React.lazy(() => import('../../components/customer/shop/ProductDetailsModal').then(m => ({ default: m.ProductDetailsModal })));
+import { useDebounce } from '../../hooks/useDebounce';
 
 export interface Product {
   id: string;
@@ -65,12 +66,15 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [units, setUnits] = useState<any[]>([]);
+  const [lastDoc, setLastDoc] = useState<any>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   
-  // Pagination State
-  const [visibleCount, setVisibleCount] = useState(20);
+  // Pagination is now handled by Firestore getDocs loadMore
 
   // Filter & Search States
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || t('all'));
   const [priceRange, setPriceRange] = useState<string>('all');
   const [availability, setAvailability] = useState<string>('all'); // all, instock
@@ -117,44 +121,56 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const [collapseStock, setCollapseStock] = useState(true);
   const [collapseType, setCollapseType] = useState(true);
 
-  // Fetch Products & Units
+  // Fetch Products
+  const loadProducts = async (loadMore = false) => {
+    if (loadMore) setIsLoadingMore(true);
+    try {
+      let q = query(collection(db, 'products'), orderBy('name', 'asc'), limit(20));
+      if (loadMore && lastDoc) {
+        q = query(collection(db, 'products'), orderBy('name', 'asc'), startAfter(lastDoc), limit(20));
+      }
+      
+      const snap = await getDocs(q);
+      const newProducts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      
+      setProducts(prev => {
+        const updated = loadMore ? [...prev, ...newProducts] : newProducts;
+        if (!loadMore) localStorage.setItem('shopProductsCache', JSON.stringify(updated));
+        return updated;
+      });
+      setLastDoc(snap.docs[snap.docs.length - 1]);
+      setHasMore(snap.docs.length === 20);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsLoadingProducts(false);
+      setIsLoadingMore(false);
+    }
+  };
+
   useEffect(() => {
-    // 1. Check for Saved Data on Page Load
     const cachedProducts = localStorage.getItem('shopProductsCache');
     if (cachedProducts) {
       try {
         const parsed = JSON.parse(cachedProducts);
         if (parsed && parsed.length > 0) {
           setProducts(parsed);
-          setIsLoadingProducts(false); // Do not show spinner
+          setIsLoadingProducts(false);
         }
       } catch (e) {
         console.error("Failed to parse cached products", e);
       }
     }
-
-    // 2. Fetch Fresh Data in the Background
-    const q = query(collection(db, 'products'), orderBy('name', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const freshProducts = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Product));
-      
-      // 3 & 4. Compare, Update Screen, and Overwrite Old Memory
-      setProducts(freshProducts);
-      setIsLoadingProducts(false);
-      localStorage.setItem('shopProductsCache', JSON.stringify(freshProducts));
-    });
-    return unsubscribe;
+    loadProducts();
   }, []);
 
   useEffect(() => {
-    const q = query(collection(db, 'units'), orderBy('name', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setUnits(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-    return unsubscribe;
+    const fetchUnits = async () => {
+      const q = query(collection(db, 'units'), orderBy('name', 'asc'));
+      const snap = await getDocs(q);
+      setUnits(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchUnits();
   }, []);
 
   const isDecimalAllowed = (unitName?: string) => {
@@ -181,8 +197,8 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const filteredAndSortedProducts = useMemo(() => {
     let result = products.filter(product => {
       const isVisible = product.visible !== false;
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.category || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        (product.category || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
       const matchesCategory = selectedCategory === t('all') || product.category === selectedCategory;
 
@@ -217,7 +233,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
     }
 
     return result;
-  }, [products, searchTerm, selectedCategory, priceRange, availability, organicFilter, sortBy, t]);
+  }, [products, debouncedSearchTerm, selectedCategory, priceRange, availability, organicFilter, sortBy, t]);
 
   const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
@@ -332,7 +348,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/30 pb-32 relative overflow-x-hidden overflow-y-auto font-sans antialiased">
+    <div className="min-h-screen bg-slate-50/30 pt-[84px] md:pt-[104px] pb-32 relative overflow-x-hidden overflow-y-auto font-sans antialiased">
 
       {/* Background Decorative Ambient Orbs */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
@@ -354,78 +370,10 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         />
       </div>
 
-      {/* 1. Hero Banner Section */}
-      <section className="relative w-full h-[360px] md:h-[420px] pt-24 md:pt-28 flex items-center overflow-hidden">
-        {/* Background Image with Dark Vignette Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={getOptimizedUrl(siteImages.shop_hero || "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop", 2000)}
-            alt="Farm Products Banner"
-            className="w-full h-full object-cover object-center scale-105 filter brightness-[0.8]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-950/85 to-zinc-950/90 z-10 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-50/30 via-transparent to-transparent z-10" />
-        </div>
 
-        {/* Hero Grid Container */}
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 relative z-20 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="text-white space-y-3">
-            {/* Breadcrumb Navigation */}
-            <nav className="flex items-center space-x-2 text-xs md:text-sm font-semibold tracking-wide text-emerald-300/80">
-              <span className="hover:text-emerald-400 cursor-pointer transition-colors" onClick={() => window.location.reload()}>{language === 'ta' ? 'முகப்பு' : 'Home'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-              <span>{language === 'ta' ? 'அனைத்து தொகுப்புகள்' : 'All collections'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-              <span className="text-emerald-100 font-bold">{language === 'ta' ? 'பொருட்கள்' : 'Products'}</span>
-            </nav>
 
-            <m.h1
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight"
-            >
-              {language === 'ta' ? 'பண்ணை பொருட்கள்' : 'Farm Products'}
-            </m.h1>
-            <m.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-emerald-200/80 text-sm md:text-base max-w-xl font-medium tracking-wide"
-            >
-              {language === 'ta' ? 'விவசாயப் பண்ணைகளிலிருந்து நேரடியாக புதிய பொருட்கள்' : 'Fresh products directly from farms'}
-            </m.p>
-          </div>
-
-          {/* Search Bar inside Hero aligned right */}
-          <div className="w-full md:w-[360px] lg:w-[420px] flex-shrink-0">
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="w-5 h-5 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
-              </div>
-              <input
-                type="text"
-                placeholder={t('search_placeholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-12 py-4 bg-white border border-transparent rounded-2xl text-sm text-slate-900 placeholder-slate-400 outline-none focus:ring-4 focus:ring-emerald-550/30 focus:border-emerald-500 transition-all font-medium shadow-xl"
-              />
-              <AnimatePresence>
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-slate-100 text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-all"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Sticky Mobile Filter/Sort Bar */}
-      <div className="lg:hidden bg-white/90 backdrop-blur-2xl border-b border-slate-200/70 sticky top-20 z-30 transition-all duration-300 shadow-sm py-3 px-4 flex items-center justify-between">
+      {/* Mobile Filter/Sort Bar (Non-sticky to prevent product cut-off) */}
+      <div className="lg:hidden bg-white/90 backdrop-blur-md border-b border-slate-200/70 z-10 relative py-3 px-4 flex items-center justify-between">
         <button
           onClick={() => setIsMobileFilterOpen(true)}
           className="flex items-center space-x-2.5 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold text-xs uppercase tracking-wider"
@@ -452,7 +400,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       </div>
 
       {/* 2. Main Layout Grid */}
-      <main className="w-full max-w-[98%] mx-auto px-4 lg:px-6 py-10">
+      <main className="w-full max-w-[98%] mx-auto px-4 lg:px-6 pt-4 pb-10 md:py-10">
         <div className="grid grid-cols-12 gap-8">
 
           {/* Left Sidebar Filter Section (Desktop) */}
@@ -586,7 +534,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               gridCols === 4 && "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
             )}>
               <AnimatePresence mode="popLayout">
-                {filteredAndSortedProducts.slice(0, visibleCount).map((product, idx) => {
+                {filteredAndSortedProducts.map((product, idx) => {
                   const hasDiscount = false;
                   const retailPrice = product.price;
 
@@ -612,14 +560,15 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
             )}
             
             {/* Load More Button */}
-            {!isLoadingProducts && visibleCount < filteredAndSortedProducts.length && (
+            {!isLoadingProducts && hasMore && (
               <div className="flex justify-center mt-12 mb-8">
                 <button
-                  onClick={() => setVisibleCount(prev => prev + 20)}
-                  className="px-8 py-3 bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-sm active:scale-95 flex items-center space-x-2"
+                  onClick={() => loadProducts(true)}
+                  disabled={isLoadingMore}
+                  className="px-8 py-3 bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-sm active:scale-95 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span>{language === 'ta' ? 'மேலும் காண்க' : 'Load More Products'}</span>
-                  <ChevronDown className="w-4 h-4" />
+                  <span>{isLoadingMore ? (language === 'ta' ? 'ஏற்றுகிறது...' : 'Loading...') : (language === 'ta' ? 'மேலும் காண்க' : 'Load More Products')}</span>
+                  {!isLoadingMore && <ChevronDown className="w-4 h-4" />}
                 </button>
               </div>
             )}
@@ -959,27 +908,35 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       />
 
       {/* 5. Quick View Overlay Modal */}
-      <QuickViewModal
-        quickViewProduct={quickViewProduct}
-        setQuickViewProduct={setQuickViewProduct}
-        language={language}
-        t={t}
-        addToCart={addToCart}
-        setCartOpen={setCartOpen}
-      />
+      <React.Suspense fallback={null}>
+        {quickViewProduct && (
+          <QuickViewModal
+            quickViewProduct={quickViewProduct}
+            setQuickViewProduct={setQuickViewProduct}
+            language={language}
+            t={t}
+            addToCart={addToCart}
+            setCartOpen={setCartOpen}
+          />
+        )}
+      </React.Suspense>
 
       {/* 6. Product Detail Dynamic Modal */}
-      <ProductDetailsModal
-        selectedProduct={selectedProduct}
-        setSelectedProduct={setSelectedProduct}
-        selectedWeight={selectedWeight}
-        setSelectedWeight={setSelectedWeight}
-        isDecimalAllowed={isDecimalAllowed}
-        language={language}
-        t={t}
-        addToCart={addToCart}
-        setCartOpen={setCartOpen}
-      />
+      <React.Suspense fallback={null}>
+        {selectedProduct && (
+          <ProductDetailsModal
+            selectedProduct={selectedProduct}
+            setSelectedProduct={setSelectedProduct}
+            selectedWeight={selectedWeight}
+            setSelectedWeight={setSelectedWeight}
+            isDecimalAllowed={isDecimalAllowed}
+            language={language}
+            t={t}
+            addToCart={addToCart}
+            setCartOpen={setCartOpen}
+          />
+        )}
+      </React.Suspense>
 
       {/* Full Screen Order Success Overlay */}
       <AnimatePresence>

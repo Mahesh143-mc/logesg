@@ -204,7 +204,7 @@ export function Customers() {
         ${sale.items.map((item: any) => `
           <tr>
             <td class="col-name">${item.name}</td>
-            <td class="col-qty">${item.quantity}</td>
+            <td class="col-qty">${Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
             <td class="col-price">${(item.price * item.quantity).toFixed(2)}</td>
           </tr>
         `).join('')}
@@ -572,7 +572,7 @@ export function Customers() {
                           <div key={idx} className="flex justify-between text-sm">
                             <div>
                               <span className="font-semibold text-slate-900 dark:text-white">{item.name}</span>
-                              <span className="text-slate-500 ml-2">x{item.quantity}</span>
+                              <span className="text-slate-500 ml-2">x{Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                             </div>
                             <span className="font-medium text-slate-900 dark:text-white">₹{(item.price * item.quantity).toLocaleString()}</span>
                           </div>

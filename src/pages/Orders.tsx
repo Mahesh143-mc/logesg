@@ -321,7 +321,7 @@ export function Orders() {
                       <li key={i} className="p-4 flex justify-between items-center">
                         <div>
                           <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.name}</p>
-                          <p className="text-xs text-slate-500 mt-0.5">Qty: {item.quantity}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">Qty: {Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
                         </div>
                         <span className="text-sm font-bold text-slate-900 dark:text-white">₹{(item.price * item.quantity).toLocaleString()}</span>
                       </li>
