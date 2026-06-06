@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, Timestamp, doc, updateDoc, where, deleteDoc } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { collection, query, orderBy, onSnapshot, Timestamp, doc, updateDoc, where, deleteDoc, getDoc, getDocs, limit, increment, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { format } from 'date-fns';
 import { cn } from '../lib/utils';
@@ -25,6 +25,8 @@ export function Orders() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [deliveryPaymentFlow, setDeliveryPaymentFlow] = useState<{ isOpen: boolean; order: any }>({ isOpen: false, order: null });
+  const [paymentAmount, setPaymentAmount] = useState<string>('');
 
   useEffect(() => {
     // We fetch type 'online_order' specifically and sort client-side to avoid complex indexes
@@ -50,15 +52,95 @@ export function Orders() {
   }, []);
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    // If marking as delivered, intercept and show payment modal instead
+    if (newStatus === 'delivered') {
+      const orderToDeliver = orders.find(o => o.id === orderId) || selectedOrder;
+      if (orderToDeliver) {
+        setDeliveryPaymentFlow({ isOpen: true, order: orderToDeliver });
+        setPaymentAmount(orderToDeliver.total.toString());
+      }
+      return;
+    }
+
     try {
       const orderRef = doc(db, 'sales', orderId);
       await updateDoc(orderRef, { status: newStatus });
+      
       if (selectedOrder?.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status: newStatus });
+        setSelectedOrder(null); // Close the modal
       }
     } catch (error) {
       console.error('Error updating order status:', error);
       alert('Failed to update status');
+    }
+  };
+
+  const confirmDeliveryPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const order = deliveryPaymentFlow.order;
+    if (!order) return;
+    
+    const amountPaid = parseFloat(paymentAmount);
+    if (isNaN(amountPaid) || amountPaid < 0 || amountPaid > order.total) {
+      alert(`Please enter a valid amount between 0 and ${order.total}.`);
+      return;
+    }
+
+    try {
+      const finalPendingAmount = order.total - amountPaid;
+      
+      const orderRef = doc(db, 'sales', order.id);
+      const updateData: any = { 
+        status: 'delivered',
+        pendingAmount: finalPendingAmount,
+        amountPaid: amountPaid
+      };
+      
+      // Update/Create customer in 'customers' collection if pendingAmount > 0
+      if (finalPendingAmount > 0 && order.customerInfo) {
+        const customerInfo = order.customerInfo;
+        const customersRef = collection(db, 'customers');
+        let q = query(customersRef, where('phone', '==', customerInfo.phone));
+        if (!customerInfo.phone) {
+          q = query(customersRef, where('name', '==', customerInfo.name));
+        }
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const customerDoc = querySnapshot.docs[0];
+          await updateDoc(doc(db, 'customers', customerDoc.id), {
+            name: customerInfo.name, 
+            pendingPayment: increment(finalPendingAmount),
+            totalSpent: increment(order.total)
+          });
+        } else {
+           // Create new customer
+          const counterQuery = query(collection(db, 'customers'), orderBy('customerNumber', 'desc'), limit(1));
+          const snapshot = await getDocs(counterQuery);
+          const nextNumber = snapshot.empty ? 1 : (snapshot.docs[0].data().customerNumber || 0) + 1;
+
+          await addDoc(collection(db, 'customers'), {
+            name: customerInfo.name,
+            phone: customerInfo.phone,
+            place: customerInfo.place,
+            customerNumber: nextNumber,
+            pendingPayment: finalPendingAmount,
+            totalSpent: order.total,
+            loyaltyPoints: 0,
+            createdAt: serverTimestamp()
+          });
+        }
+      }
+      
+      await updateDoc(orderRef, updateData);
+      
+      setDeliveryPaymentFlow({ isOpen: false, order: null });
+      if (selectedOrder?.id === order.id) {
+        setSelectedOrder(null); // Close the detail modal
+      }
+    } catch (error) {
+      console.error('Error confirming delivery:', error);
+      alert('Failed to mark as delivered');
     }
   };
 
@@ -389,6 +471,72 @@ export function Orders() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delivery Payment Modal */}
+      {deliveryPaymentFlow.isOpen && deliveryPaymentFlow.order && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#18181b] rounded-2xl w-full max-w-md p-6 shadow-xl relative border border-slate-200 dark:border-slate-800">
+            <button 
+              onClick={() => setDeliveryPaymentFlow({ isOpen: false, order: null })}
+              className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Confirm Delivery & Payment</h2>
+            
+            <form onSubmit={confirmDeliveryPayment} className="space-y-4">
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-semibold text-slate-500">Order Total</span>
+                  <span className="text-lg font-bold text-slate-900 dark:text-white">₹{deliveryPaymentFlow.order.total.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Amount Paid by Customer</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">₹</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max={deliveryPaymentFlow.order.total}
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                    className="w-full pl-8 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              {parseFloat(paymentAmount) < deliveryPaymentFlow.order.total && (
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl">
+                  <p className="text-sm font-semibold text-red-600 dark:text-red-400 text-center">
+                    Pending Due: ₹{(deliveryPaymentFlow.order.total - (parseFloat(paymentAmount) || 0)).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-red-500 text-center mt-1">This will be added to customer's pending payments.</p>
+                </div>
+              )}
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryPaymentFlow({ isOpen: false, order: null })}
+                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
+                >
+                  Confirm Delivery
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

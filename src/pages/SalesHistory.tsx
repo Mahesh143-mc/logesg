@@ -35,11 +35,19 @@ export function SalesHistory() {
   useEffect(() => {
     const q = query(collection(db, 'sales'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setSales(snapshot.docs.map(doc => ({
+      const allSales = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         date: (doc.data().createdAt as Timestamp)?.toDate() || new Date()
-      })));
+      }));
+      // Filter out online orders UNLESS they are successfully completed (delivered)
+      setSales(allSales.filter((sale: any) => {
+        const isOnline = sale.type === 'online_order' || sale.paymentMethod === 'cash_on_delivery';
+        if (isOnline) {
+          return sale.status === 'delivered';
+        }
+        return true;
+      }));
     });
     return unsubscribe;
   }, []);
@@ -346,6 +354,7 @@ export function SalesHistory() {
             <option value="cash">Cash</option>
             <option value="card">Card</option>
             <option value="upi">UPI</option>
+            <option value="cash_on_delivery">Online Order</option>
           </select>
         </div>
 
