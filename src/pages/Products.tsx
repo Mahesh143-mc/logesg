@@ -1029,7 +1029,7 @@ export function Products() {
                   />
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Category</label>
                     <select
@@ -1042,6 +1042,17 @@ export function Products() {
                         <option key={cat.id} value={cat.name}>{cat.name}</option>
                       ))}
                     </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Buying Price</label>
+                    <input
+                      required
+                      type="number"
+                      step="0.01"
+                      value={formData.costPrice || ''}
+                      onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+                    />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Selling Price</label>

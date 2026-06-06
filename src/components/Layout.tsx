@@ -23,6 +23,7 @@ import { PendingAmount } from '../pages/PendingAmount';
 import { DailyUpdate } from '../pages/DailyUpdate';
 import { Reviews } from '../pages/Reviews';
 import { SiteImages } from '../pages/SiteImages';
+import { SalesSummary } from '../pages/SalesSummary';
 // Management Layout
 
 export function Layout() {
@@ -41,7 +42,7 @@ export function Layout() {
         'dashboard', 'billing', 'products', 'inventory', 'customers',
         'expenses', 'sales-history', 'orders', 'order-history',
         'reports', 'notes', 'settings', 'pending-amount', 'daily-update',
-        'reviews', 'site-images'
+        'reviews', 'site-images', 'sales-summary'
       ];
 
       const targetPage = (pageId && validAdminPages.includes(pageId)) ? pageId : 'dashboard';
@@ -80,6 +81,7 @@ export function Layout() {
       case 'daily-update': return <DailyUpdate />;
       case 'reviews': return <Reviews />;
       case 'site-images': return <SiteImages />;
+      case 'sales-summary': return <SalesSummary />;
       default: return <Dashboard />;
     }
   };
@@ -123,7 +125,7 @@ export function Layout() {
       </AnimatePresence>
 
       <Sidebar />
-      <main className="flex-1 overflow-y-auto pb-32 md:pb-0 relative custom-scrollbar">
+      <main data-lenis-prevent className="flex-1 overflow-y-auto pb-32 md:pb-0 relative custom-scrollbar">
         <div className="md:hidden sticky top-0 z-30 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-zinc-800 px-4 h-16 flex items-center justify-between transition-colors">
           <button
             onClick={() => setIsSidebarOpen(true)}

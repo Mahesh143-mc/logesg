@@ -20,7 +20,8 @@ import {
   CreditCard,
   ExternalLink,
   MessageSquare,
-  Image
+  Image,
+  PieChart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -39,6 +40,7 @@ const navItems = [
   { icon: IndianRupee, label: 'EXPENSES', id: 'expenses' },
   { icon: Users, label: 'CUSTOMERS', id: 'customers' },
   { icon: ClipboardList, label: 'INVENTORY', id: 'inventory' },
+  { icon: PieChart, label: 'SALES SUMMARY', id: 'sales-summary' },
   { icon: Notebook, label: 'BRIEF', id: 'notes' },
   { icon: BarChart3, label: 'INTELLIGENCE', id: 'reports' },
   { icon: Zap, label: 'DAILY UPDATE', id: 'daily-update' },
@@ -192,7 +194,7 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
         </div>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <nav data-lenis-prevent className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
         {navItems.map((item) => (
           <button
             key={item.id}
