@@ -131,7 +131,15 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       }
       
       const snap = await getDocs(q);
-      const newProducts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      const newProducts = snap.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          name: data.name || 'Unnamed Product',
+          category: data.category || 'Uncategorized'
+        } as Product;
+      });
       
       setProducts(prev => {
         const updated = loadMore ? [...prev, ...newProducts] : newProducts;
@@ -197,7 +205,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const filteredAndSortedProducts = useMemo(() => {
     let result = products.filter(product => {
       const isVisible = product.visible !== false;
-      const matchesSearch = product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      const matchesSearch = (product.name || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
         (product.category || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
       const matchesCategory = selectedCategory === t('all') || product.category === selectedCategory;
@@ -215,8 +223,8 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       // Organic filter (Mock: categories containing 'organic' or marked as premium)
       let matchesOrganic = true;
       if (organicFilter) {
-        matchesOrganic = product.name.toLowerCase().includes('organic') ||
-          product.category.toLowerCase().includes('organic') ||
+        matchesOrganic = (product.name || '').toLowerCase().includes('organic') ||
+          (product.category || '').toLowerCase().includes('organic') ||
           product.price > 80; // mock organic
       }
 
@@ -229,7 +237,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
     } else if (sortBy === 'price-desc') {
       result.sort((a, b) => b.price - a.price);
     } else if (sortBy === 'name-asc') {
-      result.sort((a, b) => a.name.localeCompare(b.name));
+      result.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     }
 
     return result;
@@ -533,7 +541,6 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 gridCols === 3 && "grid-cols-2 md:grid-cols-3",
               gridCols === 4 && "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
             )}>
-              <AnimatePresence mode="popLayout">
                 {filteredAndSortedProducts.map((product, idx) => {
                   const hasDiscount = false;
                   const retailPrice = product.price;
@@ -555,7 +562,6 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                     />
                   );
                 })}
-              </AnimatePresence>
             </div>
             )}
             
@@ -600,31 +606,25 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       </main>
 
       {/* Floating Cart Trigger Button */}
-      <m.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+      <button
         onClick={() => setCartOpen(true)}
-        className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[100] bg-emerald-600 text-white py-3 px-5 rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center space-x-3 border-2 border-white group"
+        className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[100] bg-emerald-600 text-white py-3 px-5 rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center space-x-3 border-2 border-white group transition-transform hover:scale-105 active:scale-95"
       >
         <div className="relative">
           <ShoppingBag className="w-5 h-5" />
           {cart.length > 0 && (
-            <m.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
+            <span
               className="absolute -top-3 -right-3 w-5 h-5 bg-emerald-500 rounded-full text-[9px] font-black flex items-center justify-center shadow-md border border-zinc-950"
             >
               {cart.reduce((acc, item) => acc + item.quantity, 0)}
-            </m.span>
+            </span>
           )}
         </div>
         <div className="text-left pl-3 border-l border-white/25">
           <div className="text-[8px] font-black text-emerald-100 uppercase tracking-widest">{t('total')}</div>
           <div className="font-black text-sm">₹{cartTotal.toLocaleString()}</div>
         </div>
-      </m.button>
+      </button>
 
       {/* Cart Sidebar Drawer */}
       <AnimatePresence>
