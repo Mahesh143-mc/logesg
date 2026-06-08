@@ -32,8 +32,10 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   retailPrice
 }) => {
   return (
-    <div className="group bg-transparent transition-all duration-500 flex flex-col relative w-full text-center">
-      {/* Card Image Area */}
+    <div
+      className="group bg-transparent transition-all duration-500 flex flex-col relative w-full text-center"
+    >
+      {/* Card Image Area with Zoom Effects */}
       <div
         className="aspect-square relative cursor-pointer overflow-hidden bg-slate-50 rounded-2xl p-4 md:p-6 flex items-center justify-center border border-slate-100 group-hover:border-emerald-500/20 transition-all duration-300 w-full"
         onClick={() => setSelectedProduct(product)}
