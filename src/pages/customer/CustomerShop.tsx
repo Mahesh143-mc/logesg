@@ -44,6 +44,12 @@ export interface Product {
   imageUrl?: string;
   description?: string;
   visible?: boolean;
+  hasCustomWeights?: boolean;
+  weightPrices?: {
+    quarter?: number;
+    half?: number;
+    full?: number;
+  };
 }
 
 export function CustomerShop({ initialCategory }: { initialCategory?: string }) {
@@ -794,7 +800,14 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                                   <X className="w-4 h-4" />
                                 </button>
                               </div>
-                              <p className="font-bold text-slate-500 text-[13px] md:text-[14px] mt-1">₹{item.price.toLocaleString()}</p>
+                              <div className="flex items-center space-x-2 mt-1">
+                                <p className="font-bold text-slate-500 text-[13px] md:text-[14px]">₹{item.price.toLocaleString()}</p>
+                                {item.hasCustomWeights && item.variantWeight && (
+                                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-black tracking-wider uppercase border border-emerald-100/50">
+                                    {language === 'ta' ? 'மொத்த எடை:' : 'Total Wt:'} {(item.quantity * item.variantWeight) >= 1 ? `${item.quantity * item.variantWeight}kg` : `${item.quantity * item.variantWeight * 1000}g`}
+                                  </span>
+                                )}
+                              </div>
                             </div>
 
                             {/* Counter and item total price */}
@@ -890,6 +903,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
             t={t}
             addToCart={addToCart}
             setCartOpen={setCartOpen}
+            setSelectedProduct={setSelectedProduct}
           />
         )}
       </React.Suspense>

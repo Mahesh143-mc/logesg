@@ -6,6 +6,10 @@ interface AppState {
   profile: any | null;
   setUser: (user: User | null) => void;
   setProfile: (profile: any | null) => void;
+  workerPermissions: string[] | null;
+  setWorkerPermissions: (permissions: string[] | null) => void;
+  isWorker: boolean;
+  setIsWorker: (isWorker: boolean) => void;
   currentAdminPage: string;
   setCurrentAdminPage: (page: string) => void;
   currentCustomerPage: string;
@@ -33,6 +37,10 @@ export const useStore = create<AppState>((set) => ({
   profile: null,
   setUser: (user) => set({ user }),
   setProfile: (profile) => set({ profile }),
+  workerPermissions: null,
+  setWorkerPermissions: (permissions) => set({ workerPermissions: permissions }),
+  isWorker: false,
+  setIsWorker: (isWorker) => set({ isWorker }),
   currentAdminPage: 'dashboard',
   setCurrentAdminPage: (page) => set({ currentAdminPage: page }),
   currentCustomerPage: 'home',

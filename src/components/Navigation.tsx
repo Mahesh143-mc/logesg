@@ -30,7 +30,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 
-const navItems = [
+export const navItems = [
   { icon: LayoutDashboard, label: 'DASHBOARD', id: 'dashboard' },
   { icon: Package, label: 'PRODUCTS', id: 'products' },
   { icon: ShoppingCart, label: 'BILLING', id: 'billing' },
@@ -41,6 +41,7 @@ const navItems = [
   { icon: Users, label: 'CUSTOMERS', id: 'customers' },
   { icon: ClipboardList, label: 'INVENTORY', id: 'inventory' },
   { icon: PieChart, label: 'SALES SUMMARY', id: 'sales-summary' },
+  { icon: ShieldCheck, label: 'STAFF MANAGEMENT', id: 'workers' },
   { icon: Notebook, label: 'BRIEF', id: 'notes' },
   { icon: BarChart3, label: 'INTELLIGENCE', id: 'reports' },
   { icon: Zap, label: 'DAILY UPDATE', id: 'daily-update' },
@@ -50,7 +51,7 @@ const navItems = [
 ];
 
 export function BottomNav() {
-    const { currentAdminPage, setCurrentAdminPage, urlMode } = useStore();
+  const { currentAdminPage, setCurrentAdminPage, urlMode, isWorker, workerPermissions } = useStore();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingAmountCount, setPendingAmountCount] = useState(0);
@@ -87,7 +88,15 @@ export function BottomNav() {
     };
   }, []);
 
-  const mobileNavItems = [...navItems.slice(0, 4), navItems.find(item => item.id === 'pending-amount')].filter(Boolean);
+  const filteredNavItems = isWorker && workerPermissions 
+    ? navItems.filter(item => workerPermissions.includes(item.id))
+    : navItems.filter(item => item.id !== 'workers'); // Admin doesn't need to see 'workers' if we want it hidden? No, admin SHOULD see 'workers'
+  // Actually, wait: Admin sees 'workers'. Worker does NOT see 'workers'.
+  const finalNavItems = isWorker && workerPermissions 
+    ? navItems.filter(item => workerPermissions.includes(item.id) && item.id !== 'workers')
+    : navItems;
+
+  const mobileNavItems = [...finalNavItems.slice(0, 4), finalNavItems.find(item => item.id === 'pending-amount')].filter(Boolean);
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
@@ -128,7 +137,7 @@ export function BottomNav() {
 }
 
 export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?: boolean }) {
-  const { currentAdminPage, setCurrentAdminPage, theme, setTheme, urlMode, setPortal } = useStore();
+  const { currentAdminPage, setCurrentAdminPage, theme, setTheme, urlMode, setPortal, isWorker, workerPermissions } = useStore();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingAmountCount, setPendingAmountCount] = useState(0);
@@ -195,7 +204,10 @@ export function Sidebar({ onClose, isMobile }: { onClose?: () => void; isMobile?
       </div>
 
       <nav data-lenis-prevent className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
-        {navItems.map((item) => (
+        {(isWorker && workerPermissions 
+          ? navItems.filter(item => workerPermissions.includes(item.id) && item.id !== 'workers')
+          : navItems
+        ).map((item) => (
           <button
             key={item.id}
             onClick={() => handleNavClick(item.id)}

@@ -5,13 +5,20 @@ import { auth, db } from '../firebase';
 import { useStore } from '../store/useStore';
 
 export function useAuth() {
-  const { setUser, setProfile } = useStore();
+  const { setUser, setProfile, setWorkerPermissions, setIsWorker } = useStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user) {
+        let profileLoaded = false;
+        let workerLoaded = false;
+
+        const checkDone = () => {
+          if (profileLoaded && workerLoaded) setLoading(false);
+        };
+
         const profileRef = doc(db, 'users', user.uid);
         const unsubscribeProfile = onSnapshot(profileRef, (doc) => {
           if (doc.exists()) {
@@ -19,20 +26,53 @@ export function useAuth() {
           } else {
             setProfile(null);
           }
-          setLoading(false);
+          if (!profileLoaded) {
+            profileLoaded = true;
+            checkDone();
+          }
         }, (error) => {
           console.error("Profile fetch error:", error);
-          setLoading(false);
+          if (!profileLoaded) {
+            profileLoaded = true;
+            checkDone();
+          }
         });
-        return () => unsubscribeProfile();
+
+        const workerRef = doc(db, 'workers', user.uid);
+        const unsubscribeWorker = onSnapshot(workerRef, (doc) => {
+          if (doc.exists()) {
+            setIsWorker(true);
+            setWorkerPermissions(doc.data().permissions || []);
+          } else {
+            setIsWorker(false);
+            setWorkerPermissions(null);
+          }
+          if (!workerLoaded) {
+            workerLoaded = true;
+            checkDone();
+          }
+        }, (error) => {
+          console.error("Worker fetch error:", error);
+          if (!workerLoaded) {
+            workerLoaded = true;
+            checkDone();
+          }
+        });
+
+        return () => {
+          unsubscribeProfile();
+          unsubscribeWorker();
+        };
       } else {
         setProfile(null);
+        setIsWorker(false);
+        setWorkerPermissions(null);
         setLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, [setUser, setProfile]);
+  }, [setUser, setProfile, setIsWorker, setWorkerPermissions]);
 
   return { loading };
 }

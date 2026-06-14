@@ -24,16 +24,29 @@ import { DailyUpdate } from '../pages/DailyUpdate';
 import { Reviews } from '../pages/Reviews';
 import { SiteImages } from '../pages/SiteImages';
 import { SalesSummary } from '../pages/SalesSummary';
+import { Workers } from '../pages/Workers';
 // Management Layout
 
 export function Layout() {
-  const { user, currentAdminPage, setCurrentAdminPage, urlMode } = useStore();
+  const { user, currentAdminPage, setCurrentAdminPage, urlMode, isWorker, workerPermissions } = useStore();
   const { loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { pageId } = useParams();
 
   const location = useLocation();
+
+  // Handle worker permissions redirection
+  useEffect(() => {
+    if (isWorker && workerPermissions && workerPermissions.length > 0) {
+      if (!workerPermissions.includes(currentAdminPage)) {
+        setCurrentAdminPage(workerPermissions[0]);
+        if (urlMode === 'static') {
+          navigate(`/logesh-vivasayi/admin/${workerPermissions[0]}`, { replace: true });
+        }
+      }
+    }
+  }, [isWorker, workerPermissions, currentAdminPage, setCurrentAdminPage, urlMode, navigate]);
 
   // Sync state from URL if mode is static
   useEffect(() => {
@@ -42,18 +55,25 @@ export function Layout() {
         'dashboard', 'billing', 'products', 'inventory', 'customers',
         'expenses', 'sales-history', 'orders', 'order-history',
         'reports', 'notes', 'settings', 'pending-amount', 'daily-update',
-        'reviews', 'site-images', 'sales-summary'
+        'reviews', 'site-images', 'sales-summary', 'workers'
       ];
 
-      const targetPage = (pageId && validAdminPages.includes(pageId)) ? pageId : 'dashboard';
+      let targetPage = (pageId && validAdminPages.includes(pageId)) ? pageId : 'dashboard';
+
+      if (isWorker && workerPermissions && workerPermissions.length > 0) {
+         if (!workerPermissions.includes(targetPage)) {
+           targetPage = workerPermissions[0];
+         }
+      }
 
       if (targetPage !== currentAdminPage) {
         setCurrentAdminPage(targetPage);
       }
 
-      // If at base admin path, redirect to dashboard
+      // If at base admin path, redirect to dashboard or first allowed page
       if (location.pathname === '/logesh-vivasayi/admin') {
-        navigate('/logesh-vivasayi/admin/dashboard', { replace: true });
+        const defaultPage = (isWorker && workerPermissions && workerPermissions.length > 0) ? workerPermissions[0] : 'dashboard';
+        navigate(`/logesh-vivasayi/admin/${defaultPage}`, { replace: true });
       }
     } else {
       // Standard mode: Ensure URL is at base root path
@@ -61,7 +81,7 @@ export function Layout() {
         navigate('/', { replace: true });
       }
     }
-  }, [pageId, urlMode, setCurrentAdminPage, currentAdminPage, location.pathname, navigate]);
+  }, [pageId, urlMode, setCurrentAdminPage, currentAdminPage, location.pathname, navigate, isWorker, workerPermissions]);
 
   const renderPage = () => {
     switch (currentAdminPage) {
@@ -82,6 +102,7 @@ export function Layout() {
       case 'reviews': return <Reviews />;
       case 'site-images': return <SiteImages />;
       case 'sales-summary': return <SalesSummary />;
+      case 'workers': return <Workers />;
       default: return <Dashboard />;
     }
   };

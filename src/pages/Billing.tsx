@@ -38,6 +38,7 @@ export function Billing() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [lastSale, setLastSale] = useState<any>(null);
+  const [selectedVariantProduct, setSelectedVariantProduct] = useState<any>(null);
   
   // Customer Info
   const [customerInfo, setCustomerInfo] = useState({
@@ -102,7 +103,12 @@ export function Billing() {
     try {
       const productDoc = await getDoc(doc(db, 'products', productId));
       if (productDoc.exists()) {
-        addToCart({ id: productDoc.id, ...productDoc.data() });
+        const p = { id: productDoc.id, ...productDoc.data() } as any;
+        if (p.hasCustomWeights) {
+          setSelectedVariantProduct(p);
+        } else {
+          addToCart(p);
+        }
         setIsScannerOpen(false);
       } else {
         toast.error('Product not found');
@@ -487,7 +493,11 @@ export function Billing() {
                     key={p.id}
                     disabled={p.stock <= 0}
                     onClick={() => {
-                      addToCart(p);
+                      if (p.hasCustomWeights) {
+                        setSelectedVariantProduct(p);
+                      } else {
+                        addToCart(p);
+                      }
                       setSearchTerm('');
                       setSearchResults([]);
                     }}
@@ -554,7 +564,14 @@ export function Billing() {
                   {cart.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="px-6 py-4">
-                        <span className="font-semibold text-slate-900 dark:text-white">{item.name}</span>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-slate-900 dark:text-white">{item.name}</span>
+                          {item.hasCustomWeights && item.variantWeight && (
+                            <span className="mt-1 inline-block px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-[10px] font-black tracking-wider uppercase border border-indigo-100/50 dark:border-indigo-500/20 self-start">
+                              Total Wt: {(item.quantity * item.variantWeight) >= 1 ? `${item.quantity * item.variantWeight}kg` : `${item.quantity * item.variantWeight * 1000}g`}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <span className="text-slate-600 dark:text-slate-400 font-medium">₹{item.price.toLocaleString()}</span>
@@ -839,13 +856,18 @@ export function Billing() {
                         type="button"
                         disabled={p.stock <= 0}
                         onClick={() => {
-                          setManualProduct({
-                            id: p.id,
-                            name: p.name,
-                            price: p.price,
-                            quantity: 1,
-                            unit: p.unit || ''
-                          });
+                          if (p.hasCustomWeights) {
+                            setIsManualAddOpen(false);
+                            setSelectedVariantProduct(p);
+                          } else {
+                            setManualProduct({
+                              id: p.id,
+                              name: p.name,
+                              price: p.price,
+                              quantity: 1,
+                              unit: p.unit || ''
+                            });
+                          }
                         }}
                         className={cn(
                           "flex w-full items-center justify-between p-3 text-left transition-colors rounded-lg",
@@ -973,6 +995,49 @@ export function Billing() {
           </div>
         </div>
       )}
+      {/* Custom Weight Variant Modal */}
+      {selectedVariantProduct && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6 border border-slate-200 dark:border-slate-800">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Select Variant</h3>
+                <p className="text-sm text-slate-500 font-semibold">{selectedVariantProduct.name}</p>
+              </div>
+              <button onClick={() => setSelectedVariantProduct(null)} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {[
+                { key: 'quarter', label: '1/4 kg (250g)', weight: 0.25, price: selectedVariantProduct.weightPrices?.quarter || 0 },
+                { key: 'half', label: '1/2 kg (500g)', weight: 0.5, price: selectedVariantProduct.weightPrices?.half || 0 },
+                { key: 'full', label: '1 kg', weight: 1, price: selectedVariantProduct.weightPrices?.full || 0 }
+              ].map((v) => (
+                <button
+                  key={v.key}
+                  onClick={() => {
+                    addToCart({
+                      ...selectedVariantProduct,
+                      id: `${selectedVariantProduct.id}-${v.key}`,
+                      name: `${selectedVariantProduct.name} (${v.label})`,
+                      price: v.price,
+                      quantity: 1,
+                      variantWeight: v.weight
+                    });
+                    setSelectedVariantProduct(null);
+                  }}
+                  className="w-full p-4 rounded-xl flex items-center justify-between text-sm font-bold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors group"
+                >
+                  <span className="group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{v.label}</span>
+                  <span className="group-hover:text-indigo-600 dark:group-hover:text-indigo-400">₹{v.price.toLocaleString()}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -31,6 +31,7 @@ export function Products() {
   const [newUnitName, setNewUnitName] = useState('');
   const [newUnitAllowDecimal, setNewUnitAllowDecimal] = useState(false);
   const [editingUnit, setEditingUnit] = useState<any>(null);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
   
   // Image Optimization States
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -48,7 +49,9 @@ export function Products() {
     imageUrl: '',
     publicId: '',
     unit: '',
-    visible: true
+    visible: true,
+    hasCustomWeights: false,
+    weightPrices: { quarter: 0, half: 0, full: 0 }
   });
 
   useEffect(() => {
@@ -87,15 +90,33 @@ export function Products() {
     e.preventDefault();
     if (!newCategoryName.trim()) return;
     try {
-      await addDoc(collection(db, 'categories'), {
-        name: newCategoryName.trim(),
-        createdAt: serverTimestamp()
-      });
+      if (editingCategory) {
+        await updateDoc(doc(db, 'categories', editingCategory.id), {
+          name: newCategoryName.trim(),
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        await addDoc(collection(db, 'categories'), {
+          name: newCategoryName.trim(),
+          createdAt: serverTimestamp()
+        });
+      }
       setNewCategoryName('');
-      setIsCategoryModalOpen(false);
+      setEditingCategory(null);
     } catch (err) {
       console.error(err);
-      alert('Failed to add category');
+      alert('Failed to save category');
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      try {
+        await deleteDoc(doc(db, 'categories', id));
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete category');
+      }
     }
   };
 
@@ -413,7 +434,9 @@ export function Products() {
                 imageUrl: '', 
                 publicId: '',
                 unit: units.length > 0 ? units[0].name : '',
-                visible: true
+                visible: true,
+                hasCustomWeights: false,
+                weightPrices: { quarter: 0, half: 0, full: 0 }
               });
               setImageFile(null);
               setImagePreview(null);
@@ -494,7 +517,9 @@ export function Products() {
                       imageUrl: product.imageUrl || '',
                       publicId: product.publicId || '',
                       unit: product.unit || (units.length > 0 ? units[0].name : ''),
-                      visible: product.visible !== false
+                      visible: product.visible !== false,
+                      hasCustomWeights: product.hasCustomWeights || false,
+                      weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 }
                     });
                     setImagePreview(product.imageUrl || null);
                     setUploadStatus('');
@@ -569,7 +594,9 @@ export function Products() {
                         imageUrl: product.imageUrl || '',
                         publicId: product.publicId || '',
                         unit: product.unit || (units.length > 0 ? units[0].name : ''),
-                        visible: product.visible !== false
+                        visible: product.visible !== false,
+                        hasCustomWeights: product.hasCustomWeights || false,
+                        weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 }
                       });
                       setImagePreview(product.imageUrl || null);
                       setUploadStatus('');
@@ -729,10 +756,10 @@ export function Products() {
           <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl animate-in zoom-in-95 duration-200">
             <div className="mb-6 flex items-start justify-between">
               <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Add Category</h2>
-                <p className="text-sm text-slate-500 mt-1">Create a new product category</p>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{editingCategory ? "Edit Category" : "Add Category"}</h2>
+                <p className="text-sm text-slate-500 mt-1">{editingCategory ? "Update the selected category" : "Create a new product category"}</p>
               </div>
-              <button onClick={() => setIsCategoryModalOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors">
+              <button onClick={() => { setIsCategoryModalOpen(false); setEditingCategory(null); setNewCategoryName(''); }} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -749,12 +776,23 @@ export function Products() {
                   className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full h-11 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors outline-none focus:ring-2 focus:ring-indigo-500/50"
-              >
-                Save Category
-              </button>
+              <div className="flex space-x-2">
+                {editingCategory && (
+                  <button
+                    type="button"
+                    onClick={() => { setEditingCategory(null); setNewCategoryName(''); }}
+                    className="flex-1 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="flex-1 h-11 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors outline-none focus:ring-2 focus:ring-indigo-500/50"
+                >
+                  {editingCategory ? "Update Category" : "Save Category"}
+                </button>
+              </div>
             </form>
             
             <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
@@ -763,11 +801,15 @@ export function Products() {
                 {categories.length === 0 ? (
                   <p className="py-4 text-sm text-slate-500 text-center">No categories found</p>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2.5">
                     {categories.map(cat => (
-                      <span key={cat.id} className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 capitalize">
-                        {cat.name}
-                      </span>
+                      <div key={cat.id} className="flex items-center space-x-2 pl-3.5 pr-2 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 capitalize">{cat.name}</span>
+                        <div className="flex items-center ml-2 space-x-1 border-l border-slate-300 dark:border-slate-600 pl-2">
+                          <button type="button" onClick={() => { setEditingCategory(cat); setNewCategoryName(cat.name); }} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors rounded-lg"><Edit2 className="w-3.5 h-3.5" /></button>
+                          <button type="button" onClick={() => handleDeleteCategory(cat.id)} className="p-1.5 text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -787,8 +829,8 @@ export function Products() {
               <div className="w-full md:w-72 bg-slate-50 dark:bg-slate-800/20 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 flex flex-col min-h-[200px] md:min-h-0">
                 <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between md:block">
                   <div>
-                    <h3 className="text-xs md:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Existing Units</h3>
-                    <p className="text-[10px] md:text-[10px] text-slate-500 mt-1 font-medium">{units.length} defined</p>
+                    <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-white uppercase tracking-widest">Existing Units</h3>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">{units.length} defined</p>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 custom-scrollbar">
@@ -804,11 +846,11 @@ export function Products() {
                     >
                       <div className="flex flex-col">
                         <span className={cn(
-                          "text-xs md:text-xs font-bold capitalize",
+                          "text-sm font-bold capitalize",
                           editingUnit?.id === u.id ? "text-white" : "text-slate-900 dark:text-white"
                         )}>{u.name}</span>
                         <span className={cn(
-                          "text-[9px] md:text-[8px] font-black uppercase tracking-tighter mt-0.5",
+                          "text-[10px] font-black uppercase tracking-wider mt-0.5",
                           editingUnit?.id === u.id ? "text-indigo-100" : "text-slate-500"
                         )}>
                           {u.allowDecimal ? 'Decimal' : 'Integer'}
@@ -842,8 +884,8 @@ export function Products() {
                   ))}
                   {units.length === 0 && (
                     <div className="py-8 md:py-12 text-center">
-                      <Scale className="w-6 h-6 md:w-8 md:h-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
-                      <p className="text-[10px] md:text-[10px] text-slate-500 font-medium italic">No units yet</p>
+                      <Scale className="w-8 h-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
+                      <p className="text-xs text-slate-500 font-medium italic">No units yet</p>
                     </div>
                   )}
                 </div>
@@ -887,11 +929,13 @@ export function Products() {
                     </div>
 
                     <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100/50 dark:border-indigo-500/10">
-                      <label className="flex items-center space-x-4 cursor-pointer group">
+                      <div 
+                        onClick={() => setNewUnitAllowDecimal(!newUnitAllowDecimal)}
+                        className="flex items-center space-x-4 cursor-pointer group"
+                      >
                         <div 
-                          onClick={() => setNewUnitAllowDecimal(!newUnitAllowDecimal)}
                           className={cn(
-                            "w-12 h-6 rounded-full transition-all duration-500 relative",
+                            "w-12 h-6 rounded-full transition-all duration-500 relative flex-shrink-0",
                             newUnitAllowDecimal ? "bg-indigo-600 shadow-lg shadow-indigo-600/20" : "bg-slate-300 dark:bg-slate-700"
                           )}
                         >
@@ -901,10 +945,10 @@ export function Products() {
                           )} />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-xs md:text-xs font-bold text-slate-900 dark:text-white">Allow Decimal Quantity</span>
+                          <span className="text-xs md:text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">Allow Decimal Quantity</span>
                           <span className="text-[10px] md:text-[10px] text-slate-500 mt-0.5">Supports fractional weights like 1.5kg, 0.75kg</span>
                         </div>
-                      </label>
+                      </div>
                     </div>
                   </div>
 
@@ -1057,14 +1101,84 @@ export function Products() {
                   <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Selling Price</label>
                     <input
-                      required
+                      required={!formData.hasCustomWeights}
+                      disabled={formData.hasCustomWeights}
                       type="number"
                       step="0.01"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+                      className={cn(
+                        "w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white",
+                        formData.hasCustomWeights ? "opacity-50 cursor-not-allowed bg-slate-100" : ""
+                      )}
                     />
+                    {!formData.hasCustomWeights && (
+                      <p className="text-[10px] text-slate-500 leading-tight">
+                        *If unit allows decimals (e.g. kg), enter price for 1 FULL unit.
+                      </p>
+                    )}
                   </div>
+                </div>
+
+                {/* Custom Weights Section */}
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">Enable Custom Weight Prices</span>
+                      <span className="text-xs text-slate-500">Set distinct prices for 1/4kg, 1/2kg, and 1kg</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, hasCustomWeights: !formData.hasCustomWeights })}
+                      className={cn(
+                        "w-12 h-6 rounded-full transition-all duration-300 relative",
+                        formData.hasCustomWeights ? "bg-indigo-600 shadow-lg shadow-indigo-600/20" : "bg-slate-300 dark:bg-slate-700"
+                      )}
+                    >
+                      <div className={cn(
+                        "absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300",
+                        formData.hasCustomWeights ? "left-7" : "left-1"
+                      )} />
+                    </button>
+                  </div>
+                  
+                  {formData.hasCustomWeights && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1/4 kg Price (250g)</label>
+                        <input
+                          required={formData.hasCustomWeights}
+                          type="number"
+                          step="0.01"
+                          value={formData.weightPrices.quarter || ''}
+                          onChange={(e) => setFormData({ ...formData, weightPrices: { ...formData.weightPrices, quarter: parseFloat(e.target.value) || 0 }})}
+                          className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1/2 kg Price (500g)</label>
+                        <input
+                          required={formData.hasCustomWeights}
+                          type="number"
+                          step="0.01"
+                          value={formData.weightPrices.half || ''}
+                          onChange={(e) => setFormData({ ...formData, weightPrices: { ...formData.weightPrices, half: parseFloat(e.target.value) || 0 }})}
+                          className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1 kg Price</label>
+                        <input
+                          required={formData.hasCustomWeights}
+                          type="number"
+                          step="0.01"
+                          value={formData.weightPrices.full || ''}
+                          onChange={(e) => setFormData({ ...formData, weightPrices: { ...formData.weightPrices, full: parseFloat(e.target.value) || 0 }, price: parseFloat(e.target.value) || formData.price })}
+                          className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

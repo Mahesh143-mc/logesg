@@ -11,6 +11,7 @@ interface QuickViewModalProps {
   t: (key: string) => string;
   addToCart: (product: any) => void;
   setCartOpen: (open: boolean) => void;
+  setSelectedProduct?: (product: Product | null) => void;
 }
 
 export function QuickViewModal({
@@ -19,7 +20,8 @@ export function QuickViewModal({
   language,
   t,
   addToCart,
-  setCartOpen
+  setCartOpen,
+  setSelectedProduct
 }: QuickViewModalProps) {
   return (
     <AnimatePresence>
@@ -57,10 +59,12 @@ export function QuickViewModal({
                   <h3 className="text-xl font-black text-slate-900 tracking-tight">{quickViewProduct.name}</h3>
                 </div>
 
-                <div className="flex items-baseline space-x-1.5">
-                  <span className="text-2xl font-black text-emerald-600">₹{quickViewProduct.price.toLocaleString()}</span>
-                  <span className="text-xs font-bold text-slate-400">/ {quickViewProduct.unit || '1kg'}</span>
-                </div>
+                {!quickViewProduct.hasCustomWeights && (
+                  <div className="flex items-baseline space-x-1.5">
+                    <span className="text-2xl font-black text-emerald-600">₹{quickViewProduct.price.toLocaleString()}</span>
+                    <span className="text-xs font-bold text-slate-400">/ {quickViewProduct.unit || '1kg'}</span>
+                  </div>
+                )}
 
                 <p className="text-slate-500 text-xs font-semibold leading-relaxed">
                   {quickViewProduct.description || t('quality_desc')}
@@ -80,17 +84,30 @@ export function QuickViewModal({
                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{language === 'ta' ? 'இருப்பு நிலை' : 'Status'}</span>
                 <span className="text-xs font-black text-emerald-700">{quickViewProduct.stock > 0 ? t('in_stock') : t('out_of_stock')}</span>
               </div>
-              <button
-                onClick={() => {
-                  addToCart({ ...quickViewProduct, quantity: 1 });
-                  setQuickViewProduct(null);
-                  setCartOpen(true);
-                }}
-                className="px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-black uppercase text-xs tracking-widest hover:bg-emerald-700 transition-all flex items-center space-x-2"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>{t('add_to_cart')}</span>
-              </button>
+              {quickViewProduct.hasCustomWeights ? (
+                <button
+                  onClick={() => {
+                    setQuickViewProduct(null);
+                    setSelectedProduct?.(quickViewProduct);
+                  }}
+                  className="px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-black uppercase text-xs tracking-widest hover:bg-emerald-700 transition-all flex items-center space-x-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>{language === 'ta' ? 'தேர்வு செய்' : 'Select Option'}</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    addToCart({ ...quickViewProduct, quantity: 1 });
+                    setQuickViewProduct(null);
+                    setCartOpen(true);
+                  }}
+                  className="px-8 py-3.5 bg-emerald-600 text-white rounded-xl font-black uppercase text-xs tracking-widest hover:bg-emerald-700 transition-all flex items-center space-x-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>{t('add_to_cart')}</span>
+                </button>
+              )}
             </div>
 
           </m.div>

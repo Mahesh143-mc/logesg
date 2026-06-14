@@ -110,12 +110,21 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
         </div>
 
         {/* Add to Cart Button */}
-        <button
-          onClick={() => addToCart({ ...product, quantity: 1 })}
-          className="w-full mt-4 py-3 rounded-lg font-black flex items-center justify-center space-x-1.5 text-xs uppercase tracking-widest transition-colors bg-emerald-800 text-white hover:bg-emerald-900"
-        >
-          <span>{t('add_to_cart')}</span>
-        </button>
+        {product.hasCustomWeights ? (
+          <button
+            onClick={() => setSelectedProduct(product)}
+            className="w-full mt-4 py-3 rounded-lg font-black flex items-center justify-center space-x-1.5 text-xs uppercase tracking-widest transition-colors bg-emerald-600 text-white hover:bg-emerald-700"
+          >
+            <span>{language === 'ta' ? 'தேர்வு செய்' : 'Select Option'}</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => addToCart({ ...product, quantity: 1 })}
+            className="w-full mt-4 py-3 rounded-lg font-black flex items-center justify-center space-x-1.5 text-xs uppercase tracking-widest transition-colors bg-emerald-800 text-white hover:bg-emerald-900"
+          >
+            <span>{t('add_to_cart')}</span>
+          </button>
+        )}
       </div>
     </div>
   );
