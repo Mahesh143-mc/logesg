@@ -65,6 +65,7 @@ export function ProductDetailsModal({
                 transition={{ delay: 0.15 }}
                 src={getOptimizedUrl(selectedProduct.imageUrl)}
                 loading="lazy"
+                decoding="async"
                 className="w-full h-full object-contain mix-blend-multiply drop-shadow-lg"
                 referrerPolicy="no-referrer"
               />
@@ -163,17 +164,16 @@ export function ProductDetailsModal({
                 <m.button
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  disabled={selectedProduct.stock <= 0}
                   onClick={() => {
                     addToCart({ ...selectedProduct, quantity: selectedWeight });
                     setSelectedProduct(null);
                     setSelectedWeight(1);
                     setCartOpen(true);
                   }}
-                  className="w-full py-4 bg-emerald-600 text-white rounded-xl font-black flex items-center justify-center space-x-3 shadow-xl shadow-emerald-600/25 hover:bg-emerald-700 transition-all disabled:opacity-50 uppercase tracking-widest text-xs"
+                  className="w-full py-4 bg-emerald-600 text-white rounded-xl font-black flex items-center justify-center space-x-3 shadow-xl shadow-emerald-600/25 hover:bg-emerald-700 transition-all uppercase tracking-widest text-xs"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span>{selectedProduct.stock > 0 ? t('add_to_cart') : t('out_of_stock')}</span>
+                  <span>{t('add_to_cart')}</span>
                 </m.button>
               </div>
             </div>

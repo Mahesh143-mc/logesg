@@ -47,7 +47,7 @@ export function QuickViewModal({
 
             <div className="flex flex-col sm:flex-row gap-6">
               <div className="w-full sm:w-1/2 h-52 bg-slate-50 rounded-2xl flex items-center justify-center p-4 border border-slate-100">
-                <img loading="lazy" src={getOptimizedUrl(quickViewProduct.imageUrl)} className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
+                <img loading="lazy" decoding="async" src={getOptimizedUrl(quickViewProduct.imageUrl)} className="w-full h-full object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
               </div>
               <div className="flex-1 space-y-4">
                 <div>
@@ -81,7 +81,6 @@ export function QuickViewModal({
                 <span className="text-xs font-black text-emerald-700">{quickViewProduct.stock > 0 ? t('in_stock') : t('out_of_stock')}</span>
               </div>
               <button
-                disabled={quickViewProduct.stock <= 0}
                 onClick={() => {
                   addToCart({ ...quickViewProduct, quantity: 1 });
                   setQuickViewProduct(null);

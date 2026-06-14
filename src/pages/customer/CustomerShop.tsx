@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { collection, query, orderBy, getDocs, limit, startAfter, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, limit, startAfter, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useStore } from '../../store/useStore';
 import { m, AnimatePresence } from 'motion/react';
 import {
   Search,
   ShoppingBag,
-  Leaf,
   ChevronRight,
   X,
   Minus,
@@ -17,23 +16,12 @@ import {
   MapPin,
   User,
   Phone,
-  Heart,
-  Eye,
   ChevronDown,
-  Sparkles,
-  ArrowUp,
   SlidersHorizontal,
   LayoutGrid,
   Grid2X2,
   Grid3X3,
-  Star,
-  Check,
-  TrendingUp,
-  ShieldCheck,
-  Truck,
-  Gift,
-  Tag,
-  FileText
+  Check
 } from 'lucide-react';
 import { cn, getOptimizedUrl } from '../../lib/utils';
 import { useTranslation } from '../../utils/translations';
@@ -98,28 +86,9 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
     place: ''
   });
 
-  const [siteImages, setSiteImages] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    const fetchSiteImages = async () => {
-      try {
-        const docRef = doc(db, 'siteSettings', 'frontendImages');
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setSiteImages(docSnap.data());
-        }
-      } catch (error) {
-        console.error("Error fetching site images:", error);
-      }
-    };
-    fetchSiteImages();
-  }, []);
 
-  // Accordion Sidebar Collapses
-  const [collapseCat, setCollapseCat] = useState(true);
-  const [collapsePrice, setCollapsePrice] = useState(true);
-  const [collapseStock, setCollapseStock] = useState(true);
-  const [collapseType, setCollapseType] = useState(true);
+
 
   // Fetch Products
   const loadProducts = async (loadMore = false) => {
@@ -356,10 +325,10 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/30 pt-[84px] md:pt-[104px] pb-32 relative overflow-x-hidden overflow-y-auto font-sans antialiased">
+    <div className="min-h-screen bg-slate-50/30 pt-[84px] md:pt-[104px] pb-32 relative font-sans antialiased">
 
       {/* Background Decorative Ambient Orbs */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
+      <div className="absolute inset-0 -z-10 pointer-events-none hidden md:block">
         <m.div
           animate={{
             scale: [1, 1.15, 1],
@@ -377,6 +346,9 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
           className="absolute bottom-1/3 left-0 w-[700px] h-[700px] bg-lime-100/25 rounded-full blur-[160px]"
         />
       </div>
+
+      {/* Add a cheap, static CSS background for mobile instead */}
+      <div className="absolute inset-0 -z-10 pointer-events-none md:hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-100/20 to-transparent" />
 
 
 
@@ -804,6 +776,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                             <img
                               src={getOptimizedUrl(item.imageUrl)}
                               loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-108"
                               referrerPolicy="no-referrer"
                             />

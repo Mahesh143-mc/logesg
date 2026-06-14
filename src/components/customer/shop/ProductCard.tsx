@@ -65,6 +65,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           src={getOptimizedUrl(product.imageUrl, 400) || `https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop`}
           alt={product.name}
           loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
@@ -110,16 +111,10 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
         {/* Add to Cart Button */}
         <button
-          disabled={product.stock <= 0}
           onClick={() => addToCart({ ...product, quantity: 1 })}
-          className={cn(
-            "w-full mt-4 py-3 rounded-lg font-black flex items-center justify-center space-x-1.5 text-xs uppercase tracking-widest transition-colors",
-            product.stock <= 0
-              ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-              : "bg-emerald-800 text-white hover:bg-emerald-900"
-          )}
+          className="w-full mt-4 py-3 rounded-lg font-black flex items-center justify-center space-x-1.5 text-xs uppercase tracking-widest transition-colors bg-emerald-800 text-white hover:bg-emerald-900"
         >
-          <span>{product.stock <= 0 ? t('out_of_stock') : t('add_to_cart')}</span>
+          <span>{t('add_to_cart')}</span>
         </button>
       </div>
     </div>
