@@ -184,8 +184,8 @@ export function SalesHistory() {
       line-height: 1.4;
       color: #000;
     }
-    @page { size: auto; margin: 10mm; }
-    body { margin: 0; padding: 0; }
+    @page { margin: 0; }
+    body { margin: 0; padding: 10px; }
     .receipt { width: 100%; margin: 0 auto; background: white; page-break-inside: avoid; break-inside: avoid; }
     
     .header { text-align: center; margin-bottom: 0.8em; }
@@ -216,12 +216,11 @@ export function SalesHistory() {
   <div class="receipt">
     <div class="header">
       <div class="store-name">லோகேஷ் விவசாயி</div>
-      <div>Receipt</div>
     </div>
     <div class="info">
-      <div class="flex-row">
-        <div>${format(sale.date, 'dd/MM/yyyy')}</div>
-        <div>${format(sale.date, 'HH:mm')}</div>
+      <div style="font-size: 0.75em; display: flex; justify-content: space-between; margin-bottom: 0.4em;">
+        <span>${format(sale.date, 'dd/MM/yyyy')} ${format(sale.date, 'HH:mm')}</span>
+        <span>#${sale.id.slice(0, 8).toUpperCase()}</span>
       </div>
       ${(sale.customerInfo?.name || sale.customerInfo?.phone) ? `
         <div class="flex-row">
@@ -229,10 +228,6 @@ export function SalesHistory() {
           <div>${sale.customerInfo.phone || ''}</div>
         </div>
       ` : ''}
-      <div class="flex-row">
-        <div>Bill: #${sale.id.slice(0, 8).toUpperCase()}</div>
-        <div>Pay: ${sale.paymentMethod.toUpperCase()}</div>
-      </div>
     </div>
     <div class="divider"></div>
     <table>
@@ -262,8 +257,17 @@ export function SalesHistory() {
       ` : ''}
     </table>
     <div class="divider"></div>
+    ${sale.paymentMethod.toLowerCase() === 'upi' ? `
+    <div style="text-align: center; margin-top: 1em;">
+      <img src="https://res.cloudinary.com/dyaufjpai/image/upload/scanner_lzxxan.jpg" alt="UPI Scanner" style="width: 250px; height: 250px;" />
+    </div>
+    ` : ''}
     <div class="footer">
       <div>நன்றி மீண்டும் வருக!</div>
+      <div style="display: flex; align-items: center; justify-content: center; margin-top: 0.4em; font-size: 0.9em;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        logesh_vivasayi_721
+      </div>
     </div>
   </div>
 </body>

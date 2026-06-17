@@ -1093,8 +1093,8 @@ export function Products() {
                       required
                       type="number"
                       step="0.01"
-                      value={formData.costPrice || ''}
-                      onChange={(e) => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                      value={formData.costPrice === 0 ? 0 : formData.costPrice || ''}
+                      onChange={(e) => setFormData({ ...formData, costPrice: e.target.value === '' ? 0 : parseFloat(e.target.value) })}
                       className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
                     />
                   </div>

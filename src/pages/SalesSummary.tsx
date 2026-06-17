@@ -123,7 +123,7 @@ export function SalesSummary() {
     });
 
     return {
-      products: Object.values(productSummary).sort((a, b) => b.salesAmount - a.salesAmount),
+      products: Object.values(productSummary).sort((a, b) => a.investment - b.investment),
       totals: { totalSoldQty, totalSalesAmount, totalInvestment, totalProfit }
     };
   }, [filteredSales, products]);
