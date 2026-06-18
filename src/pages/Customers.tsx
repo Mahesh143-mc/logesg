@@ -9,11 +9,14 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { downloadInvoicePdf } from '../utils/pdfInvoice';
+import { Pagination } from '../components/Pagination';
 
 export function Customers() {
   const { theme } = useStore();
   const [customers, setCustomers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(12);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -303,6 +306,14 @@ export function Customers() {
     c.phone.includes(searchTerm)
   );
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredCustomers.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedCustomers = filteredCustomers.slice(startIndex, startIndex + rowsPerPage);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500 pb-12">
       
@@ -331,6 +342,16 @@ export function Customers() {
             <Download className="h-4 w-4" />
             <span className="hidden lg:inline">Export Excel</span>
           </button>
+          <select
+            value={rowsPerPage}
+            onChange={(e) => setRowsPerPage(Number(e.target.value))}
+            className="h-11 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm font-medium text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm appearance-none"
+          >
+            <option value={12}>Show 12</option>
+            <option value={24}>Show 24</option>
+            <option value={60}>Show 60</option>
+            <option value={10000}>Show All</option>
+          </select>
           <button
             onClick={() => {
               setEditingCustomer(null);
@@ -347,7 +368,7 @@ export function Customers() {
 
       {/* Customer Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCustomers.map((customer) => (
+        {pagedCustomers.map((customer) => (
           <div key={customer.id} className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200/60 dark:border-zinc-800 shadow-sm overflow-hidden flex flex-col hover:border-indigo-500/30 dark:hover:border-indigo-500/30 transition-colors">
             
             {/* Customer Card Header */}
@@ -462,6 +483,14 @@ export function Customers() {
           </div>
         )}
       </div>
+
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalEntries={filteredCustomers.length}
+        entriesPerPage={rowsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (

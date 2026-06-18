@@ -22,6 +22,7 @@ import { cn } from '../lib/utils';
 import { downloadInvoicePdf } from '../utils/pdfInvoice';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import toast from 'react-hot-toast';
+import { Pagination } from '../components/Pagination';
 
 export function SalesHistory() {
   const [sales, setSales] = useState<any[]>([]);
@@ -29,8 +30,13 @@ export function SalesHistory() {
   const [filterPayment, setFilterPayment] = useState('all');
   const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
   const [selectedSale, setSelectedSale] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; sale: any }>({ isOpen: false, sale: null });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterPayment, dateFilter, rowsPerPage]);
 
   useEffect(() => {
     const q = query(collection(db, 'sales'), orderBy('createdAt', 'desc'));
@@ -70,7 +76,9 @@ export function SalesHistory() {
     return searchMatch && paymentMatch && dateMatch;
   });
 
-  const pagedSales = filteredSales.slice(0, rowsPerPage);
+  const totalPages = Math.ceil(filteredSales.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedSales = filteredSales.slice(startIndex, startIndex + rowsPerPage);
 
   const printTransactionList = () => {
     const doc = new (window as any).jsPDF();
@@ -129,7 +137,16 @@ export function SalesHistory() {
       if (sale.items && Array.isArray(sale.items)) {
         for (const item of sale.items) {
           if (item.id && !item.id.startsWith('manual-')) {
-            await updateDoc(doc(db, 'products', item.id), {
+            let baseId = item.id;
+            if (item.id.includes('-')) {
+              const parts = item.id.split('-');
+              const lastPart = parts[parts.length - 1];
+              if (['quarter', 'half', 'full'].includes(lastPart)) {
+                parts.pop();
+                baseId = parts.join('-');
+              }
+            }
+            await updateDoc(doc(db, 'products', baseId), {
               stock: increment(item.quantity)
             });
           }
@@ -373,6 +390,7 @@ export function SalesHistory() {
             <option value={20}>20 rows</option>
             <option value={50}>50 rows</option>
             <option value={100}>100 rows</option>
+            <option value={10000}>Show All</option>
           </select>
         </div>
       </div>
@@ -489,6 +507,13 @@ export function SalesHistory() {
             </tbody>
           </table>
         </div>
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalEntries={filteredSales.length}
+          entriesPerPage={rowsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Sale Detail Modal */}

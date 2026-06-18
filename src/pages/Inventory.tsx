@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { AlertTriangle, Package, X, Save, Search, Warehouse, IndianRupee, Edit2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { cn } from '../lib/utils';
+import { Pagination } from '../components/Pagination';
 
 export function Inventory() {
   const { theme } = useStore();
@@ -14,6 +15,7 @@ export function Inventory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
@@ -44,7 +46,14 @@ export function Inventory() {
     return searchMatch && categoryMatch && statusMatch;
   });
 
-  const pagedProducts = filteredProducts.slice(0, rowsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCategory, filterStatus, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredProducts.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedProducts = filteredProducts.slice(startIndex, startIndex + rowsPerPage);
+
   const categories = Array.from(new Set(products.map(p => p.category)));
   const totalStockValue = products.reduce((acc, p) => acc + (p.stock * p.price), 0);
   const lowStockCount = products.filter(p => p.stock <= (p.lowStockThreshold || 5)).length;
@@ -144,6 +153,7 @@ export function Inventory() {
                     <option value={10}>10 Rows</option>
                     <option value={20}>20 Rows</option>
                     <option value={50}>50 Rows</option>
+                    <option value={10000}>Show All</option>
                   </select>
                 </div>
               </div>
@@ -218,6 +228,13 @@ export function Inventory() {
               </table>
             </div>
           </div>
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalEntries={filteredProducts.length}
+            entriesPerPage={rowsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
 

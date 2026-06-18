@@ -7,6 +7,7 @@ import { cn, getOptimizedUrl } from '../lib/utils';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { compressImage, uploadToCloudinary } from '../lib/imageUpload';
+import { Pagination } from '../components/Pagination';
 
 export function Products() {
   const [products, setProducts] = useState<any[]>([]);
@@ -14,6 +15,7 @@ export function Products() {
   const [units, setUnits] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(18);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -51,7 +53,9 @@ export function Products() {
     unit: '',
     visible: true,
     hasCustomWeights: false,
-    weightPrices: { quarter: 0, half: 0, full: 0 }
+    weightPrices: { quarter: 0, half: 0, full: 0 },
+    weightCostPrices: { quarter: 0, half: 0, full: 0 },
+    isOwnProduct: false
   });
 
   useEffect(() => {
@@ -253,7 +257,7 @@ export function Products() {
       }
       
       setEditingProduct(null);
-      setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '', visible: true });
+      setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '', visible: true, hasCustomWeights: false, weightPrices: { quarter: 0, half: 0, full: 0 }, weightCostPrices: { quarter: 0, half: 0, full: 0 }, isOwnProduct: false });
       setImageFile(null);
       setImagePreview(null);
       setUploadStatus('');
@@ -364,7 +368,13 @@ export function Products() {
     return searchMatch && categoryMatch;
   });
 
-  const pagedProducts = filteredProducts.slice(0, rowsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCategory, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredProducts.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedProducts = filteredProducts.slice(startIndex, startIndex + rowsPerPage);
 
   const exportToExcel = async () => {
     const XLSX = await import('xlsx');
@@ -436,7 +446,9 @@ export function Products() {
                 unit: units.length > 0 ? units[0].name : '',
                 visible: true,
                 hasCustomWeights: false,
-                weightPrices: { quarter: 0, half: 0, full: 0 }
+                weightPrices: { quarter: 0, half: 0, full: 0 },
+                weightCostPrices: { quarter: 0, half: 0, full: 0 },
+                isOwnProduct: false
               });
               setImageFile(null);
               setImagePreview(null);
@@ -484,6 +496,7 @@ export function Products() {
             <option value={18}>Show 18</option>
             <option value={24}>Show 24</option>
             <option value={60}>Show 60</option>
+            <option value={10000}>Show All</option>
           </select>
         </div>
       </div>
@@ -519,7 +532,9 @@ export function Products() {
                       unit: product.unit || (units.length > 0 ? units[0].name : ''),
                       visible: product.visible !== false,
                       hasCustomWeights: product.hasCustomWeights || false,
-                      weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 }
+                      weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 },
+                      weightCostPrices: product.weightCostPrices || { quarter: 0, half: 0, full: 0 },
+                      isOwnProduct: product.isOwnProduct || false
                     });
                     setImagePreview(product.imageUrl || null);
                     setUploadStatus('');
@@ -596,7 +611,9 @@ export function Products() {
                         unit: product.unit || (units.length > 0 ? units[0].name : ''),
                         visible: product.visible !== false,
                         hasCustomWeights: product.hasCustomWeights || false,
-                        weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 }
+                        weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 },
+                        weightCostPrices: product.weightCostPrices || { quarter: 0, half: 0, full: 0 },
+                        isOwnProduct: product.isOwnProduct || false
                       });
                       setImagePreview(product.imageUrl || null);
                       setUploadStatus('');
@@ -629,6 +646,14 @@ export function Products() {
           </div>
         )}
       </div>
+
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalEntries={filteredProducts.length}
+        entriesPerPage={rowsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Product Details Modal */}
       {viewingProduct && (
@@ -1143,10 +1168,14 @@ export function Products() {
                   </div>
                   
                   {formData.hasCustomWeights && (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1/4 kg Price (250g)</label>
-                        <input
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <div className="col-span-1 sm:col-span-3">
+                          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Selling Price</label>
+                        </div>
+                        <div className="space-y-1.5 mt-[-10px]">
+                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1/4 kg Price (250g)</label>
+                          <input
                           required={formData.hasCustomWeights}
                           type="number"
                           step="0.01"
@@ -1177,7 +1206,47 @@ export function Products() {
                           className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
                         />
                       </div>
-                    </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <div className="col-span-1 sm:col-span-3">
+                          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Buying Price (Investment)</label>
+                        </div>
+                        <div className="space-y-1.5 mt-[-10px]">
+                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1/4 kg Cost (250g)</label>
+                          <input
+                            required={formData.hasCustomWeights}
+                            type="number"
+                            step="0.01"
+                            value={formData.weightCostPrices.quarter || ''}
+                            onChange={(e) => setFormData({ ...formData, weightCostPrices: { ...formData.weightCostPrices, quarter: parseFloat(e.target.value) || 0 }})}
+                            className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                        <div className="space-y-1.5 mt-[-10px]">
+                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1/2 kg Cost (500g)</label>
+                          <input
+                            required={formData.hasCustomWeights}
+                            type="number"
+                            step="0.01"
+                            value={formData.weightCostPrices.half || ''}
+                            onChange={(e) => setFormData({ ...formData, weightCostPrices: { ...formData.weightCostPrices, half: parseFloat(e.target.value) || 0 }})}
+                            className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                        <div className="space-y-1.5 mt-[-10px]">
+                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">1 kg Cost</label>
+                          <input
+                            required={formData.hasCustomWeights}
+                            type="number"
+                            step="0.01"
+                            value={formData.weightCostPrices.full || ''}
+                            onChange={(e) => setFormData({ ...formData, weightCostPrices: { ...formData.weightCostPrices, full: parseFloat(e.target.value) || 0 }})}
+                            className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#18181b] text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
                 
@@ -1218,7 +1287,7 @@ export function Products() {
 
                 {/* Visibility Toggle */}
                 <div className="pt-2">
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20">
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-900 dark:text-white">Visible to Customers</span>
                       <span className="text-xs text-slate-500">Hide or show this product in the shop</span>
@@ -1234,6 +1303,26 @@ export function Products() {
                       <div className={cn(
                         "absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300",
                         formData.visible ? "left-7" : "left-1"
+                      )} />
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 mt-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">Own Product</span>
+                      <span className="text-xs text-slate-500">Mark this if it is a product you produce (not bought from outside)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, isOwnProduct: !formData.isOwnProduct })}
+                      className={cn(
+                        "w-12 h-6 rounded-full transition-all duration-300 relative",
+                        formData.isOwnProduct ? "bg-indigo-600 shadow-lg shadow-indigo-500/20" : "bg-slate-300 dark:bg-slate-700"
+                      )}
+                    >
+                      <div className={cn(
+                        "absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300",
+                        formData.isOwnProduct ? "left-7" : "left-1"
                       )} />
                     </button>
                   </div>

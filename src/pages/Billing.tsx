@@ -197,7 +197,16 @@ export function Billing() {
       // Update stock for existing products
       for (const item of cart) {
         if (item.id && !item.id.startsWith('manual-')) {
-          await updateDoc(doc(db, 'products', item.id), {
+          let baseId = item.id;
+          if (item.id.includes('-')) {
+            const parts = item.id.split('-');
+            const lastPart = parts[parts.length - 1];
+            if (['quarter', 'half', 'full'].includes(lastPart)) {
+              parts.pop();
+              baseId = parts.join('-');
+            }
+          }
+          await updateDoc(doc(db, 'products', baseId), {
             stock: increment(-item.quantity)
           });
         }
@@ -1036,6 +1045,7 @@ export function Billing() {
                       id: `${selectedVariantProduct.id}-${v.key}`,
                       name: `${selectedVariantProduct.name} (${v.label})`,
                       price: v.price,
+                      costPrice: selectedVariantProduct.weightCostPrices?.[v.key] || 0,
                       quantity: 1,
                       variantWeight: v.weight
                     });

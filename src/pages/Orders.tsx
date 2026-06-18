@@ -18,12 +18,14 @@ import {
   Trash2,
   X
 } from 'lucide-react';
+import { Pagination } from '../components/Pagination';
 
 export function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [deliveryPaymentFlow, setDeliveryPaymentFlow] = useState<{ isOpen: boolean; order: any }>({ isOpen: false, order: null });
   const [paymentAmount, setPaymentAmount] = useState<string>('');
@@ -155,7 +157,13 @@ export function Orders() {
     return searchMatch && statusMatch;
   });
 
-  const pagedOrders = filteredOrders.slice(0, rowsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedOrders = filteredOrders.slice(startIndex, startIndex + rowsPerPage);
 
   const deleteOrder = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
@@ -227,6 +235,7 @@ export function Orders() {
             <option value={10}>10 rows</option>
             <option value={20}>20 rows</option>
             <option value={50}>50 rows</option>
+            <option value={10000}>Show All</option>
           </select>
         </div>
       </div>
@@ -336,6 +345,13 @@ export function Orders() {
             </tbody>
           </table>
         </div>
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalEntries={filteredOrders.length}
+          entriesPerPage={rowsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Order Detail Modal */}

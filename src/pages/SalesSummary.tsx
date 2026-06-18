@@ -74,10 +74,9 @@ export function SalesSummary() {
 
   const summaryData = useMemo(() => {
     const productSummary: Record<string, { name: string; soldQty: number; salesAmount: number; investment: number; profit: number }> = {};
-    let totalSoldQty = 0;
-    let totalSalesAmount = 0;
-    let totalInvestment = 0;
-    let totalProfit = 0;
+    let totals = { totalSoldQty: 0, totalSalesAmount: 0, totalInvestment: 0, totalProfit: 0 };
+    let ownTotals = { totalSoldQty: 0, totalSalesAmount: 0, totalInvestment: 0, totalProfit: 0 };
+    let buyingTotals = { totalSoldQty: 0, totalSalesAmount: 0, totalInvestment: 0, totalProfit: 0 };
 
     filteredSales.forEach(sale => {
       if (sale.items && Array.isArray(sale.items)) {
@@ -85,11 +84,28 @@ export function SalesSummary() {
           const qty = item.quantity || 0;
           const price = item.price || 0;
           let costPrice = item.costPrice || 0;
+          let isOwnProduct = false;
           
+          let baseId = item.id;
+          let variantKey = '';
+          if (item.id && item.id.includes('-')) {
+            const parts = item.id.split('-');
+            variantKey = parts.pop() || '';
+            baseId = parts.join('-');
+          }
+
+          const productMatch = products.find(p => p.id === baseId || p.id === item.id);
+          if (productMatch) {
+            isOwnProduct = productMatch.isOwnProduct || false;
+          }
+
           if (!costPrice) {
-            const productMatch = products.find(p => p.id === item.id);
-            if (productMatch && productMatch.costPrice) {
-              costPrice = productMatch.costPrice;
+            if (productMatch) {
+              if (productMatch.hasCustomWeights && variantKey && productMatch.weightCostPrices) {
+                costPrice = productMatch.weightCostPrices[variantKey as keyof typeof productMatch.weightCostPrices] || 0;
+              } else if (productMatch.costPrice) {
+                costPrice = productMatch.costPrice;
+              }
             }
           }
 
@@ -105,7 +121,8 @@ export function SalesSummary() {
               soldQty: 0,
               salesAmount: 0,
               investment: 0,
-              profit: 0
+              profit: 0,
+              isOwnProduct: isOwnProduct
             };
           }
 
@@ -114,17 +131,33 @@ export function SalesSummary() {
           productSummary[key].investment += investment;
           productSummary[key].profit += profit;
 
-          totalSoldQty += qty;
-          totalSalesAmount += salesAmount;
-          totalInvestment += investment;
-          totalProfit += profit;
+          totals.totalSoldQty += qty;
+          totals.totalSalesAmount += salesAmount;
+          totals.totalInvestment += investment;
+          totals.totalProfit += profit;
+
+          if (isOwnProduct) {
+            ownTotals.totalSoldQty += qty;
+            ownTotals.totalSalesAmount += salesAmount;
+            ownTotals.totalInvestment += investment;
+            ownTotals.totalProfit += profit;
+          } else {
+            buyingTotals.totalSoldQty += qty;
+            buyingTotals.totalSalesAmount += salesAmount;
+            buyingTotals.totalInvestment += investment;
+            buyingTotals.totalProfit += profit;
+          }
         });
       }
     });
 
+    const allProducts = Object.values(productSummary);
     return {
-      products: Object.values(productSummary).sort((a, b) => a.investment - b.investment),
-      totals: { totalSoldQty, totalSalesAmount, totalInvestment, totalProfit }
+      ownProducts: allProducts.filter(p => p.isOwnProduct).sort((a, b) => a.investment - b.investment),
+      buyingProducts: allProducts.filter(p => !p.isOwnProduct).sort((a, b) => a.investment - b.investment),
+      totals,
+      ownTotals,
+      buyingTotals
     };
   }, [filteredSales, products]);
 
@@ -236,65 +269,135 @@ export function SalesSummary() {
         </div>
       </div>
 
-      {/* Data Table */}
-      <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200/60 dark:border-zinc-800 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Sold Qty</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Sales Amount</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Investment</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Profit</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-              {summaryData.products.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-16 text-center">
-                    <div className="flex flex-col items-center justify-center text-slate-400">
-                      <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                        <PackageSearch className="w-8 h-8 opacity-50" />
-                      </div>
-                      <p className="text-sm font-medium">No sales recorded for this period</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                summaryData.products.map((item, index) => (
-                  <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{item.name}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">{item.soldQty.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white">₹{item.salesAmount.toLocaleString('en-IN')}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-sm font-semibold text-amber-600 dark:text-amber-500">₹{item.investment.toLocaleString('en-IN')}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-500">₹{item.profit.toLocaleString('en-IN')}</span>
-                    </td>
+      <div className="space-y-8">
+        {/* Buying Products Table */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 px-1">Buying Products</h2>
+          <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200/60 dark:border-zinc-800 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Sold Qty</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Sales Amount</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Investment</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Profit</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-            {summaryData.products.length > 0 && (
-              <tfoot className="bg-slate-50 dark:bg-slate-900/50 border-t-2 border-slate-200 dark:border-slate-800">
-                <tr>
-                  <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">Total</td>
-                  <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">{summaryData.totals.totalSoldQty.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
-                  <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">₹{summaryData.totals.totalSalesAmount.toLocaleString('en-IN')}</td>
-                  <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">₹{summaryData.totals.totalInvestment.toLocaleString('en-IN')}</td>
-                  <td className="px-6 py-4 text-center text-sm font-bold text-emerald-600 dark:text-emerald-500">₹{summaryData.totals.totalProfit.toLocaleString('en-IN')}</td>
-                </tr>
-              </tfoot>
-            )}
-          </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {summaryData.buyingProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-16 text-center">
+                        <div className="flex flex-col items-center justify-center text-slate-400">
+                          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                            <PackageSearch className="w-8 h-8 opacity-50" />
+                          </div>
+                          <p className="text-sm font-medium">No sales recorded for buying products</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    summaryData.buyingProducts.map((item, index) => (
+                      <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-semibold text-slate-900 dark:text-white">{item.name}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">{item.soldQty.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-semibold text-slate-900 dark:text-white">₹{item.salesAmount.toLocaleString('en-IN')}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-semibold text-amber-600 dark:text-amber-500">₹{item.investment.toLocaleString('en-IN')}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-bold text-emerald-600 dark:text-emerald-500">₹{item.profit.toLocaleString('en-IN')}</span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+                {summaryData.buyingProducts.length > 0 && (
+                  <tfoot className="bg-slate-50 dark:bg-slate-900/50 border-t-2 border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">Total</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">{summaryData.buyingTotals.totalSoldQty.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">₹{summaryData.buyingTotals.totalSalesAmount.toLocaleString('en-IN')}</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">₹{summaryData.buyingTotals.totalInvestment.toLocaleString('en-IN')}</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-emerald-600 dark:text-emerald-500">₹{summaryData.buyingTotals.totalProfit.toLocaleString('en-IN')}</td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Own Products Table */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 px-1">Own Products</h2>
+          <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-200/60 dark:border-zinc-800 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Product</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Sold Qty</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Sales Amount</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Investment</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Profit</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {summaryData.ownProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-16 text-center">
+                        <div className="flex flex-col items-center justify-center text-slate-400">
+                          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                            <PackageSearch className="w-8 h-8 opacity-50" />
+                          </div>
+                          <p className="text-sm font-medium">No sales recorded for own products</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    summaryData.ownProducts.map((item, index) => (
+                      <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-semibold text-slate-900 dark:text-white">{item.name}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">{item.soldQty.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-semibold text-slate-900 dark:text-white">₹{item.salesAmount.toLocaleString('en-IN')}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-semibold text-amber-600 dark:text-amber-500">₹{item.investment.toLocaleString('en-IN')}</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="text-sm font-bold text-emerald-600 dark:text-emerald-500">₹{item.profit.toLocaleString('en-IN')}</span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+                {summaryData.ownProducts.length > 0 && (
+                  <tfoot className="bg-slate-50 dark:bg-slate-900/50 border-t-2 border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">Total</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">{summaryData.ownTotals.totalSoldQty.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">₹{summaryData.ownTotals.totalSalesAmount.toLocaleString('en-IN')}</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-slate-900 dark:text-white">₹{summaryData.ownTotals.totalInvestment.toLocaleString('en-IN')}</td>
+                      <td className="px-6 py-4 text-center text-sm font-bold text-emerald-600 dark:text-emerald-500">₹{summaryData.ownTotals.totalProfit.toLocaleString('en-IN')}</td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

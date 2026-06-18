@@ -5,6 +5,7 @@ import { Plus, Trash2, IndianRupee, Calendar, X, Search, ArrowDownRight, Tag } f
 import { cn } from '../lib/utils';
 import { useStore } from '../store/useStore';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+import { Pagination } from '../components/Pagination';
 
 export function Expenses() {
   const { theme } = useStore();
@@ -19,6 +20,7 @@ export function Expenses() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [formData, setFormData] = useState({
@@ -118,7 +120,13 @@ export function Expenses() {
     return searchMatch && categoryMatch && dateMatch;
   });
 
-  const pagedExpenses = filteredExpenses.slice(0, rowsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCategory, dateFilter, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredExpenses.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedExpenses = filteredExpenses.slice(startIndex, startIndex + rowsPerPage);
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
@@ -281,16 +289,13 @@ export function Expenses() {
                 </tbody>
               </table>
             </div>
-            {filteredExpenses.length > rowsPerPage && (
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 text-center">
-                 <button 
-                   onClick={() => setRowsPerPage(prev => prev + 10)}
-                   className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
-                 >
-                   Load More
-                 </button>
-              </div>
-            )}
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalEntries={filteredExpenses.length}
+              entriesPerPage={rowsPerPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </div>

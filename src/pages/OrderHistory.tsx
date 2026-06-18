@@ -14,14 +14,15 @@ import {
   Phone,
   Clock,
   Trash2,
-  CheckCircle2,
   XCircle
 } from 'lucide-react';
+import { Pagination } from '../components/Pagination';
 
 export function OrderHistory() {
   const [orders, setOrders] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
@@ -53,7 +54,13 @@ export function OrderHistory() {
       (order.customerInfo?.place || '').toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const pagedOrders = filteredOrders.slice(0, rowsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const pagedOrders = filteredOrders.slice(startIndex, startIndex + rowsPerPage);
 
   const deleteOrder = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this historical order?')) {
@@ -104,6 +111,7 @@ export function OrderHistory() {
             <option value={20}>View 20</option>
             <option value={50}>View 50</option>
             <option value={100}>View 100</option>
+            <option value={10000}>Show All</option>
           </select>
         </div>
       </header>
@@ -195,6 +203,13 @@ export function OrderHistory() {
               </tbody>
             </table>
           </div>
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalEntries={filteredOrders.length}
+            entriesPerPage={rowsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
 
