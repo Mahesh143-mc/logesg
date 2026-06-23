@@ -558,7 +558,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
               </div>
             ) : (
               <div className="space-y-12">
-                {Object.entries(groupedProducts).map(([category, catProducts]) => (
+                {Object.entries(groupedProducts).map(([category, catProducts]: [string, any]) => (
                   <div key={category} id={`category-${category.replace(/\s+/g, '-')}`} className="scroll-mt-32">
                     <div className="flex items-center mb-8 bg-emerald-50 px-6 py-4 rounded-2xl border border-emerald-100 shadow-sm relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
