@@ -326,6 +326,8 @@ const translations = {
 type Language = 'ta' | 'en';
 type TranslationKey = keyof typeof translations.ta;
 
+import { useCallback } from 'react';
+
 export const useTranslation = (lang: Language) => {
-  return (key: TranslationKey) => translations[lang][key] || key;
+  return useCallback((key: TranslationKey) => translations[lang][key] || key, [lang]);
 };
