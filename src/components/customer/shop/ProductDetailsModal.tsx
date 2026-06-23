@@ -48,7 +48,7 @@ export function ProductDetailsModal({
             className={cn(
               "relative w-full h-auto bg-white rounded-3xl overflow-hidden shadow-2xl flex z-10",
               selectedProduct.hasCustomWeights
-                ? "max-w-md flex-col"
+                ? "max-w-md max-h-[85vh] flex-col"
                 : "max-w-4xl md:h-[65vh] max-h-[85vh] flex-col md:flex-row"
             )}
           >

@@ -38,7 +38,7 @@ export function QuickViewModal({
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-            className="relative w-full max-w-xl bg-white rounded-3xl overflow-hidden shadow-2xl p-6 md:p-8 space-y-6 z-10"
+            className="relative w-full max-w-xl bg-white rounded-3xl overflow-y-auto shadow-2xl p-6 md:p-8 space-y-6 z-10 max-h-[85vh]"
           >
             <button
               onClick={() => setQuickViewProduct(null)}
