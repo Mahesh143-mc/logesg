@@ -84,7 +84,7 @@ export function ProductDetailsModal({
             )}
 
             <div className={cn(
-              "flex flex-col h-full overflow-hidden",
+              "flex flex-col flex-1 overflow-hidden",
               selectedProduct.hasCustomWeights ? "w-full" : "md:w-1/2"
             )}>
               <div className="flex-1 overflow-y-auto p-6 md:p-10">
