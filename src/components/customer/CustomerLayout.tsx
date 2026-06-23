@@ -113,16 +113,16 @@ export function CustomerLayout() {
       >
         <nav
           style={{
-            backgroundColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(6, 78, 59, 0.95)" : "rgba(16, 185, 129, 0.18)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(16, 185, 129, 0.35)" : "rgba(16, 185, 129, 0.18)"
+            backgroundColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(2, 44, 34, 0.98)" : "rgba(2, 44, 34, 0.85)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
+            borderColor: (scrolled || currentCustomerPage !== 'home') ? "rgba(16, 185, 129, 0.4)" : "rgba(16, 185, 129, 0.25)"
           }}
           className={cn(
             "w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] max-w-7xl rounded-full transition-all duration-500 ease-out border shadow-2xl flex items-center justify-between py-3 px-6 md:px-8",
             (scrolled || currentCustomerPage !== 'home')
-              ? "shadow-[0_12px_40px_-12px_rgba(16,185,129,0.25)]"
-              : "shadow-[0_8px_32px_rgba(16,185,129,0.06)]"
+              ? "shadow-[0_12px_40px_-12px_rgba(16,185,129,0.3)]"
+              : "shadow-[0_8px_32px_rgba(16,185,129,0.15)]"
           )}
         >
           {/* Left Side: Logo & Pulsing Online Indicator */}

@@ -8,6 +8,8 @@ import { HeroSection } from '../../components/customer/home/HeroSection';
 const WorkflowSection = React.lazy(() => import('../../components/customer/home/WorkflowSection').then(m => ({ default: m.WorkflowSection })));
 const ParallaxShowcase = React.lazy(() => import('../../components/customer/home/ParallaxShowcase').then(m => ({ default: m.ParallaxShowcase })));
 const FeaturedProducts = React.lazy(() => import('../../components/customer/home/FeaturedProducts').then(m => ({ default: m.FeaturedProducts })));
+const SpecialOfferSection = React.lazy(() => import('../../components/customer/home/SpecialOfferSection').then(m => ({ default: m.SpecialOfferSection })));
+const ThreeImageBannerSection = React.lazy(() => import('../../components/customer/home/ThreeImageBannerSection').then(m => ({ default: m.ThreeImageBannerSection })));
 const HeritageSection = React.lazy(() => import('../../components/customer/home/HeritageSection').then(m => ({ default: m.HeritageSection })));
 import { FirebaseProduct } from '../../components/customer/home/ProductCard';
 
@@ -328,6 +330,16 @@ export function CustomerHome() {
         handleGetStartedScroll={handleGetStartedScroll} 
         siteImages={siteImages}
       />
+
+      {/* Special Offer Section - Moved to Top */}
+      <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+        <SpecialOfferSection language={language} siteImages={siteImages} />
+      </React.Suspense>
+
+      {/* 3-Image Banner Section */}
+      <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+        <ThreeImageBannerSection language={language} />
+      </React.Suspense>
 
       {/* Below The Fold Sections with Lazy Loading */}
       {/* Farm-to-Table Workflow Section */}

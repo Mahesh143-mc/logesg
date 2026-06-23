@@ -73,7 +73,7 @@ export function SalesSummary() {
   }, [sales, dateFilter, customDateRange]);
 
   const summaryData = useMemo(() => {
-    const productSummary: Record<string, { name: string; soldQty: number; salesAmount: number; investment: number; profit: number }> = {};
+    const productSummary: Record<string, { name: string; soldQty: number; salesAmount: number; investment: number; profit: number; isOwnProduct: boolean }> = {};
     let totals = { totalSoldQty: 0, totalSalesAmount: 0, totalInvestment: 0, totalProfit: 0 };
     let ownTotals = { totalSoldQty: 0, totalSalesAmount: 0, totalInvestment: 0, totalProfit: 0 };
     let buyingTotals = { totalSoldQty: 0, totalSalesAmount: 0, totalInvestment: 0, totalProfit: 0 };

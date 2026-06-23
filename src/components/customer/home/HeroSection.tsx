@@ -39,22 +39,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       
       {/* Background Image Slider (Fade + Scale Transition) */}
       <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence initial={false}>
           <m.div
             key={currentBg}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1.03 }}
-            exit={{ opacity: 0, scale: 1.0 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
+            initial={{ x: '-100%', opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0.5 }}
+            transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${getOptimizedUrl(bgImages[currentBg], 1600)})` }}
           />
         </AnimatePresence>
-        
-        {/* Multi-layered cinematic gradient overlays for pristine readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/85 via-emerald-950/45 to-emerald-950 z-10" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(2,44,34,0.65)_100%)] z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-transparent z-10" />
+        {/* Subtle overlay for text readability, keeping image highly visible but adding a slight shadow */}
+        <div className="absolute inset-0 bg-black/40 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/60 via-transparent to-transparent z-10" />
       </div>
 
 
@@ -81,7 +79,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl sm:text-8xl md:text-9xl font-black text-white tracking-tighter leading-none font-poppins relative"
+            className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tighter leading-none font-poppins relative"
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-slate-200">
               Logesh
@@ -93,15 +91,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </m.h1>
         </div>
 
-        {/* Subheading */}
-        <m.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="text-slate-300 font-extrabold text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] max-w-2xl mx-auto leading-relaxed block"
-        >
-          {copy.subheadingText}
-        </m.p>
+        {/* Subheading removed as requested */}
 
         {/* Glowing Action Buttons */}
         <m.div

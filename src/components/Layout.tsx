@@ -23,6 +23,7 @@ import { PendingAmount } from '../pages/PendingAmount';
 import { DailyUpdate } from '../pages/DailyUpdate';
 import { Reviews } from '../pages/Reviews';
 import { SiteImages } from '../pages/SiteImages';
+import { FeaturedBanners } from '../pages/FeaturedBanners';
 import { SalesSummary } from '../pages/SalesSummary';
 import { Workers } from '../pages/Workers';
 // Management Layout
@@ -55,7 +56,7 @@ export function Layout() {
         'dashboard', 'billing', 'products', 'inventory', 'customers',
         'expenses', 'sales-history', 'orders', 'order-history',
         'reports', 'notes', 'settings', 'pending-amount', 'daily-update',
-        'reviews', 'site-images', 'sales-summary', 'workers'
+        'reviews', 'site-images', 'featured-banners', 'sales-summary', 'workers'
       ];
 
       let targetPage = (pageId && validAdminPages.includes(pageId)) ? pageId : 'dashboard';
@@ -101,6 +102,7 @@ export function Layout() {
       case 'daily-update': return <DailyUpdate />;
       case 'reviews': return <Reviews />;
       case 'site-images': return <SiteImages />;
+      case 'featured-banners': return <FeaturedBanners />;
       case 'sales-summary': return <SalesSummary />;
       case 'workers': return <Workers />;
       default: return <Dashboard />;

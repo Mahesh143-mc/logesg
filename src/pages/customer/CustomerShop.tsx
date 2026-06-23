@@ -44,6 +44,7 @@ export interface Product {
   imageUrl?: string;
   description?: string;
   visible?: boolean;
+  isOffer?: boolean;
   hasCustomWeights?: boolean;
   weightPrices?: {
     quarter?: number;
@@ -100,9 +101,9 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
   const loadProducts = async (loadMore = false) => {
     if (loadMore) setIsLoadingMore(true);
     try {
-      let q = query(collection(db, 'products'), orderBy('name', 'asc'), limit(20));
+      let q = query(collection(db, 'products'), orderBy('category', 'asc'), limit(50));
       if (loadMore && lastDoc) {
-        q = query(collection(db, 'products'), orderBy('name', 'asc'), startAfter(lastDoc), limit(20));
+        q = query(collection(db, 'products'), orderBy('category', 'asc'), startAfter(lastDoc), limit(50));
       }
       
       const snap = await getDocs(q);
@@ -122,7 +123,7 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
         return updated;
       });
       setLastDoc(snap.docs[snap.docs.length - 1]);
-      setHasMore(snap.docs.length === 20);
+      setHasMore(snap.docs.length === 50);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -183,8 +184,6 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
       const matchesSearch = (product.name || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
         (product.category || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
-      const matchesCategory = selectedCategory === t('all') || product.category === selectedCategory;
-
       // Price filter
       let matchesPrice = true;
       if (priceRange === 'under50') matchesPrice = product.price < 50;
@@ -203,11 +202,19 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
           product.price > 80; // mock organic
       }
 
-      return isVisible && matchesSearch && matchesCategory && matchesPrice && matchesAvailability && matchesOrganic;
+      // Note: We are no longer filtering out products by category here.
+      // Category selection is now used to scroll to the specific category section.
+      return isVisible && matchesSearch && matchesPrice && matchesAvailability && matchesOrganic;
     });
 
     // Sorting
-    if (sortBy === 'price-asc') {
+    if (sortBy === 'featured') {
+      result.sort((a, b) => {
+        const catCompare = (a.category || '').localeCompare(b.category || '');
+        if (catCompare !== 0) return catCompare;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+    } else if (sortBy === 'price-asc') {
       result.sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-desc') {
       result.sort((a, b) => b.price - a.price);
@@ -217,6 +224,43 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
 
     return result;
   }, [products, debouncedSearchTerm, selectedCategory, priceRange, availability, organicFilter, sortBy, t]);
+
+  useEffect(() => {
+    if (selectedCategory === t('all')) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setTimeout(() => {
+        const el = document.getElementById(`category-${selectedCategory.replace(/\s+/g, '-')}`);
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY - 140; // Offset for headers
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [selectedCategory, t]);
+
+  // Group products by category for rendering
+  const groupedProducts = useMemo(() => {
+    const groups: { [key: string]: Product[] } = {};
+    
+    // Sort categories alphabetically or use the default order
+    const sortedProducts = [...filteredAndSortedProducts];
+    
+    // Virtual category for Special Offers
+    const specialOffers = sortedProducts.filter(p => p.isOffer);
+    if (specialOffers.length > 0) {
+      groups[language === 'ta' ? 'சிறப்பு சலுகைகள்' : 'Special Offers'] = specialOffers;
+    }
+
+    sortedProducts.forEach(p => {
+      if (p.isOffer) return; // Special offer products are shown at the top, not in normal categories
+      const cat = p.category || 'Uncategorized';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(p);
+    });
+    
+    return groups;
+  }, [filteredAndSortedProducts, language]);
 
   const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
@@ -513,34 +557,49 @@ export function CustomerShop({ initialCategory }: { initialCategory?: string }) 
                 </div>
               </div>
             ) : (
-              <div className={cn(
-                "grid gap-6 transition-all duration-500",
-                gridCols === 2 && "grid-cols-2",
-                gridCols === 3 && "grid-cols-2 md:grid-cols-3",
-              gridCols === 4 && "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
-            )}>
-                {filteredAndSortedProducts.map((product, idx) => {
-                  const hasDiscount = false;
-                  const retailPrice = product.price;
+              <div className="space-y-12">
+                {Object.entries(groupedProducts).map(([category, catProducts]) => (
+                  <div key={category} id={`category-${category.replace(/\s+/g, '-')}`} className="scroll-mt-32">
+                    <div className="flex items-center mb-8 bg-emerald-50 px-6 py-4 rounded-2xl border border-emerald-100 shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+                      <h2 className="text-xl md:text-2xl font-black text-emerald-900 tracking-tight">{category}</h2>
+                      <div className="h-px bg-emerald-200/80 flex-1 ml-6"></div>
+                    </div>
+                    <div className={cn(
+                      "grid gap-6 transition-all duration-500",
+                      (category === 'Special Offers' || category === 'சிறப்பு சலுகைகள்')
+                        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2" // Wide layout for offers
+                        : [
+                            gridCols === 2 && "grid-cols-2",
+                            gridCols === 3 && "grid-cols-2 md:grid-cols-3",
+                            gridCols === 4 && "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+                          ]
+                    )}>
+                      {catProducts.map((product, idx) => {
+                        const hasDiscount = false;
+                        const retailPrice = product.price;
 
-                  return (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      idx={idx}
-                      language={language}
-                      t={t}
-                      wishlist={wishlist}
-                      toggleWishlist={toggleWishlist}
-                      setSelectedProduct={setSelectedProduct}
-                      setQuickViewProduct={setQuickViewProduct}
-                      addToCart={addToCart}
-                      hasDiscount={hasDiscount}
-                      retailPrice={retailPrice}
-                    />
-                  );
-                })}
-            </div>
+                        return (
+                          <ProductCard
+                            key={product.id}
+                            product={product}
+                            idx={idx}
+                            language={language}
+                            t={t}
+                            wishlist={wishlist}
+                            toggleWishlist={toggleWishlist}
+                            setSelectedProduct={setSelectedProduct}
+                            setQuickViewProduct={setQuickViewProduct}
+                            addToCart={addToCart}
+                            hasDiscount={hasDiscount}
+                            retailPrice={retailPrice}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
             
             {/* Load More Button */}

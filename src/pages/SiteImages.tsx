@@ -8,29 +8,30 @@ import toast from 'react-hot-toast';
 
 const IMAGE_SLOTS = [
   // Home Page
-  { id: 'hero_1', label: 'Hero Slide 1', section: 'Home' },
-  { id: 'hero_2', label: 'Hero Slide 2', section: 'Home' },
-  { id: 'hero_3', label: 'Hero Slide 3', section: 'Home' },
-  { id: 'hero_4', label: 'Hero Slide 4', section: 'Home' },
-  { id: 'hero_5', label: 'Hero Slide 5', section: 'Home' },
-  { id: 'hero_6', label: 'Hero Slide 6', section: 'Home' },
-  { id: 'heritage_main', label: 'Heritage Main Image', section: 'Home' },
-  { id: 'heritage_small_1', label: 'Heritage Small Image 1', section: 'Home' },
-  { id: 'heritage_small_2', label: 'Heritage Small Image 2', section: 'Home' },
-  { id: 'parallax_bg', label: 'Parallax Background', section: 'Home' },
+  { id: 'hero_1', label: 'Hero Slide 1', section: 'Home', recommendedSize: '1920 x 1080px' },
+  { id: 'hero_2', label: 'Hero Slide 2', section: 'Home', recommendedSize: '1920 x 1080px' },
+  { id: 'hero_3', label: 'Hero Slide 3', section: 'Home', recommendedSize: '1920 x 1080px' },
+  { id: 'hero_4', label: 'Hero Slide 4', section: 'Home', recommendedSize: '1920 x 1080px' },
+  { id: 'hero_5', label: 'Hero Slide 5', section: 'Home', recommendedSize: '1920 x 1080px' },
+  { id: 'hero_6', label: 'Hero Slide 6', section: 'Home', recommendedSize: '1920 x 1080px' },
+  { id: 'heritage_main', label: 'Heritage Main Image', section: 'Home', recommendedSize: '1200 x 800px' },
+  { id: 'heritage_small_1', label: 'Heritage Small Image 1', section: 'Home', recommendedSize: '1000 x 1000px' },
+  { id: 'heritage_small_2', label: 'Heritage Small Image 2', section: 'Home', recommendedSize: '1000 x 1000px' },
+  { id: 'parallax_bg', label: 'Parallax Background', section: 'Home', recommendedSize: '1920 x 1080px' },
+  { id: 'special_offer', label: 'Special Offer Banner', section: 'Home', recommendedSize: '800 x 800px' },
   
   // About Page
-  { id: 'about_hero', label: 'About Page Background', section: 'About' },
-  { id: 'about_secondary', label: 'About Page Secondary Image', section: 'About' },
+  { id: 'about_hero', label: 'About Page Background', section: 'About', recommendedSize: '1920 x 1080px' },
+  { id: 'about_secondary', label: 'About Page Secondary Image', section: 'About', recommendedSize: '1920 x 1080px' },
   
   // Product Page
-  { id: 'shop_hero', label: 'Shop Page Background', section: 'Product' },
+  { id: 'shop_hero', label: 'Shop Page Background', section: 'Product', recommendedSize: '1920 x 1080px' },
   
   // Contact Page
-  { id: 'contact_hero', label: 'Contact Page Background', section: 'Contact' },
+  { id: 'contact_hero', label: 'Contact Page Background', section: 'Contact', recommendedSize: '1920 x 1080px' },
   
   // Review Page
-  { id: 'review_hero', label: 'Review Page Background', section: 'Review' }
+  { id: 'review_hero', label: 'Review Page Background', section: 'Review', recommendedSize: '1920 x 1080px' }
 ];
 
 const DEFAULT_IMAGES: Record<string, string> = {
@@ -44,6 +45,7 @@ const DEFAULT_IMAGES: Record<string, string> = {
   heritage_small_1: "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1000&auto=format&fit=crop",
   heritage_small_2: "https://images.unsplash.com/photo-1500937386664-56d159437b7f?q=80&w=1000&auto=format&fit=crop",
   parallax_bg: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop",
+  special_offer: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&auto=format&fit=crop",
   about_hero: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop",
   about_secondary: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop",
   shop_hero: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop",
@@ -205,9 +207,14 @@ export function SiteImages() {
                             <CheckCircle2 className="w-5 h-5 text-emerald-500" title="Custom image uploaded" />
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">
-                          {images[slot.id] ? 'Custom image' : 'Default Unsplash image'}
-                        </p>
+                        <div className="flex flex-col mt-1">
+                          <span className="text-xs text-slate-500">
+                            {images[slot.id] ? 'Custom image' : 'Default Unsplash image'}
+                          </span>
+                          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded w-fit">
+                            Size: {slot.recommendedSize}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}

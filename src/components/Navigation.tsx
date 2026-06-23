@@ -47,6 +47,7 @@ export const navItems = [
   { icon: Zap, label: 'DAILY UPDATE', id: 'daily-update' },
   { icon: MessageSquare, label: 'REVIEWS', id: 'reviews' },
   { icon: Image, label: 'FRONTEND IMAGES', id: 'site-images' },
+  { icon: Image, label: 'FEATURED BANNERS', id: 'featured-banners' },
   { icon: Settings, label: 'SYSTEM CORE', id: 'settings' },
 ];
 

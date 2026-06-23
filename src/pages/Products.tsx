@@ -55,7 +55,8 @@ export function Products() {
     hasCustomWeights: false,
     weightPrices: { quarter: 0, half: 0, full: 0 },
     weightCostPrices: { quarter: 0, half: 0, full: 0 },
-    isOwnProduct: false
+    isOwnProduct: false,
+    isOffer: false
   });
 
   useEffect(() => {
@@ -257,7 +258,7 @@ export function Products() {
       }
       
       setEditingProduct(null);
-      setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '', visible: true, hasCustomWeights: false, weightPrices: { quarter: 0, half: 0, full: 0 }, weightCostPrices: { quarter: 0, half: 0, full: 0 }, isOwnProduct: false });
+      setFormData({ name: '', description: '', category: '', price: 0, costPrice: 0, stock: 0, lowStockThreshold: 5, imageUrl: '', publicId: '', unit: units.length > 0 ? units[0].name : '', visible: true, hasCustomWeights: false, weightPrices: { quarter: 0, half: 0, full: 0 }, weightCostPrices: { quarter: 0, half: 0, full: 0 }, isOwnProduct: false, isOffer: false });
       setImageFile(null);
       setImagePreview(null);
       setUploadStatus('');
@@ -448,7 +449,8 @@ export function Products() {
                 hasCustomWeights: false,
                 weightPrices: { quarter: 0, half: 0, full: 0 },
                 weightCostPrices: { quarter: 0, half: 0, full: 0 },
-                isOwnProduct: false
+                isOwnProduct: false,
+                isOffer: false
               });
               setImageFile(null);
               setImagePreview(null);
@@ -534,7 +536,8 @@ export function Products() {
                       hasCustomWeights: product.hasCustomWeights || false,
                       weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 },
                       weightCostPrices: product.weightCostPrices || { quarter: 0, half: 0, full: 0 },
-                      isOwnProduct: product.isOwnProduct || false
+                      isOwnProduct: product.isOwnProduct || false,
+                      isOffer: product.isOffer || false
                     });
                     setImagePreview(product.imageUrl || null);
                     setUploadStatus('');
@@ -613,7 +616,8 @@ export function Products() {
                         hasCustomWeights: product.hasCustomWeights || false,
                         weightPrices: product.weightPrices || { quarter: 0, half: 0, full: 0 },
                         weightCostPrices: product.weightCostPrices || { quarter: 0, half: 0, full: 0 },
-                        isOwnProduct: product.isOwnProduct || false
+                        isOwnProduct: product.isOwnProduct || false,
+                        isOffer: product.isOffer || false
                       });
                       setImagePreview(product.imageUrl || null);
                       setUploadStatus('');
@@ -1323,6 +1327,30 @@ export function Products() {
                       <div className={cn(
                         "absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300",
                         formData.isOwnProduct ? "left-7" : "left-1"
+                      )} />
+                    </button>
+                  </div>
+
+                  {/* Special Offer Toggle */}
+                  <div className="flex items-center justify-between p-4 mt-4 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-900/10">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        Special Offer Product
+                        <span className="px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider bg-emerald-500 text-white font-black">Sale</span>
+                      </span>
+                      <span className="text-xs text-slate-500">Mark this product as a special offer</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, isOffer: !formData.isOffer })}
+                      className={cn(
+                        "w-12 h-6 rounded-full transition-all duration-300 relative",
+                        formData.isOffer ? "bg-emerald-500 shadow-lg shadow-emerald-500/20" : "bg-slate-300 dark:bg-slate-700"
+                      )}
+                    >
+                      <div className={cn(
+                        "absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300",
+                        formData.isOffer ? "left-7" : "left-1"
                       )} />
                     </button>
                   </div>
