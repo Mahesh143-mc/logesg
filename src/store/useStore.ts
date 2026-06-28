@@ -59,7 +59,7 @@ export const useStore = create<AppState>((set) => ({
   setPortal: (portal) => set({ portal }),
   cart: [],
   isCartOpen: false,
-  language: 'ta',
+  language: 'en',
   setLanguage: (lang) => set({ language: lang }),
   setCartOpen: (isOpen) => set({ isCartOpen: isOpen }),
   addToCart: (product) => set((state) => {

@@ -5,12 +5,12 @@ import { useStore } from '../../store/useStore';
 import { useTranslation } from '../../utils/translations';
 import { HeroSection } from '../../components/customer/home/HeroSection';
 
-const WorkflowSection = React.lazy(() => import('../../components/customer/home/WorkflowSection').then(m => ({ default: m.WorkflowSection })));
 const ParallaxShowcase = React.lazy(() => import('../../components/customer/home/ParallaxShowcase').then(m => ({ default: m.ParallaxShowcase })));
 const FeaturedProducts = React.lazy(() => import('../../components/customer/home/FeaturedProducts').then(m => ({ default: m.FeaturedProducts })));
 const SpecialOfferSection = React.lazy(() => import('../../components/customer/home/SpecialOfferSection').then(m => ({ default: m.SpecialOfferSection })));
 const ThreeImageBannerSection = React.lazy(() => import('../../components/customer/home/ThreeImageBannerSection').then(m => ({ default: m.ThreeImageBannerSection })));
-const HeritageSection = React.lazy(() => import('../../components/customer/home/HeritageSection').then(m => ({ default: m.HeritageSection })));
+const VideoFeedsSection = React.lazy(() => import('../../components/customer/home/VideoFeedsSection').then(m => ({ default: m.VideoFeedsSection })));
+const CategorySection = React.lazy(() => import('../../components/customer/home/CategorySection').then(m => ({ default: m.CategorySection })));
 import { FirebaseProduct } from '../../components/customer/home/ProductCard';
 
 export function CustomerHome() {
@@ -331,9 +331,16 @@ export function CustomerHome() {
         siteImages={siteImages}
       />
 
-      {/* Special Offer Section - Moved to Top */}
+      {/* Shop By Category Section */}
+      <React.Suspense fallback={<div className="h-[200px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+        <CategorySection language={language} />
+      </React.Suspense>
+
+
+
+      {/* Video Feeds (Instagram Style) Section */}
       <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
-        <SpecialOfferSection language={language} siteImages={siteImages} />
+        <VideoFeedsSection language={language} />
       </React.Suspense>
 
       {/* 3-Image Banner Section */}
@@ -341,10 +348,18 @@ export function CustomerHome() {
         <ThreeImageBannerSection language={language} />
       </React.Suspense>
 
-      {/* Below The Fold Sections with Lazy Loading */}
-      {/* Farm-to-Table Workflow Section */}
-      <React.Suspense fallback={<div className="h-[200px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
-        <WorkflowSection language={language} copy={copy} />
+
+      {/* Special Offer Section */}
+      <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+        <SpecialOfferSection language={language} siteImages={siteImages} />
+      </React.Suspense>
+
+      <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+        <ParallaxShowcase 
+          language={language}
+          copy={copy}
+          siteImages={siteImages}
+        />
       </React.Suspense>
 
       {/* Featured Premium Products Carousel */}
@@ -361,23 +376,6 @@ export function CustomerHome() {
         />
       </React.Suspense>
       
-      <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
-        <ParallaxShowcase 
-          language={language}
-          copy={copy}
-          siteImages={siteImages}
-        />
-      </React.Suspense>
-      
-      {/* Brand Heritage & Core Values */}
-      <React.Suspense fallback={<div className="h-[400px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
-        <HeritageSection 
-          language={language} 
-          copy={copy}
-          siteImages={siteImages}
-          setCurrentCustomerPage={setCurrentCustomerPage} 
-        />
-      </React.Suspense>
 
     </div>
   );

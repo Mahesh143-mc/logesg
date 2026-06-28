@@ -26,6 +26,7 @@ interface ProductCardProps {
   language: 'ta' | 'en';
   toggleFavorite: (productId: string) => void;
   handleAddToCart: (product: FirebaseProduct) => void;
+  setCurrentCustomerPage: (page: string) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -35,7 +36,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   isAdded,
   language,
   toggleFavorite,
-  handleAddToCart
+  handleAddToCart,
+  setCurrentCustomerPage
 }) => {
   const cardThemes = [
     {
@@ -79,7 +81,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -6 }}
-      onClick={() => handleAddToCart(product)}
+      onClick={() => {
+        setCurrentCustomerPage('shop');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       className={cn(
         "relative cursor-pointer flex flex-col items-center p-5 rounded-2xl text-slate-900 border shadow-[0_8px_30px_rgb(0,0,0,0.03)] transition-all duration-500 overflow-hidden w-[240px] md:w-[260px] h-[340px] shrink-0 group select-none snap-start text-center",
         theme.bg,
@@ -103,13 +108,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* Compact image container with smooth hover zoom and transparent background */}
-      <div className="w-full h-36 flex items-center justify-center relative overflow-hidden mb-2 bg-transparent">
+      {/* Expanded image container with smooth hover zoom and transparent background */}
+      <div className="w-full h-52 flex items-center justify-center relative overflow-hidden mb-4 bg-transparent mt-2">
         <img 
           src={getOptimizedUrl(product.imageUrl)} 
           alt={product.name} 
           loading="lazy"
-          className="h-32 w-32 object-contain group-hover:scale-110 transition-transform duration-700 ease-out mix-blend-multiply" 
+          className="h-48 w-48 object-contain group-hover:scale-110 transition-transform duration-700 ease-out mix-blend-multiply" 
           referrerPolicy="no-referrer"
         />
       </div>
@@ -118,14 +123,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="flex flex-col items-center text-center space-y-1.5 w-full mt-auto">
         
         {/* Name */}
-        <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight uppercase font-poppins line-clamp-1">
+        <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight uppercase font-poppins line-clamp-1 mb-1">
           {product.name}
         </h3>
-        
-        {/* Description */}
-        <p className="text-[10px] text-slate-500 font-semibold line-clamp-2 leading-relaxed h-7">
-          {product.description || (language === "ta" ? "உயர்தர புதிய இயற்கை தயாரிப்பு." : "Fresh and premium quality, tested for organic standards.")}
-        </p>
         
         {/* Price */}
         <div className="pt-2 flex items-baseline justify-center space-x-1 border-t border-slate-100 w-full mt-1">

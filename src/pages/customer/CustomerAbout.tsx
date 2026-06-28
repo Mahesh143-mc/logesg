@@ -122,14 +122,7 @@ export function CustomerAbout() {
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-200">{language === 'ta' ? 'எங்கள் கதை' : 'Our Story'}</span>
           </m.div>
 
-          {/* Breadcrumb Navigation */}
-          <nav className="flex items-center justify-center space-x-2 text-xs md:text-sm font-semibold tracking-wide text-emerald-300/80 mb-2">
-            <span className="hover:text-emerald-400 cursor-pointer transition-colors" onClick={() => window.location.href = '/'}>{language === 'ta' ? 'முகப்பு' : 'Home'}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-            <span className="hover:text-emerald-400 cursor-pointer transition-colors" onClick={() => window.location.href = '/shop'}>{language === 'ta' ? 'அனைத்து தொகுப்புகள்' : 'All collections'}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-emerald-100 font-bold">{language === 'ta' ? 'எங்களைப் பற்றி' : 'About Us'}</span>
-          </nav>
+
 
           <m.h1 
             initial={{ opacity: 0, y: 20 }}

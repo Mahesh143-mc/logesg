@@ -73,6 +73,34 @@ export const ThreeImageBannerSection: React.FC<ThreeImageBannerSectionProps> = (
   return (
     <section className="py-8 md:py-16 relative z-10 px-4 bg-white dark:bg-slate-950">
       <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-10">
+          <m.p 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-xs font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-[0.2em] mb-2"
+          >
+            {language === 'ta' ? 'பிரபலமான தேர்வுகள்' : 'POPULAR CHOICES'}
+          </m.p>
+          <m.h2 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white"
+          >
+            {language === 'ta' ? 'பிரபலமான பிரிவுகள்' : 'Famous Categories'}
+          </m.h2>
+          <m.div 
+            initial={{ opacity: 0, scaleX: 0 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="w-16 h-1 bg-emerald-500 mx-auto mt-4 rounded-full"
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {banners.map((banner, idx) => {
             const title = language === 'ta' ? (banner.title || defaultImages[idx].title) : (banner.titleEn || banner.title || defaultImages[idx].titleEn);

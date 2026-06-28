@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { m, AnimatePresence } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getOptimizedUrl } from '../../../lib/utils';
 
 interface HeroSectionProps {
@@ -26,25 +26,38 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   ], [siteImages]);
 
   const [currentBg, setCurrentBg] = useState(0);
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     const timer = setInterval(() => {
+      setDirection(1);
       setCurrentBg(prev => (prev + 1) % bgImages.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, [bgImages.length]);
+  }, [bgImages.length, currentBg]);
+
+  const nextImage = () => {
+    setDirection(1);
+    setCurrentBg(prev => (prev + 1) % bgImages.length);
+  };
+
+  const prevImage = () => {
+    setDirection(-1);
+    setCurrentBg(prev => (prev === 0 ? bgImages.length - 1 : prev - 1));
+  };
 
   return (
-    <section className="relative w-full h-[100vh] flex items-center justify-center overflow-hidden bg-emerald-950">
+    <section className="relative w-full h-[70vh] min-h-[600px] md:h-[85vh] max-h-[900px] flex items-center justify-center overflow-hidden bg-emerald-950 group">
       
       {/* Background Image Slider (Fade + Scale Transition) */}
       <div className="absolute inset-0 z-0">
-        <AnimatePresence initial={false}>
+        <AnimatePresence initial={false} custom={direction}>
           <m.div
             key={currentBg}
-            initial={{ x: '-100%', opacity: 0.5 }}
+            custom={direction}
+            initial={(d: number) => ({ x: d > 0 ? '-100%' : '100%', opacity: 0.5 })}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: '100%', opacity: 0.5 }}
+            exit={(d: number) => ({ x: d > 0 ? '100%' : '-100%', opacity: 0.5 })}
             transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${getOptimizedUrl(bgImages[currentBg], 1600)})` }}
@@ -55,7 +68,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/60 via-transparent to-transparent z-10" />
       </div>
 
+      {/* Slider Controls */}
+      <button 
+        onClick={prevImage}
+        className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-14 md:h-14 bg-black/20 hover:bg-black/50 border border-white/10 hover:border-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white/70 hover:text-white transition-all cursor-pointer opacity-80 md:opacity-0 group-hover:opacity-100"
+      >
+        <ChevronLeft className="w-5 h-5 md:w-8 md:h-8 -ml-1" />
+      </button>
 
+      <button 
+        onClick={nextImage}
+        className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-14 md:h-14 bg-black/20 hover:bg-black/50 border border-white/10 hover:border-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white/70 hover:text-white transition-all cursor-pointer opacity-80 md:opacity-0 group-hover:opacity-100"
+      >
+        <ChevronRight className="w-5 h-5 md:w-8 md:h-8 -mr-1" />
+      </button>
 
       {/* Center Aligned Text Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-20 text-center space-y-6 md:space-y-8 select-none">
@@ -98,14 +124,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6"
+          className="flex flex-col sm:flex-row justify-center items-center gap-3 md:gap-4 pt-4 md:pt-6 px-6 sm:px-0"
         >
           <button
             onClick={() => {
               setCurrentCustomerPage('shop');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="w-full sm:w-auto px-10 py-4.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-2xl shadow-emerald-600/30 active:scale-95 flex items-center justify-center space-x-2 border border-emerald-500 hover:shadow-emerald-500/50 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-4.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-2xl shadow-emerald-600/30 active:scale-95 flex items-center justify-center space-x-2 border border-emerald-500 hover:shadow-emerald-500/50 cursor-pointer"
           >
             <span>{copy.orderNow}</span>
             <ArrowRight className="w-4 h-4" />
@@ -113,7 +139,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           <button
             onClick={handleGetStartedScroll}
-            className="w-full sm:w-auto px-10 py-4.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 border border-white/20 backdrop-blur-md active:scale-95 flex items-center justify-center space-x-2 hover:border-white/40 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3.5 md:px-10 md:py-4.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 border border-white/20 backdrop-blur-md active:scale-95 flex items-center justify-center space-x-2 hover:border-white/40 cursor-pointer"
           >
             <span>{copy.exploreMore}</span>
           </button>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { m } from 'motion/react';
-import { Heart, Eye, Star } from 'lucide-react';
+import { Heart, Eye } from 'lucide-react';
 import { cn, getOptimizedUrl } from '../../../lib/utils';
 import { Product } from '../../../pages/customer/CustomerShop';
 
@@ -90,11 +90,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
         {/* Bottom Content overlaid on image */}
         <div className="absolute bottom-0 left-0 right-0 p-5 z-20 flex flex-col text-white">
-          <div className="flex items-center text-amber-400 mb-2">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
-            ))}
-          </div>
+
           
           <h3 className="text-lg md:text-xl font-black text-white leading-tight mb-4 drop-shadow-md line-clamp-2">
             {product.name}
@@ -217,12 +213,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           )}
         </div>
 
-        {/* Rating stars */}
-        <div className="flex items-center justify-center text-amber-400 mt-2 w-full">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-          ))}
-        </div>
+
 
         {/* Add to Cart Button */}
         {product.hasCustomWeights ? (

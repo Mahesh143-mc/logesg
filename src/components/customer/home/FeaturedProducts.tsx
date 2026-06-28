@@ -46,20 +46,12 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     }
   };
 
-  // Marketplace Category Filtering
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(products.map(p => p.category || 'Uncategorized')));
-    return ["All", ...cats.filter(c => c !== "")];
-  }, [products]);
-
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
-      const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
       const isVisible = p.visible !== false;
-      return matchesCategory && isVisible;
+      return isVisible;
     }).slice(0, 8); // Display first 8 products as a preview
-  }, [products, selectedCategory]);
+  }, [products]);
 
   // Autoplay slider scrolling one-by-one
   useEffect(() => {
@@ -142,22 +134,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           </m.p>
         </div>
 
-        {/* Dynamic Category Filtering Pills */}
-        <div className="flex justify-center items-center gap-2 mb-8 overflow-x-auto px-4 pb-2 scrollbar-none relative z-20">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 ${
-                selectedCategory === cat
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-700"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+
 
         {/* Dynamic Interactive Products Horizontal Slider */}
         {loadingProducts ? (
@@ -196,6 +173,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                       language={language}
                       toggleFavorite={toggleFavorite}
                       handleAddToCart={handleAddToCart}
+                      setCurrentCustomerPage={setCurrentCustomerPage}
                     />
                   );
                 })}

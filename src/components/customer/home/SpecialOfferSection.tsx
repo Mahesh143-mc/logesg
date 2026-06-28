@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Tag, Clock, Sparkles, Leaf } from 'lucide-react';
+import { m } from 'motion/react';
 import { useStore } from '../../../store/useStore';
 
 interface SpecialOfferSectionProps {
@@ -11,8 +12,36 @@ export function SpecialOfferSection({ language, siteImages = {} }: SpecialOfferS
   const { setCurrentCustomerPage } = useStore();
 
   return (
-    <section className="py-16 md:py-24 relative overflow-hidden bg-slate-50">
+    <section className="py-16 md:py-24 relative overflow-hidden bg-slate-50 dark:bg-slate-950">
       <div className="max-w-[95%] md:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Header Section */}
+        <div className="text-center mb-10">
+          <m.p 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-xs font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-[0.2em] mb-2"
+          >
+            {language === 'ta' ? 'பிரத்தியேக சலுகைகள்' : 'EXCLUSIVE DEALS'}
+          </m.p>
+          <m.h2 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white"
+          >
+            {language === 'ta' ? 'சிறப்பு சலுகைகள்' : 'Special Offers'}
+          </m.h2>
+          <m.div 
+            initial={{ opacity: 0, scaleX: 0 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="w-16 h-1 bg-emerald-500 mx-auto mt-4 rounded-full"
+          />
+        </div>
+
         <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 rounded-3xl p-8 md:p-12 lg:p-16 text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10 border border-emerald-700/50">
           
           {/* Decorative background elements */}
