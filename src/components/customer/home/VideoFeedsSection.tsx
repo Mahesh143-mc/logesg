@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { m } from 'motion/react';
-import { Play, VolumeX } from 'lucide-react';
+import { Play, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '../../../utils/translations';
 
 interface VideoFeedsSectionProps {
@@ -41,6 +41,18 @@ export const VideoFeedsSection: React.FC<VideoFeedsSectionProps> = ({ language }
   ];
 
   const [unmutedVideoId, setUnmutedVideoId] = useState<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 350; // Amount to scroll
+      const currentScroll = scrollContainerRef.current.scrollLeft;
+      scrollContainerRef.current.scrollTo({
+        left: direction === 'left' ? currentScroll - scrollAmount : currentScroll + scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const toggleMute = (e: React.MouseEvent, id: number) => {
     e.preventDefault();
@@ -73,20 +85,34 @@ export const VideoFeedsSection: React.FC<VideoFeedsSectionProps> = ({ language }
           </m.p>
         </div>
 
-        {/* Video Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {videos.map((video, idx) => (
-            <m.a
-              href="https://www.instagram.com/logesh_vivasayi_721?igsh=c2Zzc3doaGw4eGZ2"
-              target="_blank"
-              rel="noopener noreferrer"
-              key={video.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1, duration: 0.5, ease: "easeOut" }}
-              className="relative group rounded-3xl overflow-hidden aspect-[9/16] bg-slate-100 dark:bg-slate-900 shadow-xl shadow-emerald-900/5 border border-slate-200 dark:border-slate-800 block"
-            >
+        {/* Carousel Container */}
+        <div className="relative group">
+          {/* Left Navigation Arrow */}
+          <button 
+            onClick={() => handleScroll('left')}
+            className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:scale-110 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5 -ml-0.5" />
+          </button>
+
+          {/* Scrolling Videos */}
+          <div 
+            ref={scrollContainerRef}
+            className="flex items-start gap-4 md:gap-6 overflow-x-auto scrollbar-hide py-4 px-2 snap-x snap-mandatory"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {videos.map((video, idx) => (
+              <m.a
+                href="https://www.instagram.com/logesh_vivasayi_721?igsh=c2Zzc3doaGw4eGZ2"
+                target="_blank"
+                rel="noopener noreferrer"
+                key={video.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.5, ease: "easeOut" }}
+                className="relative flex-shrink-0 w-[75vw] sm:w-[280px] lg:w-[320px] group rounded-3xl overflow-hidden aspect-[9/16] bg-slate-100 dark:bg-slate-900 shadow-xl shadow-emerald-900/5 border border-slate-200 dark:border-slate-800 block snap-center"
+              >
               <video 
                 src={video.src}
                 poster={video.poster}
@@ -137,6 +163,15 @@ export const VideoFeedsSection: React.FC<VideoFeedsSectionProps> = ({ language }
 
             </m.a>
           ))}
+          </div>
+
+          {/* Right Navigation Arrow */}
+          <button 
+            onClick={() => handleScroll('right')}
+            className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:scale-110 transition-all opacity-0 group-hover:opacity-100 hidden sm:flex cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5 -mr-0.5" />
+          </button>
         </div>
 
       </div>

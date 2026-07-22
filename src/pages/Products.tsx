@@ -379,18 +379,68 @@ export function Products() {
 
   const exportToExcel = async () => {
     const XLSX = await import('xlsx');
-    const headers = ['Product ID', 'Name', 'Description', 'Category', 'Selling Price', 'Total Stock', 'Low Stock Alert', 'Unit'];
+    const headers = [
+      'Product ID', 
+      'Name', 
+      'Description', 
+      'Category', 
+      'Cost Price', 
+      'Selling Price', 
+      'Total Stock', 
+      'Low Stock Alert', 
+      'Unit'
+    ];
     
-    const rows = filteredProducts.map((p: any) => [
-      p.id,
-      p.name,
-      p.description || '',
-      p.category || 'N/A',
-      p.price,
-      p.stock,
-      p.lowStockThreshold || 5,
-      p.unit || 'pcs'
-    ]);
+    const rows: any[] = [];
+    filteredProducts.forEach((p: any) => {
+      if (p.hasCustomWeights) {
+        rows.push([
+          p.id,
+          `${p.name} - 1 kg`,
+          p.description || '',
+          p.category || 'N/A',
+          p.weightCostPrices?.full || 0,
+          p.weightPrices?.full || 0,
+          p.stock,
+          p.lowStockThreshold || 5,
+          p.unit || 'pcs'
+        ]);
+        rows.push([
+          p.id,
+          `${p.name} - 1/2 kg`,
+          p.description || '',
+          p.category || 'N/A',
+          p.weightCostPrices?.half || 0,
+          p.weightPrices?.half || 0,
+          p.stock,
+          p.lowStockThreshold || 5,
+          p.unit || 'pcs'
+        ]);
+        rows.push([
+          p.id,
+          `${p.name} - 1/4 kg`,
+          p.description || '',
+          p.category || 'N/A',
+          p.weightCostPrices?.quarter || 0,
+          p.weightPrices?.quarter || 0,
+          p.stock,
+          p.lowStockThreshold || 5,
+          p.unit || 'pcs'
+        ]);
+      } else {
+        rows.push([
+          p.id,
+          p.name,
+          p.description || '',
+          p.category || 'N/A',
+          p.costPrice || 0,
+          p.price,
+          p.stock,
+          p.lowStockThreshold || 5,
+          p.unit || 'pcs'
+        ]);
+      }
+    });
 
     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
     const workbook = XLSX.utils.book_new();

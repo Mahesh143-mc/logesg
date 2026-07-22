@@ -602,7 +602,7 @@ export function Billing() {
                           </button>
                           <input 
                             type="number"
-                            step={isDecimalAllowed(item.unit) ? "0.1" : "1"}
+                            step={isDecimalAllowed(item.unit) ? "0.01" : "1"}
                             value={isDecimalAllowed(item.unit) ? item.quantity : Math.round(item.quantity)}
                             onChange={(e) => {
                               const val = parseFloat(e.target.value) || 0;
@@ -929,8 +929,8 @@ export function Billing() {
                         <input
                           required
                           type="number"
-                          step={isDecimalAllowed(manualProduct.unit) ? "0.1" : "1"}
-                          min={isDecimalAllowed(manualProduct.unit) ? "0.1" : "1"}
+                          step={isDecimalAllowed(manualProduct.unit) ? "0.01" : "1"}
+                          min={isDecimalAllowed(manualProduct.unit) ? "0.01" : "1"}
                           value={isDecimalAllowed(manualProduct.unit) ? manualProduct.quantity : Math.round(manualProduct.quantity)}
                           onChange={(e) => {
                             const val = parseFloat(e.target.value) || 0;
