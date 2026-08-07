@@ -11,6 +11,7 @@ const SpecialOfferSection = React.lazy(() => import('../../components/customer/h
 const ThreeImageBannerSection = React.lazy(() => import('../../components/customer/home/ThreeImageBannerSection').then(m => ({ default: m.ThreeImageBannerSection })));
 const VideoFeedsSection = React.lazy(() => import('../../components/customer/home/VideoFeedsSection').then(m => ({ default: m.VideoFeedsSection })));
 const CategorySection = React.lazy(() => import('../../components/customer/home/CategorySection').then(m => ({ default: m.CategorySection })));
+const RateCardSection = React.lazy(() => import('../../components/customer/home/RateCardSection').then(m => ({ default: m.RateCardSection })));
 import { FirebaseProduct } from '../../components/customer/home/ProductCard';
 
 export function CustomerHome() {
@@ -330,6 +331,11 @@ export function CustomerHome() {
         handleGetStartedScroll={handleGetStartedScroll} 
         siteImages={siteImages}
       />
+
+      {/* Main Rate Card Image Showcase Section */}
+      <React.Suspense fallback={<div className="h-[300px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+        <RateCardSection language={language} siteImages={siteImages} />
+      </React.Suspense>
 
       {/* Shop By Category Section */}
       <React.Suspense fallback={<div className="h-[200px] flex items-center justify-center"><div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>}>

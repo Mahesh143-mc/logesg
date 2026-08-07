@@ -17,6 +17,7 @@ const IMAGE_SLOTS = [
   { id: 'heritage_main', label: 'Heritage Main Image', section: 'Home', recommendedSize: '1200 x 800px' },
   { id: 'heritage_small_1', label: 'Heritage Small Image 1', section: 'Home', recommendedSize: '1000 x 1000px' },
   { id: 'heritage_small_2', label: 'Heritage Small Image 2', section: 'Home', recommendedSize: '1000 x 1000px' },
+  { id: 'rate_card', label: 'Main Rate Card Image', section: 'Home', recommendedSize: '1200 x 1600px' },
   { id: 'parallax_bg', label: 'Parallax Background', section: 'Home', recommendedSize: '1920 x 1080px' },
   { id: 'special_offer', label: 'Special Offer Banner', section: 'Home', recommendedSize: '800 x 800px' },
   
@@ -44,7 +45,8 @@ const DEFAULT_IMAGES: Record<string, string> = {
   heritage_main: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop",
   heritage_small_1: "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1000&auto=format&fit=crop",
   heritage_small_2: "https://images.unsplash.com/photo-1500937386664-56d159437b7f?q=80&w=1000&auto=format&fit=crop",
-  parallax_bg: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop",
+  rate_card: "https://res.cloudinary.com/dyaufjpai/image/upload/v1786081739/rate_hsae5v.jpg",
+  parallax_bg: "https://images.unsplash.com/photo-1500937386664-56d159437b7f?q=80&w=1920&auto=format&fit=crop",
   special_offer: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&auto=format&fit=crop",
   about_hero: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop",
   about_secondary: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop",
@@ -136,11 +138,73 @@ export function SiteImages() {
       <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-            <ImageIcon className="w-8 h-8 text-indigo-600" />
+            <ImageIcon className="w-8 h-8 text-emerald-600" />
             Frontend Images
           </h1>
           <p className="text-slate-500 mt-1">Manage images displayed on the customer-facing website.</p>
         </div>
+      </div>
+
+      {/* Featured Card: Main Home Rate Card Image Manager */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
+              <span>Main Home Image</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+              Main Home Rate Card Image (விலைப்பட்டியல்)
+            </h2>
+          </div>
+
+          {/* Rate Card Image Preview & Upload Button */}
+          <div className="w-full md:w-auto flex flex-col sm:flex-row items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="w-28 h-20 bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 relative shrink-0">
+              <img 
+                src={images['rate_card'] ? getOptimizedUrl(images['rate_card'], 600) : DEFAULT_IMAGES['rate_card']}
+                alt="Main Rate Card Preview"
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
+              <label className="cursor-pointer px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                <Upload className="w-4 h-4" />
+                <span>Upload New Rate Card</span>
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={(e) => onFileSelect('rate_card', e)}
+                  disabled={uploadingSlot === 'rate_card'}
+                />
+              </label>
+
+              {images['rate_card'] && (
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold justify-center sm:justify-start">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Custom Rate Card Active</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {uploadingSlot === 'rate_card' && (
+          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col space-y-2">
+            <div className="flex justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Uploading Rate Card Image...</span>
+              <span>{Math.round(uploadProgress)}%</span>
+            </div>
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div 
+                className="bg-emerald-500 h-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-6">

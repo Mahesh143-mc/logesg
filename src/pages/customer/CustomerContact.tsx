@@ -69,7 +69,7 @@ export function CustomerContact() {
         {/* Contact Methods Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-20">
           {[
-            { icon: <Phone />, label: t('sales_support'), val: "+91 87546 2190", delay: 0.3 },
+            { icon: <Phone />, label: t('sales_support'), val: "+91 87546 21690", delay: 0.3 },
             { icon: <Mail />, label: t('send_email'), val: "logeshvivasayi@gmail.com", delay: 0.4 },
             { icon: <MapPin />, label: t('headquarters'), val: t('office_address_val'), delay: 0.5 }
           ].map((item, i) => (
